@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Search, Globe } from 'lucide-react';
+import * as xliff from 'xliff-simple';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Sidebar } from './components/Sidebar';
 import { TranslationTable } from './components/TranslationTable';
 import { T3File, T3FileGroup } from './components/FileTree';
-import * as xliff from 'xliff-simple';
 
 interface TranslationUnit {
   id: string;
@@ -19,6 +19,9 @@ interface FileData {
   sourceLanguage: string;
   targetLanguage: string;
   version: '1.2' | '2.0';
+  language: string;
+  baseName: string;
+  isSourceOnly: boolean;
 }
 
 function parseT3FileName(fileName: string): { baseName: string; language: string } {
@@ -53,27 +56,65 @@ function AppContent() {
   const [showNewLanguageDialog, setShowNewLanguageDialog] = useState(false);
   const [newLanguageCode, setNewLanguageCode] = useState('');
 
+  const showMessage = async (content: string, title = 'T3Lang', kind: 'info' | 'warning' | 'error' = 'info') => {
+    try {
+      const { message } = await import('@tauri-apps/plugin-dialog');
+      await message(content, { title, kind });
+    } catch {
+      alert(content);
+    }
+  };
+
+  const confirmDialog = async (content: string, title = 'Confirm') => {
+    try {
+      const { ask } = await import('@tauri-apps/plugin-dialog');
+      return await ask(content, { title, kind: 'warning' });
+    } catch {
+      return confirm(content);
+    }
+  };
+
+  const notify = async (title: string, body: string) => {
+    try {
+      const { isPermissionGranted, requestPermission, sendNotification } = await import('@tauri-apps/plugin-notification');
+      let permission = await isPermissionGranted();
+      if (!permission) {
+        const request = await requestPermission();
+        permission = request === 'granted';
+      }
+      if (permission) {
+        sendNotification({ title, body });
+      }
+    } catch (error) {
+      console.debug('Notification skipped', error);
+    }
+  };
+
   const loadFile = async (filePath: string): Promise<FileData | null> => {
     try {
       // @ts-ignore - Tauri fs API
       const { readTextFile } = await import('@tauri-apps/plugin-fs');
       const content = await readTextFile(filePath);
 
+      const fileName = filePath.split(/[\\/]/).pop() || filePath;
+      const { baseName, language } = parseT3FileName(fileName);
+      const isSourceOnly = language === 'default';
+
       const parsed = xliff.parse(content);
       const extractedUnits: TranslationUnit[] = [];
       let sourceLanguage = 'en';
-      let targetLanguage = 'de';
+      let targetLanguage = isSourceOnly ? '' : language || 'de';
       let version: '1.2' | '2.0' = parsed.version || '1.2';
 
       parsed.files.forEach((file: any) => {
         if (file.sourceLanguage) sourceLanguage = file.sourceLanguage;
-        if (file.targetLanguage) targetLanguage = file.targetLanguage;
+        if (!isSourceOnly && file.targetLanguage) targetLanguage = file.targetLanguage;
 
         file.units.forEach((unit: any) => {
           extractedUnits.push({
             id: unit.id,
             source: unit.source,
-            target: unit.target || ''
+            target: isSourceOnly ? '' : unit.target || ''
           });
         });
       });
@@ -84,11 +125,14 @@ function AppContent() {
         units: extractedUnits,
         sourceLanguage,
         targetLanguage,
-        version
+        version,
+        language,
+        baseName,
+        isSourceOnly
       };
     } catch (error) {
       console.error('Failed to load file:', error);
-      alert(`Failed to load file: ${error}`);
+      await showMessage(`Failed to load file: ${error}`, 'File error', 'error');
       return null;
     }
   };
@@ -103,11 +147,11 @@ function AppContent() {
     }
   };
 
-  const handleFolderOpen = async (folderPath: string) => {
+  const handleFolderOpen = async (folderPathValue: string) => {
     try {
       // @ts-ignore - Tauri fs API
       const { readDir } = await import('@tauri-apps/plugin-fs');
-      const entries = await readDir(folderPath);
+      const entries = await readDir(folderPathValue);
 
       const xliffFiles = entries.filter((entry: any) =>
         entry.name?.endsWith('.xlf')
@@ -119,7 +163,7 @@ function AppContent() {
       for (const entry of xliffFiles) {
         if (!entry.name) continue;
 
-        const filePath = `${folderPath}/${entry.name}`;
+        const filePath = `${folderPathValue}/${entry.name}`;
         const fileData = await loadFile(filePath);
 
         if (fileData) {
@@ -156,14 +200,14 @@ function AppContent() {
 
       setFileDataMap(newMap);
       setFileGroups(groupArray);
-      setFolderPath(folderPath);
+      setFolderPath(folderPathValue);
 
       if (t3Files.length > 0) {
         setCurrentFile(t3Files[0].path);
       }
     } catch (error) {
       console.error('Failed to open folder:', error);
-      alert(`Failed to open folder: ${error}`);
+      await showMessage(`Failed to open folder: ${error}`, 'Folder error', 'error');
     }
   };
 
@@ -175,7 +219,7 @@ function AppContent() {
       await writeTextFile(filePath, xliffContent);
     } catch (error) {
       console.error('Failed to save file:', error);
-      alert(`Failed to save: ${error}`);
+      await showMessage(`Failed to save: ${error}`, 'Save error', 'error');
     }
   };
 
@@ -185,13 +229,14 @@ function AppContent() {
     if (!fileData) return;
 
     const updatedData = JSON.parse(JSON.stringify(fileData.xliffData));
+    const nextTarget = fileData.isSourceOnly ? '' : target;
     let found = false;
     for (const file of updatedData.files) {
       for (const unit of file.units) {
         if (unit.id === oldId) {
           unit.id = newId;
           unit.source = source;
-          unit.target = target;
+          unit.target = nextTarget;
           found = true;
           break;
         }
@@ -202,7 +247,7 @@ function AppContent() {
     await saveFile(currentFile, updatedData);
 
     const updatedUnits = fileData.units.map(unit =>
-      unit.id === oldId ? { id: newId, source, target } : unit
+      unit.id === oldId ? { id: newId, source, target: nextTarget } : unit
     );
 
     const newMap = new Map(fileDataMap);
@@ -212,11 +257,13 @@ function AppContent() {
       units: updatedUnits
     });
     setFileDataMap(newMap);
+    notify('Saved translation', `${newId} was updated`);
   };
 
   const handleDelete = async (id: string) => {
     if (!currentFile) return;
-    if (!confirm(`Delete translation key "${id}"?`)) return;
+    const confirmed = await confirmDialog(`Delete translation key "${id}"?`, 'Remove key');
+    if (!confirmed) return;
 
     const fileData = fileDataMap.get(currentFile);
     if (!fileData) return;
@@ -237,6 +284,43 @@ function AppContent() {
       units: updatedUnits
     });
     setFileDataMap(newMap);
+    notify('Deleted translation', `${id} was removed`);
+  };
+
+  const handleClearTranslation = async (id: string) => {
+    if (!currentFile) return;
+    const fileData = fileDataMap.get(currentFile);
+    if (!fileData || fileData.isSourceOnly) return;
+
+    const updatedData = JSON.parse(JSON.stringify(fileData.xliffData));
+    let changed = false;
+
+    updatedData.files.forEach((file: any) => {
+      file.units = file.units.map((unit: any) => {
+        if (unit.id === id) {
+          changed = true;
+          return { ...unit, target: '' };
+        }
+        return unit;
+      });
+    });
+
+    if (!changed) return;
+
+    await saveFile(currentFile, updatedData);
+
+    const updatedUnits = fileData.units.map(unit =>
+      unit.id === id ? { ...unit, target: '' } : unit
+    );
+
+    const newMap = new Map(fileDataMap);
+    newMap.set(currentFile, {
+      ...fileData,
+      xliffData: updatedData,
+      units: updatedUnits
+    });
+    setFileDataMap(newMap);
+    notify('Cleared translation', `${id} target cleared`);
   };
 
   const handleAddKey = async (id: string, source: string) => {
@@ -246,7 +330,7 @@ function AppContent() {
     if (!fileData) return;
 
     if (fileData.units.some(u => u.id === id)) {
-      alert(`Translation key "${id}" already exists!`);
+      await showMessage(`Translation key "${id}" already exists!`, 'Duplicate key', 'warning');
       return;
     }
 
@@ -270,6 +354,7 @@ function AppContent() {
       units: updatedUnits
     });
     setFileDataMap(newMap);
+    notify('Added key', `${id} created in ${fileData.baseName}`);
   };
 
   const handleVersionChange = async (version: '1.2' | '2.0') => {
@@ -297,14 +382,14 @@ function AppContent() {
 
     const languageCode = newLanguageCode.trim().toLowerCase();
     if (!languageCode || languageCode.length !== 2) {
-      alert('Please enter a valid 2-letter language code');
+      await showMessage('Please enter a valid 2-letter language code', 'Language code', 'warning');
       return;
     }
 
     const baseName = fileGroups[0].baseName;
     const defaultFile = fileGroups[0].files.find(f => f.language === 'default');
     if (!defaultFile) {
-      alert('No default file found');
+      await showMessage('No default file found', 'Language code', 'warning');
       return;
     }
 
@@ -318,7 +403,7 @@ function AppContent() {
       // @ts-ignore - Tauri fs API
       const { exists } = await import('@tauri-apps/plugin-fs');
       if (await exists(newFilePath)) {
-        alert(`File ${newFileName} already exists!`);
+        await showMessage(`File ${newFileName} already exists!`, 'Duplicate file', 'warning');
         return;
       }
 
@@ -336,20 +421,29 @@ function AppContent() {
       setCurrentFile(newFilePath);
       setShowNewLanguageDialog(false);
       setNewLanguageCode('');
+      notify('Language file created', `${languageCode.toUpperCase()} ready to translate`);
     } catch (error) {
       console.error('Failed to create language file:', error);
-      alert(`Failed to create language file: ${error}`);
+      await showMessage(`Failed to create language file: ${error}`, 'Language error', 'error');
     }
   };
 
   const currentFileData = currentFile ? fileDataMap.get(currentFile) : null;
+  const parsedMeta = useMemo(() => {
+    if (!currentFile) return null;
+    const name = currentFile.split(/[\\/]/).pop() || currentFile;
+    return parseT3FileName(name);
+  }, [currentFile]);
+
+  const isSourceOnly = currentFileData?.isSourceOnly ?? (parsedMeta?.language === 'default');
+  const targetLanguage = currentFileData?.targetLanguage ?? (parsedMeta?.language ?? '');
 
   return (
     <div className="h-screen flex flex-col" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
       {/* Draggable Title Bar Region */}
       <div
         data-tauri-drag-region
-        className="h-8 flex-shrink-0"
+        className="h-8 shrink-0"
         style={{
           backgroundColor: 'var(--color-bg-primary)',
           borderBottom: '1px solid var(--color-border)'
@@ -396,11 +490,13 @@ function AppContent() {
                 onSave={handleSave}
                 onDelete={handleDelete}
                 onAddKey={handleAddKey}
+                onClearTranslation={handleClearTranslation}
                 searchQuery={searchQuery}
                 sourceLanguage={currentFileData.sourceLanguage}
-                targetLanguage={currentFileData.targetLanguage}
+                targetLanguage={targetLanguage}
                 xliffVersion={currentFileData.version}
                 onVersionChange={handleVersionChange}
+                isSourceOnly={isSourceOnly}
               />
             ) : (
               <div className="h-full flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-primary)' }}>

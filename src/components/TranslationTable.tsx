@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Check, X, Globe } from 'lucide-react';
+import { Plus, Trash2, Check, X, Globe, Eraser } from 'lucide-react';
 
 interface TranslationUnit {
   id: string;
@@ -12,11 +12,13 @@ interface TranslationTableProps {
   onSave: (oldId: string, newId: string, source: string, target: string) => void;
   onDelete: (id: string) => void;
   onAddKey: (id: string, source: string) => void;
+  onClearTranslation: (id: string) => void;
   searchQuery: string;
   sourceLanguage?: string;
   targetLanguage?: string;
   xliffVersion: string;
   onVersionChange: (version: '1.2' | '2.0') => void;
+  isSourceOnly: boolean;
 }
 
 export function TranslationTable({
@@ -24,11 +26,13 @@ export function TranslationTable({
   onSave,
   onDelete,
   onAddKey,
+  onClearTranslation,
   searchQuery,
   sourceLanguage = 'en',
   targetLanguage = 'de',
   xliffVersion,
-  onVersionChange
+  onVersionChange,
+  isSourceOnly
 }: TranslationTableProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState({ id: '', source: '', target: '' });
@@ -39,10 +43,11 @@ export function TranslationTable({
   const filteredUnits = units.filter(unit => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
+    const targetHaystack = isSourceOnly ? [] : [unit.target.toLowerCase()];
     return (
       unit.id.toLowerCase().includes(query) ||
       unit.source.toLowerCase().includes(query) ||
-      unit.target.toLowerCase().includes(query)
+      targetHaystack.some(value => value.includes(query))
     );
   });
 
@@ -180,13 +185,15 @@ export function TranslationTable({
                 }}>
                   Source ({sourceLanguage.toUpperCase()})
                 </th>
-                <th className="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider" style={{
-                  color: 'var(--color-text-secondary)',
-                  width: '35%',
-                  backgroundColor: 'var(--color-bg-primary)'
-                }}>
-                  Translation ({targetLanguage.toUpperCase()})
-                </th>
+                {!isSourceOnly && (
+                  <th className="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider" style={{
+                    color: 'var(--color-text-secondary)',
+                    width: '35%',
+                    backgroundColor: 'var(--color-bg-primary)'
+                  }}>
+                    Translation ({targetLanguage.toUpperCase()})
+                  </th>
+                )}
                 <th className="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider" style={{
                   color: 'var(--color-text-secondary)',
                   width: '10%',
@@ -266,33 +273,35 @@ export function TranslationTable({
                   </td>
 
                   {/* Target Cell */}
-                  <td className="px-4 py-3 text-sm align-top">
-                    {editingId === unit.id ? (
-                      <textarea
-                        value={editValues.target}
-                        onChange={(e) => setEditValues(prev => ({ ...prev, target: e.target.value }))}
-                        className="w-full px-3 py-2 rounded-md resize-none"
-                        style={{
-                          backgroundColor: 'var(--color-bg-primary)',
-                          color: 'var(--color-text-primary)',
-                          border: '2px solid var(--color-accent)',
-                          minHeight: '80px'
-                        }}
-                        autoFocus
-                      />
-                    ) : (
-                      <div
-                        onClick={() => handleEdit(unit)}
-                        className="cursor-pointer px-3 py-2 rounded-md"
-                        style={{
-                          color: unit.target ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                          fontStyle: unit.target ? 'normal' : 'italic'
-                        }}
-                      >
-                        {unit.target || 'Click to add...'}
-                      </div>
-                    )}
-                  </td>
+                  {!isSourceOnly && (
+                    <td className="px-4 py-3 text-sm align-top">
+                      {editingId === unit.id ? (
+                        <textarea
+                          value={editValues.target}
+                          onChange={(e) => setEditValues(prev => ({ ...prev, target: e.target.value }))}
+                          className="w-full px-3 py-2 rounded-md resize-none"
+                          style={{
+                            backgroundColor: 'var(--color-bg-primary)',
+                            color: 'var(--color-text-primary)',
+                            border: '2px solid var(--color-accent)',
+                            minHeight: '80px'
+                          }}
+                          autoFocus
+                        />
+                      ) : (
+                        <div
+                          onClick={() => handleEdit(unit)}
+                          className="cursor-pointer px-3 py-2 rounded-md"
+                          style={{
+                            color: unit.target ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                            fontStyle: unit.target ? 'normal' : 'italic'
+                          }}
+                        >
+                          {unit.target || 'Click to add...'}
+                        </div>
+                      )}
+                    </td>
+                  )}
 
                   {/* Actions Cell */}
                   <td className="px-4 py-3 text-sm align-top last:rounded-r-lg">
@@ -316,17 +325,32 @@ export function TranslationTable({
                         </button>
                       </div>
                     ) : (
-                      <button
-                        onClick={() => onDelete(unit.id)}
-                        className="opacity-0 group-hover:opacity-100 p-2 rounded-full hover:scale-110"
-                        style={{
-                          backgroundColor: 'var(--color-danger)',
-                          color: 'white'
-                        }}
-                        title="Delete"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      <div className="flex gap-2 items-center">
+                        {!isSourceOnly && !!unit.target && (
+                          <button
+                            onClick={() => onClearTranslation(unit.id)}
+                            className="p-2 rounded-full hover:scale-110"
+                            style={{
+                              backgroundColor: 'var(--color-bg-hover)',
+                              color: 'var(--color-text-primary)'
+                            }}
+                            title="Clear translation"
+                          >
+                            <Eraser size={16} />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => onDelete(unit.id)}
+                          className="opacity-0 group-hover:opacity-100 p-2 rounded-full hover:scale-110"
+                          style={{
+                            backgroundColor: 'var(--color-danger)',
+                            color: 'white'
+                          }}
+                          title="Delete"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     )}
                   </td>
                 </tr>
