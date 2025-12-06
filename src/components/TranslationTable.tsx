@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Plus, Trash2, Check, X, Globe, Eraser } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Plus, Trash2, Check, X, Globe, Eraser, Loader2 } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 
 interface TranslationUnit {
   id: string;
@@ -9,10 +10,10 @@ interface TranslationUnit {
 
 interface TranslationTableProps {
   units: TranslationUnit[];
-  onSave: (oldId: string, newId: string, source: string, target: string) => void;
-  onDelete: (id: string) => void;
-  onAddKey: (id: string, source: string) => void;
-  onClearTranslation: (id: string) => void;
+  onSave: (oldId: string, newId: string, source: string, target: string) => Promise<void> | void;
+  onDelete: (id: string) => Promise<void> | void;
+  onAddKey: (id: string, source: string) => Promise<void> | void;
+  onClearTranslation: (id: string) => Promise<void> | void;
   searchQuery: string;
   sourceLanguage?: string;
   targetLanguage?: string;
@@ -39,6 +40,8 @@ export function TranslationTable({
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newKeyId, setNewKeyId] = useState('');
   const [newKeySource, setNewKeySource] = useState('');
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const [recentlySavedId, setRecentlySavedId] = useState<string | null>(null);
 
   const filteredUnits = units.filter(unit => {
     if (!searchQuery) return true;
@@ -56,10 +59,13 @@ export function TranslationTable({
     setEditValues({ id: unit.id, source: unit.source, target: unit.target });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (editingId) {
-      onSave(editingId, editValues.id, editValues.source, editValues.target);
+      setSavingId(editingId);
+      await onSave(editingId, editValues.id, editValues.source, editValues.target);
       setEditingId(null);
+      setSavingId(null);
+      setRecentlySavedId(editValues.id);
     }
   };
 
@@ -68,9 +74,9 @@ export function TranslationTable({
     setEditValues({ id: '', source: '', target: '' });
   };
 
-  const handleAddKey = () => {
+  const handleAddKey = async () => {
     if (newKeyId.trim() && newKeySource.trim()) {
-      onAddKey(newKeyId.trim(), newKeySource.trim());
+      await onAddKey(newKeyId.trim(), newKeySource.trim());
       setNewKeyId('');
       setNewKeySource('');
       setShowAddDialog(false);
@@ -86,6 +92,10 @@ export function TranslationTable({
         e.preventDefault();
         handleSave();
       }
+      if (editingId && (e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault();
+        handleSave();
+      }
       if (showAddDialog && e.key === 'Escape') {
         setShowAddDialog(false);
         setNewKeyId('');
@@ -96,6 +106,22 @@ export function TranslationTable({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [editingId, editValues, showAddDialog]);
+
+  useEffect(() => {
+    if (!recentlySavedId) return;
+    const timer = setTimeout(() => setRecentlySavedId(null), 1200);
+    return () => clearTimeout(timer);
+  }, [recentlySavedId]);
+
+  const editingUnit = useMemo(
+    () => units.find(u => u.id === editingId),
+    [editingId, units]
+  );
+  const isDirty = editingUnit
+    ? editingUnit.id !== editValues.id ||
+      editingUnit.source !== editValues.source ||
+      (!isSourceOnly && editingUnit.target !== editValues.target)
+    : false;
 
   if (units.length === 0) {
     return (
@@ -204,245 +230,273 @@ export function TranslationTable({
               </tr>
             </thead>
             <tbody>
-              {filteredUnits.map((unit) => (
-                <tr
-                  key={unit.id}
-                  className="group"
-                  style={{
-                    backgroundColor: editingId === unit.id ? 'var(--color-bg-hover)' : 'var(--color-bg-secondary)'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (editingId !== unit.id) {
-                      e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (editingId !== unit.id) {
-                      e.currentTarget.style.backgroundColor = 'var(--color-bg-secondary)';
-                    }
-                  }}
-                >
-                  {/* ID Cell */}
-                  <td className="px-4 py-3 text-sm align-top first:rounded-l-lg">
-                    {editingId === unit.id ? (
-                      <input
-                        type="text"
-                        value={editValues.id}
-                        onChange={(e) => setEditValues(prev => ({ ...prev, id: e.target.value }))}
-                        className="w-full px-3 py-2 rounded-md text-sm font-mono"
-                        style={{
-                          backgroundColor: 'var(--color-bg-primary)',
-                          color: 'var(--color-text-primary)',
-                          border: '2px solid var(--color-accent)'
-                        }}
-                      />
-                    ) : (
-                      <div
-                        onClick={() => handleEdit(unit)}
-                        className="cursor-pointer px-3 py-2 rounded-md font-mono"
-                        style={{ color: 'var(--color-text-secondary)' }}
-                      >
-                        {unit.id}
-                      </div>
-                    )}
-                  </td>
-
-                  {/* Source Cell */}
-                  <td className="px-4 py-3 text-sm align-top">
-                    {editingId === unit.id ? (
-                      <textarea
-                        value={editValues.source}
-                        onChange={(e) => setEditValues(prev => ({ ...prev, source: e.target.value }))}
-                        className="w-full px-3 py-2 rounded-md resize-none"
-                        style={{
-                          backgroundColor: 'var(--color-bg-primary)',
-                          color: 'var(--color-text-primary)',
-                          border: '2px solid var(--color-accent)',
-                          minHeight: '80px'
-                        }}
-                      />
-                    ) : (
-                      <div
-                        onClick={() => handleEdit(unit)}
-                        className="cursor-pointer px-3 py-2 rounded-md"
-                        style={{ color: 'var(--color-text-primary)' }}
-                      >
-                        {unit.source}
-                      </div>
-                    )}
-                  </td>
-
-                  {/* Target Cell */}
-                  {!isSourceOnly && (
-                    <td className="px-4 py-3 text-sm align-top">
-                      {editingId === unit.id ? (
-                        <textarea
-                          value={editValues.target}
-                          onChange={(e) => setEditValues(prev => ({ ...prev, target: e.target.value }))}
-                          className="w-full px-3 py-2 rounded-md resize-none"
-                          style={{
-                            backgroundColor: 'var(--color-bg-primary)',
-                            color: 'var(--color-text-primary)',
-                            border: '2px solid var(--color-accent)',
-                            minHeight: '80px'
-                          }}
-                          autoFocus
-                        />
-                      ) : (
-                        <div
-                          onClick={() => handleEdit(unit)}
-                          className="cursor-pointer px-3 py-2 rounded-md"
-                          style={{
-                            color: unit.target ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                            fontStyle: unit.target ? 'normal' : 'italic'
-                          }}
-                        >
-                          {unit.target || 'Click to add...'}
-                        </div>
-                      )}
-                    </td>
-                  )}
-
-                  {/* Actions Cell */}
-                  <td className="px-4 py-3 text-sm align-top last:rounded-r-lg">
-                    {editingId === unit.id ? (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={handleSave}
-                          className="p-2 rounded-full hover:scale-110"
-                          style={{ backgroundColor: 'var(--color-accent)', color: 'white' }}
-                          title="Save (Cmd/Ctrl+S)"
-                        >
-                          <Check size={18} />
-                        </button>
-                        <button
-                          onClick={handleCancel}
-                          className="p-2 rounded-full hover:scale-110"
-                          style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-primary)' }}
-                          title="Cancel (Esc)"
-                        >
-                          <X size={18} />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex gap-2 items-center">
-                        {!isSourceOnly && !!unit.target && (
-                          <button
-                            onClick={() => onClearTranslation(unit.id)}
-                            className="p-2 rounded-full hover:scale-110"
+              <AnimatePresence initial={false}>
+                {filteredUnits.map((unit) => {
+                  const isEditing = editingId === unit.id;
+                  const isSaving = savingId === unit.id;
+                  const isJustSaved = recentlySavedId === unit.id;
+                  return (
+                    <motion.tr
+                      key={unit.id}
+                      layout
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0, backgroundColor: isJustSaved ? 'rgba(34,197,94,0.12)' : isEditing ? 'var(--color-bg-hover)' : 'var(--color-bg-secondary)' }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.18, ease: 'easeOut' }}
+                      className="group"
+                      onMouseEnter={(e) => {
+                        if (!isEditing && !isJustSaved) {
+                          e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (isJustSaved) {
+                          e.currentTarget.style.backgroundColor = 'rgba(34,197,94,0.12)';
+                        } else if (!isEditing) {
+                          e.currentTarget.style.backgroundColor = 'var(--color-bg-secondary)';
+                        }
+                      }}
+                    >
+                      {/* ID Cell */}
+                      <td className="px-4 py-3 text-sm align-top first:rounded-l-lg">
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editValues.id}
+                            onChange={(e) => setEditValues(prev => ({ ...prev, id: e.target.value }))}
+                            className="w-full px-3 py-2 rounded-md text-sm font-mono"
                             style={{
-                              backgroundColor: 'var(--color-bg-hover)',
-                              color: 'var(--color-text-primary)'
+                              backgroundColor: 'var(--color-bg-primary)',
+                              color: 'var(--color-text-primary)',
+                              border: '2px solid var(--color-accent)'
                             }}
-                            title="Clear translation"
+                          />
+                        ) : (
+                          <div
+                            onClick={() => handleEdit(unit)}
+                            className="cursor-pointer px-3 py-2 rounded-md font-mono"
+                            style={{ color: 'var(--color-text-secondary)' }}
                           >
-                            <Eraser size={16} />
-                          </button>
+                            {unit.id}
+                          </div>
                         )}
-                        <button
-                          onClick={() => onDelete(unit.id)}
-                          className="opacity-0 group-hover:opacity-100 p-2 rounded-full hover:scale-110"
-                          style={{
-                            backgroundColor: 'var(--color-danger)',
-                            color: 'white'
-                          }}
-                          title="Delete"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                      </td>
+
+                      {/* Source Cell */}
+                      <td className="px-4 py-3 text-sm align-top">
+                        {isEditing ? (
+                          <textarea
+                            value={editValues.source}
+                            onChange={(e) => setEditValues(prev => ({ ...prev, source: e.target.value }))}
+                            className="w-full px-3 py-2 rounded-md resize-none"
+                            style={{
+                              backgroundColor: 'var(--color-bg-primary)',
+                              color: 'var(--color-text-primary)',
+                              border: '2px solid var(--color-accent)',
+                              minHeight: '80px'
+                            }}
+                          />
+                        ) : (
+                          <div
+                            onClick={() => handleEdit(unit)}
+                            className="cursor-pointer px-3 py-2 rounded-md"
+                            style={{ color: 'var(--color-text-primary)' }}
+                          >
+                            {unit.source}
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Target Cell */}
+                      {!isSourceOnly && (
+                        <td className="px-4 py-3 text-sm align-top">
+                          {isEditing ? (
+                            <textarea
+                              value={editValues.target}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, target: e.target.value }))}
+                              className="w-full px-3 py-2 rounded-md resize-none"
+                              style={{
+                                backgroundColor: 'var(--color-bg-primary)',
+                                color: 'var(--color-text-primary)',
+                                border: '2px solid var(--color-accent)',
+                                minHeight: '80px'
+                              }}
+                              autoFocus
+                            />
+                          ) : (
+                            <div
+                              onClick={() => handleEdit(unit)}
+                              className="cursor-pointer px-3 py-2 rounded-md"
+                              style={{
+                                color: unit.target ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                                fontStyle: unit.target ? 'normal' : 'italic'
+                              }}
+                            >
+                              {unit.target || 'Click to add...'}
+                            </div>
+                          )}
+                        </td>
+                      )}
+
+                      {/* Actions Cell */}
+                      <td className="px-4 py-3 text-sm align-top last:rounded-r-lg">
+                        {isEditing ? (
+                          <div className="flex gap-2 items-center">
+                            <button
+                              onClick={handleSave}
+                              disabled={isSaving || !isDirty}
+                              className="p-2 rounded-full hover:scale-110 disabled:opacity-60 disabled:cursor-not-allowed"
+                              style={{ backgroundColor: 'var(--color-accent)', color: 'white' }}
+                              title="Save (Cmd/Ctrl+S or Cmd/Ctrl+Enter)"
+                            >
+                              {isSaving ? <Loader2 className="animate-spin" size={18} /> : <Check size={18} />}
+                            </button>
+                            <button
+                              onClick={handleCancel}
+                              disabled={isSaving}
+                              className="p-2 rounded-full hover:scale-110 disabled:opacity-60 disabled:cursor-not-allowed"
+                              style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-primary)' }}
+                              title="Cancel (Esc)"
+                            >
+                              <X size={18} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex gap-2 items-center">
+                            {!isSourceOnly && !!unit.target && (
+                              <button
+                                onClick={() => onClearTranslation(unit.id)}
+                                className="p-2 rounded-full hover:scale-110"
+                                style={{
+                                  backgroundColor: 'var(--color-bg-hover)',
+                                  color: 'var(--color-text-primary)'
+                                }}
+                                title="Clear translation"
+                              >
+                                <Eraser size={16} />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => onDelete(unit.id)}
+                              className="opacity-0 group-hover:opacity-100 p-2 rounded-full hover:scale-110"
+                              style={{
+                                backgroundColor: 'var(--color-danger)',
+                                color: 'white'
+                              }}
+                              title="Delete"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </motion.tr>
+                  );
+                })}
+              </AnimatePresence>
             </tbody>
           </table>
         </div>
       </div>
 
       {/* Add Key Dialog */}
-      {showAddDialog && (
-        <div className="fixed inset-0 flex items-center justify-center z-50" style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.75)',
-          backdropFilter: 'blur(4px)'
-        }}>
-          <div className="w-full max-w-lg p-8 rounded-2xl shadow-2xl" style={{
-            backgroundColor: 'var(--color-bg-primary)',
-            border: '1px solid var(--color-border)'
-          }}>
-            <h3 className="text-2xl font-semibold mb-6" style={{ color: 'var(--color-text-primary)' }}>
-              Add Translation Key
-            </h3>
+      <AnimatePresence>
+        {showAddDialog && (
+          <motion.div
+            className="fixed inset-0 flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.75)',
+              backdropFilter: 'blur(4px)'
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.97, opacity: 0, y: -8 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 16 }}
+              className="w-full max-w-lg p-8 rounded-2xl shadow-2xl"
+              style={{
+                backgroundColor: 'var(--color-bg-primary)',
+                border: '1px solid var(--color-border)'
+              }}
+            >
+              <h3 className="text-2xl font-semibold mb-6" style={{ color: 'var(--color-text-primary)' }}>
+                Add Translation Key
+              </h3>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--color-text-secondary)' }}>
-                  Key ID
-                </label>
-                <input
-                  type="text"
-                  value={newKeyId}
-                  onChange={(e) => setNewKeyId(e.target.value)}
-                  placeholder="e.g., button.submit"
-                  className="w-full px-4 py-3 rounded-lg font-mono"
-                  style={{
-                    backgroundColor: 'var(--color-bg-secondary)',
-                    color: 'var(--color-text-primary)',
-                    border: '2px solid var(--color-border)'
-                  }}
-                  autoFocus
-                />
-              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--color-text-secondary)' }}>
+                    Key ID
+                  </label>
+                  <input
+                    type="text"
+                    value={newKeyId}
+                    onChange={(e) => setNewKeyId(e.target.value)}
+                    placeholder="e.g., button.submit"
+                    className="w-full px-4 py-3 rounded-lg font-mono"
+                    style={{
+                      backgroundColor: 'var(--color-bg-secondary)',
+                      color: 'var(--color-text-primary)',
+                      border: '2px solid var(--color-border)'
+                    }}
+                    autoFocus
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--color-text-secondary)' }}>
-                  Source Text ({sourceLanguage.toUpperCase()})
-                </label>
-                <textarea
-                  value={newKeySource}
-                  onChange={(e) => setNewKeySource(e.target.value)}
-                  placeholder="Enter source text..."
-                  className="w-full px-4 py-3 rounded-lg resize-none"
-                  style={{
-                    backgroundColor: 'var(--color-bg-secondary)',
-                    color: 'var(--color-text-primary)',
-                    border: '2px solid var(--color-border)',
-                    minHeight: '100px'
-                  }}
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--color-text-secondary)' }}>
+                    Source Text ({sourceLanguage.toUpperCase()})
+                  </label>
+                  <textarea
+                    value={newKeySource}
+                    onChange={(e) => setNewKeySource(e.target.value)}
+                    placeholder="Enter source text..."
+                    className="w-full px-4 py-3 rounded-lg resize-none"
+                    style={{
+                      backgroundColor: 'var(--color-bg-secondary)',
+                      color: 'var(--color-text-primary)',
+                      border: '2px solid var(--color-border)',
+                      minHeight: '100px'
+                    }}
+                  />
+                </div>
 
-              <div className="flex gap-3 pt-4">
-                <button
-                  onClick={handleAddKey}
-                  disabled={!newKeyId.trim() || !newKeySource.trim()}
-                  className="flex-1 px-4 py-3 rounded-full font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
-                  style={{
-                    backgroundColor: 'var(--color-accent)',
-                    color: 'white'
-                  }}
-                >
-                  Add Key
-                </button>
-                <button
-                  onClick={() => {
-                    setShowAddDialog(false);
-                    setNewKeyId('');
-                    setNewKeySource('');
-                  }}
-                  className="flex-1 px-4 py-3 rounded-full font-semibold hover:scale-105"
-                  style={{
-                    backgroundColor: 'var(--color-bg-hover)',
-                    color: 'var(--color-text-primary)'
-                  }}
-                >
-                  Cancel
-                </button>
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={handleAddKey}
+                    disabled={!newKeyId.trim() || !newKeySource.trim()}
+                    className="flex-1 px-4 py-3 rounded-full font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
+                    style={{
+                      backgroundColor: 'var(--color-accent)',
+                      color: 'white'
+                    }}
+                  >
+                    Add Key
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowAddDialog(false);
+                      setNewKeyId('');
+                      setNewKeySource('');
+                    }}
+                    className="flex-1 px-4 py-3 rounded-full font-semibold hover:scale-105"
+                    style={{
+                      backgroundColor: 'var(--color-bg-hover)',
+                      color: 'var(--color-text-primary)'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
