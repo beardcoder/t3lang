@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light theme */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #fafafa;
+  --color-bg-tertiary: #f4f4f5;
+  --color-bg-hover: rgba(0, 0, 0, 0.05);
+  --color-text-primary: #18181b;
+  --color-text-secondary: #71717a;
+  --color-border: #e4e4e7;
+  --color-accent: #22c55e;
+  --color-accent-hover: #16a34a;
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+}
+
+.dark {
+  /* Dark theme - Spotify-like zinc colors */
+  --color-bg-primary: #18181b;
+  --color-bg-secondary: #09090b;
+  --color-bg-tertiary: #27272a;
+  --color-bg-hover: rgba(255, 255, 255, 0.05);
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #a1a1aa;
+  --color-border: #3f3f46;
+  --color-accent: #22c55e;
+  --color-accent-hover: #16a34a;
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 5px;
+  border: 2px solid var(--color-bg-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+/* Smooth transitions */
+button,
+input,
+textarea,
+select {
+  transition: all 0.15s ease-in-out;
+}
+
+/* Focus styles */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-accent) !important;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.1);
+}
+
+html {
+  overscroll-behavior: none;
+}
