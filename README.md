@@ -5,12 +5,14 @@ A modern desktop application for managing TYPO3 translation files (XLIFF format)
 ## ✨ Features
 
 ### 🎨 Modern UI
+
 - **Clean, minimal design** with dark/light mode
 - Rounded buttons and smooth transitions
 - Color scheme optimized for both themes
 - Hover effects and visual feedback
 
 ### 📁 File Management
+
 - **Open entire folders** with TYPO3 translation files
 - **File tree view** with expandable groups
 - Support for TYPO3 naming convention:
@@ -20,6 +22,7 @@ A modern desktop application for managing TYPO3 translation files (XLIFF format)
 - Visual indicators for file types (DEFAULT/DE/FR badges)
 
 ### ✏️ Translation Editing
+
 - **Table view** with 4 columns: ID, Source, Translation, Actions
 - **Click to edit** any translation inline
 - **Add new translation keys** with dialog
@@ -28,12 +31,14 @@ A modern desktop application for managing TYPO3 translation files (XLIFF format)
 - Keyboard shortcuts (Cmd/Ctrl + S to save, Esc to cancel)
 
 ### 🌍 Multi-Language Support
+
 - **Create new language files** with one click
 - Automatically copies structure from default file
 - Empty translations ready to be filled
 - Supports any 2-letter language code (de, fr, es, it, etc.)
 
 ### 🔄 XLIFF Version Management
+
 - **Switch between XLIFF v1.2 and v2.0**
 - Version selector in the header
 - Converts files on the fly
@@ -74,6 +79,7 @@ npm run tauri build
 ### Opening Files
 
 1. **Open Folder** (recommended)
+
    - Click the green "📁 Open Folder" button
    - Select a folder containing XLIFF files
    - All files are loaded and grouped automatically
@@ -85,6 +91,7 @@ npm run tauri build
 ### Managing Translations
 
 #### Editing Translations
+
 1. Select a file from the sidebar
 2. Browse translations in the table
 3. Click on any translation cell (empty or filled)
@@ -93,6 +100,7 @@ npm run tauri build
 6. Click "Cancel" or press Esc to discard changes
 
 #### Adding New Keys
+
 1. Click the green "➕ Add Key" button in the header
 2. Enter the Key ID (e.g., `button.submit`)
 3. Enter the Source Text
@@ -100,6 +108,7 @@ npm run tauri build
 5. The new key appears in the table with an empty translation
 
 #### Deleting Keys
+
 1. Hover over any translation row
 2. Click the red "Delete" button that appears
 3. Confirm the deletion
@@ -136,7 +145,8 @@ npm run tauri build
 
 ## 🎨 Design Features
 
-### Spotify-Inspired Interface
+### Interface
+
 - **Dark mode by default** with true black background (#000000)
 - **Rounded buttons** with pill shape (rounded-full)
 - **Accent color** (green #1db954) for primary actions
@@ -147,16 +157,10 @@ npm run tauri build
 ### Color Palette
 
 **Dark Mode:**
+
 - Background: Pure black (#000000)
 - Secondary: Dark gray (#121212)
 - Hover: Lighter gray (#2a2a2a)
-- Accent: Green (#1db954)
-- Danger: Red (#e22134)
-
-**Light Mode:**
-- Background: White (#ffffff)
-- Secondary: Light gray (#f6f6f6)
-- Hover: Medium gray (#e7e7e7)
 - Accent: Green (#1db954)
 - Danger: Red (#e22134)
 
@@ -214,4 +218,4 @@ MIT
 
 ---
 
-Made with 🌍 for TYPO3 translators
+Made with 🧘🏼 for TYPO3 translators

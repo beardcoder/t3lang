@@ -2,6 +2,26 @@
   "name": "t3lang",
   "private": true,
   "version": "0.1.0",
+  "description": "A modern desktop application for managing TYPO3 translation files (XLIFF format)",
+  "author": "Markus Sommer",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:beardcoder/t3lang.git"
+  },
+  "homepage": "https://github.com/beardcoder/t3lang#readme",
+  "bugs": {
+    "url": "https://github.com/beardcoder/t3lang/issues"
+  },
+  "keywords": [
+    "typo3",
+    "translation",
+    "xliff",
+    "i18n",
+    "localization",
+    "tauri",
+    "desktop-app"
+  ],
   "type": "module",
   "scripts": {
     "dev": "vite",

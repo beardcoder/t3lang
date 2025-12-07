@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Tauri build outputs
+src-tauri/target
+
+# OS
+.DS_Store
+Thumbs.db
