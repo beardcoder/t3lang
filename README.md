@@ -75,6 +75,16 @@ npm run tauri dev
 npm run tauri build
 ```
 
+### macOS Security Note
+
+If you get a "damaged app" error on macOS, this is a Gatekeeper security feature. Quick fix:
+
+```bash
+xattr -cr ./src-tauri/target/release/bundle/macos/T3Lang.app
+```
+
+For more solutions and distribution setup, see [CODESIGNING.md](CODESIGNING.md).
+
 ## 📖 Usage Guide
 
 ### Opening Files
