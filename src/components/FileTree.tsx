@@ -43,24 +43,24 @@ export function FileTree({ fileGroups, selectedFile, onFileSelect }: FileTreePro
   }
 
   return (
-    <div className="px-2 pb-2">
+    <div className="px-2 pb-3">
       {fileGroups.map((group) => {
         const isExpanded = expandedGroups.has(group.baseName);
         const defaultFile = group.files.find(f => f.language === 'default');
         const translationFiles = group.files.filter(f => f.language !== 'default');
 
         return (
-          <div key={group.baseName} className="mb-1">
-            {/* Group Header */}
+          <div key={group.baseName} className="mb-2">
             <button
               onClick={() => toggleGroup(group.baseName)}
-              className="w-full flex items-center gap-2 px-2 py-2 text-left rounded-md"
+              className="w-full flex items-center gap-2 px-3 py-3 text-left rounded-xl border"
               style={{
-                backgroundColor: 'transparent',
-                color: 'var(--color-text-primary)'
+                backgroundColor: 'var(--color-bg-tertiary)',
+                color: 'var(--color-text-primary)',
+                borderColor: 'var(--color-border)'
               }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)'}
             >
               <ChevronRight
                 size={14}
@@ -75,19 +75,19 @@ export function FileTree({ fileGroups, selectedFile, onFileSelect }: FileTreePro
               </span>
               <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{
                 backgroundColor: 'var(--color-bg-hover)',
-                color: 'var(--color-text-secondary)'
+                color: 'var(--color-text-secondary)',
+                border: '1px solid var(--color-border)'
               }}>
                 {group.files.length}
               </span>
             </button>
 
-            {/* Files */}
             {isExpanded && (
-              <div className="ml-4 mt-1 space-y-1">
+              <div className="ml-4 mt-2 space-y-2">
                 {defaultFile && (
                   <button
                     onClick={() => onFileSelect(defaultFile.path)}
-                    className="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg"
                     style={{
                       backgroundColor: selectedFile === defaultFile.path ? 'var(--color-bg-hover)' : 'transparent',
                       color: 'var(--color-text-primary)'
@@ -103,9 +103,12 @@ export function FileTree({ fileGroups, selectedFile, onFileSelect }: FileTreePro
                   >
                     <FileText size={14} />
                     <span className="text-sm flex-1 truncate">{defaultFile.name}</span>
-                    {selectedFile === defaultFile.path && (
-                      <div className="w-1 h-1 rounded-full" style={{ backgroundColor: 'var(--color-accent)' }} />
-                    )}
+                    <span className="text-[10px] px-2 py-1 rounded-full font-semibold" style={{
+                      backgroundColor: 'var(--color-accent)',
+                      color: 'var(--color-bg-secondary)'
+                    }}>
+                      Source
+                    </span>
                   </button>
                 )}
 
@@ -113,7 +116,7 @@ export function FileTree({ fileGroups, selectedFile, onFileSelect }: FileTreePro
                   <button
                     key={file.path}
                     onClick={() => onFileSelect(file.path)}
-                    className="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg"
                     style={{
                       backgroundColor: selectedFile === file.path ? 'var(--color-bg-hover)' : 'transparent',
                       color: 'var(--color-text-primary)'
@@ -130,8 +133,9 @@ export function FileTree({ fileGroups, selectedFile, onFileSelect }: FileTreePro
                     <Globe size={14} />
                     <span className="text-sm flex-1 truncate">{file.name}</span>
                     <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{
-                      backgroundColor: 'var(--color-accent)',
-                      color: 'white'
+                      backgroundColor: 'var(--color-bg-tertiary)',
+                      color: 'var(--color-text-secondary)',
+                      border: '1px solid var(--color-border)'
                     }}>
                       {file.language.toUpperCase()}
                     </span>

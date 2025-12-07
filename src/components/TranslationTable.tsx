@@ -143,8 +143,8 @@ export function TranslationTable({
     <>
       <div className="flex flex-col h-full" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
         {/* Header */}
-        <div className="px-6 py-4 flex items-center justify-between" style={{
-          backgroundColor: 'var(--color-bg-primary)',
+        <div className="px-6 py-5 flex items-center justify-between" style={{
+          backgroundColor: 'var(--color-bg-secondary)',
           borderBottom: '1px solid var(--color-border)'
         }}>
           <div className="flex items-center gap-4">
@@ -178,7 +178,8 @@ export function TranslationTable({
               className="px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 hover:scale-105"
               style={{
                 backgroundColor: 'var(--color-accent)',
-                color: 'white'
+                color: 'var(--color-bg-secondary)',
+                boxShadow: '0 10px 30px rgba(30, 215, 96, 0.25)'
               }}
             >
               <Plus size={18} />
@@ -188,7 +189,7 @@ export function TranslationTable({
         </div>
 
         {/* Table */}
-        <div className="flex-1 overflow-auto px-6">
+        <div className="flex-1 overflow-auto px-6 py-1" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
           <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: '0 4px' }}>
             <thead style={{
               position: 'sticky',

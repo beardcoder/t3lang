@@ -1,36 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 
 :root {
-  /* Light theme */
-  --color-bg-primary: #ffffff;
-  --color-bg-secondary: #fafafa;
-  --color-bg-tertiary: #f4f4f5;
-  --color-bg-hover: rgba(0, 0, 0, 0.05);
-  --color-text-primary: #18181b;
-  --color-text-secondary: #71717a;
-  --color-border: #e4e4e7;
-  --color-accent: #22c55e;
-  --color-accent-hover: #16a34a;
-  --color-danger: #ef4444;
-  --color-danger-hover: #dc2626;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Dark-first palette, flat and minimal */
+  --color-bg-primary: #0f1115;
+  --color-bg-secondary: #0b0d10;
+  --color-bg-tertiary: #161a1f;
+  --color-bg-hover: rgba(255, 255, 255, 0.06);
+  --color-text-primary: #f5f7fb;
+  --color-text-secondary: #b6beca;
+  --color-border: #1f2630;
+  --color-accent: #1ed760;
+  --color-accent-hover: #1fdf64;
+  --color-danger: #f87171;
+  --color-danger-hover: #ef4444;
 }
 
 .dark {
-  /* Dark theme - Spotify-like zinc colors */
-  --color-bg-primary: #18181b;
-  --color-bg-secondary: #09090b;
-  --color-bg-tertiary: #27272a;
-  --color-bg-hover: rgba(255, 255, 255, 0.05);
-  --color-text-primary: #fafafa;
-  --color-text-secondary: #a1a1aa;
-  --color-border: #3f3f46;
-  --color-accent: #22c55e;
-  --color-accent-hover: #16a34a;
-  --color-danger: #ef4444;
-  --color-danger-hover: #dc2626;
+  --color-bg-primary: #0c0e12;
+  --color-bg-secondary: #090a0d;
+  --color-bg-tertiary: #141820;
+  --color-bg-hover: rgba(255, 255, 255, 0.08);
+  --color-text-primary: #f7fafc;
+  --color-text-secondary: #c3cbd8;
+  --color-border: #1e232d;
+  --color-accent: #1ed760;
+  --color-accent-hover: #1fdf64;
+  --color-danger: #f87171;
+  --color-danger-hover: #ef4444;
 }
 
-/* Base styles */
 * {
   box-sizing: border-box;
 }
@@ -72,21 +73,19 @@ body {
   background: var(--color-text-secondary);
 }
 
-/* Smooth transitions */
 button,
 input,
 textarea,
 select {
-  transition: all 0.15s ease-in-out;
+  transition: all 0.18s ease-in-out;
 }
 
-/* Focus styles */
 input:focus,
 textarea:focus,
 select:focus {
   outline: none;
   border-color: var(--color-accent) !important;
-  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.1);
+  box-shadow: 0 0 0 2px rgba(30, 215, 96, 0.15);
 }
 
 html {
