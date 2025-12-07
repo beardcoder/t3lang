@@ -8,9 +8,21 @@
     "opener:default",
     "dialog:default",
     "fs:default",
-    "fs:allow-read-text-file",
-    "fs:allow-write-text-file",
-    "fs:allow-read-dir",
-    "fs:allow-exists"
+    {
+      "identifier": "fs:allow-read-text-file",
+      "allow": [{ "path": "/**" }]
+    },
+    {
+      "identifier": "fs:allow-write-text-file",
+      "allow": [{ "path": "/**" }]
+    },
+    {
+      "identifier": "fs:allow-read-dir",
+      "allow": [{ "path": "/**" }]
+    },
+    {
+      "identifier": "fs:allow-exists",
+      "allow": [{ "path": "/**" }]
+    }
   ]
 }

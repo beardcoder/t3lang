@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronRight, FileText, Globe } from 'lucide-react';
+import { ChevronRight, FileText, Globe, Plus, X } from 'lucide-react';
 
 export interface T3File {
   name: string;
@@ -17,12 +17,15 @@ interface FileTreeProps {
   fileGroups: T3FileGroup[];
   selectedFile: string | null;
   onFileSelect: (path: string) => void;
+  onAddLanguage: (baseName: string) => void;
+  onDeleteFile: (filePath: string) => void;
 }
 
-export function FileTree({ fileGroups, selectedFile, onFileSelect }: FileTreeProps) {
+export function FileTree({ fileGroups, selectedFile, onFileSelect, onAddLanguage, onDeleteFile }: FileTreeProps) {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
     new Set(fileGroups.map(g => g.baseName))
   );
+  const [hoveredFile, setHoveredFile] = useState<string | null>(null);
 
   const toggleGroup = (baseName: string) => {
     const newExpanded = new Set(expandedGroups);
@@ -113,34 +116,69 @@ export function FileTree({ fileGroups, selectedFile, onFileSelect }: FileTreePro
                 )}
 
                 {translationFiles.map((file) => (
-                  <button
+                  <div
                     key={file.path}
-                    onClick={() => onFileSelect(file.path)}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg"
-                    style={{
-                      backgroundColor: selectedFile === file.path ? 'var(--color-bg-hover)' : 'transparent',
-                      color: 'var(--color-text-primary)'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
-                    }}
-                    onMouseLeave={(e) => {
-                      if (selectedFile !== file.path) {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      }
-                    }}
+                    className="relative"
+                    onMouseEnter={() => setHoveredFile(file.path)}
+                    onMouseLeave={() => setHoveredFile(null)}
                   >
-                    <Globe size={14} />
-                    <span className="text-sm flex-1 truncate">{file.name}</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{
-                      backgroundColor: 'var(--color-bg-tertiary)',
-                      color: 'var(--color-text-secondary)',
-                      border: '1px solid var(--color-border)'
-                    }}>
-                      {file.language.toUpperCase()}
-                    </span>
-                  </button>
+                    <button
+                      onClick={() => onFileSelect(file.path)}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg"
+                      style={{
+                        backgroundColor: selectedFile === file.path ? 'var(--color-bg-hover)' : 'transparent',
+                        color: 'var(--color-text-primary)'
+                      }}
+                    >
+                      <Globe size={14} />
+                      <span className="text-sm flex-1 truncate">{file.name}</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{
+                        backgroundColor: 'var(--color-bg-tertiary)',
+                        color: 'var(--color-text-secondary)',
+                        border: '1px solid var(--color-border)'
+                      }}>
+                        {file.language.toUpperCase()}
+                      </span>
+                    </button>
+                    {hoveredFile === file.path && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteFile(file.path);
+                        }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md hover:scale-110"
+                        style={{
+                          backgroundColor: 'var(--color-danger)',
+                          color: 'white'
+                        }}
+                        title="Delete language file"
+                      >
+                        <X size={12} />
+                      </button>
+                    )}
+                  </div>
                 ))}
+
+                <button
+                  onClick={() => onAddLanguage(group.baseName)}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg border border-dashed"
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: 'var(--color-text-secondary)',
+                    borderColor: 'var(--color-border)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+                    e.currentTarget.style.color = 'var(--color-text-primary)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = 'var(--color-text-secondary)';
+                  }}
+                >
+                  <Plus size={14} />
+                  <span className="text-sm">Add language</span>
+                </button>
               </div>
             )}
           </div>

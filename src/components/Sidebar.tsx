@@ -1,15 +1,16 @@
-import { Folder, FileText, Plus } from 'lucide-react';
+import { Folder, FileText } from 'lucide-react';
 import { FileTree, T3FileGroup } from './FileTree';
 
 interface SidebarProps {
   onFileOpen: (filePath: string) => void;
   onFolderOpen: (folderPath: string) => void;
-  onNewLanguage: () => void;
+  onAddLanguage: (baseName: string) => void;
+  onDeleteFile: (filePath: string) => void;
   currentFile: string | null;
   fileGroups: T3FileGroup[];
 }
 
-export function Sidebar({ onFileOpen, onFolderOpen, onNewLanguage, currentFile, fileGroups }: SidebarProps) {
+export function Sidebar({ onFileOpen, onFolderOpen, onAddLanguage, onDeleteFile, currentFile, fileGroups }: SidebarProps) {
   const handleOpenFile = async () => {
     try {
       // @ts-ignore - Tauri dialog API
@@ -90,24 +91,6 @@ export function Sidebar({ onFileOpen, onFolderOpen, onNewLanguage, currentFile, 
           </span>
           <span className="text-[10px] uppercase tracking-wide" style={{ color: 'var(--color-text-secondary)' }}>file</span>
         </button>
-
-        {fileGroups.length > 0 && (
-          <button
-            onClick={onNewLanguage}
-            className="w-full px-3 py-3 rounded-lg font-semibold text-sm flex items-center gap-3 justify-between"
-            style={{
-              backgroundColor: 'var(--color-bg-tertiary)',
-              color: 'var(--color-text-primary)',
-              border: '1px solid var(--color-border)'
-            }}
-          >
-            <span className="flex items-center gap-2">
-              <Plus size={18} />
-              <span>New language</span>
-            </span>
-            <span className="text-[10px] uppercase tracking-wide" style={{ color: 'var(--color-text-secondary)' }}>add</span>
-          </button>
-        )}
       </div>
 
       {fileGroups.length > 0 && (
@@ -127,6 +110,8 @@ export function Sidebar({ onFileOpen, onFolderOpen, onNewLanguage, currentFile, 
             fileGroups={fileGroups}
             selectedFile={currentFile}
             onFileSelect={onFileOpen}
+            onAddLanguage={onAddLanguage}
+            onDeleteFile={onDeleteFile}
           />
         </div>
       )}

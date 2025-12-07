@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, Globe } from "lucide-react";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import * as xliff from "xliff-simple";
@@ -159,55 +159,88 @@ function AppContent() {
     }
   };
 
-  const handleFolderOpen = async (folderPathValue: string) => {
+  const scanForXliffFiles = async (dirPath: string): Promise<Array<{ name: string; path: string }>> => {
     try {
       // @ts-ignore - Tauri fs API
       const { readDir } = await import("@tauri-apps/plugin-fs");
-      const entries = await readDir(folderPathValue);
+      const entries = await readDir(dirPath);
+      const xliffFiles: Array<{ name: string; path: string }> = [];
 
-      const xliffFiles = entries.filter((entry: any) =>
-        entry.name?.endsWith(".xlf")
-      );
+      for (const entry of entries) {
+        if (!entry.name) continue;
+        const fullPath = `${dirPath}/${entry.name}`;
+
+        if (entry.isDirectory) {
+          // Recursively scan subdirectories
+          const subFiles = await scanForXliffFiles(fullPath);
+          xliffFiles.push(...subFiles);
+        } else if (entry.name.endsWith(".xlf")) {
+          xliffFiles.push({ name: entry.name, path: fullPath });
+        }
+      }
+
+      return xliffFiles;
+    } catch (error) {
+      console.warn(`Failed to scan directory ${dirPath}:`, error);
+      return [];
+    }
+  };
+
+  const handleFolderOpen = async (folderPathValue: string) => {
+    try {
+      const xliffFiles = await scanForXliffFiles(folderPathValue);
 
       const newMap = new Map<string, FileData>();
       const t3Files: T3File[] = [];
 
-      for (const entry of xliffFiles) {
-        if (!entry.name) continue;
-
-        const filePath = `${folderPathValue}/${entry.name}`;
-        const fileData = await loadFile(filePath);
+      for (const file of xliffFiles) {
+        const fileData = await loadFile(file.path);
 
         if (fileData) {
-          newMap.set(filePath, fileData);
+          newMap.set(file.path, fileData);
 
-          const { baseName, language } = parseT3FileName(entry.name);
+          const { baseName, language } = parseT3FileName(file.name);
           t3Files.push({
-            name: entry.name,
-            path: filePath,
+            name: file.name,
+            path: file.path,
             language,
             baseName,
           });
         }
       }
 
+      // Group files by directory + baseName
       const groups = new Map<string, T3File[]>();
       t3Files.forEach((file) => {
-        if (!groups.has(file.baseName)) {
-          groups.set(file.baseName, []);
+        // Get the directory path of the file
+        const directory = file.path.substring(0, file.path.lastIndexOf('/'));
+        const groupKey = `${directory}/${file.baseName}`;
+
+        if (!groups.has(groupKey)) {
+          groups.set(groupKey, []);
         }
-        groups.get(file.baseName)!.push(file);
+        groups.get(groupKey)!.push(file);
       });
 
       const groupArray: T3FileGroup[] = Array.from(groups.entries())
-        .map(([baseName, files]) => ({
-          baseName,
-          files: files.sort((a, b) => {
-            if (a.language === "default") return -1;
-            if (b.language === "default") return 1;
-            return a.language.localeCompare(b.language);
-          }),
-        }))
+        .map(([groupKey, files]) => {
+          // Extract baseName from groupKey for display
+          const baseName = groupKey.substring(groupKey.lastIndexOf('/') + 1);
+          const directory = groupKey.substring(0, groupKey.lastIndexOf('/'));
+
+          // Create a display name that includes relative path from root folder
+          const relativePath = directory.replace(folderPathValue, '').replace(/^\//, '');
+          const displayName = relativePath ? `${relativePath}/${baseName}` : baseName;
+
+          return {
+            baseName: displayName,
+            files: files.sort((a, b) => {
+              if (a.language === "default") return -1;
+              if (b.language === "default") return 1;
+              return a.language.localeCompare(b.language);
+            }),
+          };
+        })
         .sort((a, b) => a.baseName.localeCompare(b.baseName));
 
       setFileDataMap(newMap);
@@ -405,8 +438,8 @@ function AppContent() {
     setFileDataMap(newMap);
   };
 
-  const handleNewLanguage = async () => {
-    if (!folderPath || fileGroups.length === 0) return;
+  const handleNewLanguage = async (targetBaseName: string) => {
+    if (!folderPath) return;
 
     const languageCode = newLanguageCode.trim().toLowerCase();
     if (!languageCode || languageCode.length !== 2) {
@@ -418,8 +451,13 @@ function AppContent() {
       return;
     }
 
-    const baseName = fileGroups[0].baseName;
-    const defaultFile = fileGroups[0].files.find(
+    const targetGroup = fileGroups.find((g) => g.baseName === targetBaseName);
+    if (!targetGroup) {
+      await showMessage("File group not found", "Error", "error");
+      return;
+    }
+
+    const defaultFile = targetGroup.files.find(
       (f) => f.language === "default"
     );
     if (!defaultFile) {
@@ -430,8 +468,9 @@ function AppContent() {
     const defaultData = fileDataMap.get(defaultFile.path);
     if (!defaultData) return;
 
-    const newFileName = `${languageCode}.${baseName}.xlf`;
-    const newFilePath = `${folderPath}/${newFileName}`;
+    const defaultDir = defaultFile.path.substring(0, defaultFile.path.lastIndexOf('/'));
+    const newFileName = `${languageCode}.${targetBaseName}.xlf`;
+    const newFilePath = `${defaultDir}/${newFileName}`;
 
     try {
       // @ts-ignore - Tauri fs API
@@ -473,6 +512,37 @@ function AppContent() {
     }
   };
 
+  const handleDeleteFile = async (filePath: string) => {
+    const confirmed = await confirmDialog(
+      `Delete this language file?\n\nThis action cannot be undone.`,
+      "Delete file"
+    );
+    if (!confirmed) return;
+
+    try {
+      // @ts-ignore - Tauri fs API
+      const { remove } = await import("@tauri-apps/plugin-fs");
+      await remove(filePath);
+
+      if (currentFile === filePath) {
+        setCurrentFile(null);
+      }
+
+      if (folderPath) {
+        await handleFolderOpen(folderPath);
+      }
+
+      notify("File deleted", "Language file removed");
+    } catch (error) {
+      console.error("Failed to delete file:", error);
+      await showMessage(
+        `Failed to delete file: ${error}`,
+        "Delete error",
+        "error"
+      );
+    }
+  };
+
   const currentFileData = currentFile ? fileDataMap.get(currentFile) : null;
   const parsedMeta = useMemo(() => {
     if (!currentFile) return null;
@@ -484,6 +554,65 @@ function AppContent() {
     currentFileData?.isSourceOnly ?? parsedMeta?.language === "default";
   const targetLanguage =
     currentFileData?.targetLanguage ?? parsedMeta?.language ?? "";
+
+  // Listen for menu events
+  useEffect(() => {
+    let unlistenFile: (() => void) | undefined;
+    let unlistenFolder: (() => void) | undefined;
+
+    const setupListeners = async () => {
+      try {
+        // @ts-ignore - Tauri event API
+        const { listen } = await import("@tauri-apps/api/event");
+
+        unlistenFile = await listen("menu-open-file", async () => {
+          try {
+            // @ts-ignore - Tauri dialog API
+            const { open: openDialog } = await import('@tauri-apps/plugin-dialog');
+            const selected = await openDialog({
+              multiple: false,
+              filters: [{
+                name: 'XLIFF',
+                extensions: ['xlf', 'xliff']
+              }]
+            });
+
+            if (selected && typeof selected === 'string') {
+              handleFileOpen(selected);
+            }
+          } catch (error) {
+            console.error('Failed to open file:', error);
+          }
+        });
+
+        unlistenFolder = await listen("menu-open-folder", async () => {
+          try {
+            // @ts-ignore - Tauri dialog API
+            const { open: openDialog } = await import('@tauri-apps/plugin-dialog');
+            const selected = await openDialog({
+              directory: true,
+              multiple: false
+            });
+
+            if (selected && typeof selected === 'string') {
+              handleFolderOpen(selected);
+            }
+          } catch (error) {
+            console.error('Failed to open folder:', error);
+          }
+        });
+      } catch (error) {
+        console.debug('Menu listeners not available:', error);
+      }
+    };
+
+    setupListeners();
+
+    return () => {
+      unlistenFile?.();
+      unlistenFolder?.();
+    };
+  }, []);
 
   return (
     <div
@@ -503,7 +632,12 @@ function AppContent() {
         <Sidebar
           onFileOpen={handleFileOpen}
           onFolderOpen={handleFolderOpen}
-          onNewLanguage={() => setShowNewLanguageDialog(true)}
+          onAddLanguage={(baseName) => {
+            setShowNewLanguageDialog(true);
+            // Store the baseName for later use
+            (window as any).__selectedBaseName = baseName;
+          }}
+          onDeleteFile={handleDeleteFile}
           currentFile={currentFile}
           fileGroups={fileGroups}
         />
@@ -679,7 +813,12 @@ function AppContent() {
 
                 <div className="flex gap-3 pt-4">
                   <button
-                    onClick={handleNewLanguage}
+                    onClick={() => {
+                      const baseName = (window as any).__selectedBaseName;
+                      if (baseName) {
+                        handleNewLanguage(baseName);
+                      }
+                    }}
                     disabled={newLanguageCode.trim().length !== 2}
                     className="flex-1 px-4 py-3 rounded-full font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
                     style={{

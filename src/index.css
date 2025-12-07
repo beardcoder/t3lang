@@ -1,17 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-@import 'tailwindcss';
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
 
 :root {
-  --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Inter", system-ui, -apple-system,
+    sans-serif;
 
-  /* Dark-first palette, flat and minimal */
-  --color-bg-primary: #0f1115;
-  --color-bg-secondary: #0b0d10;
-  --color-bg-tertiary: #161a1f;
-  --color-bg-hover: rgba(255, 255, 255, 0.06);
-  --color-text-primary: #f5f7fb;
-  --color-text-secondary: #b6beca;
-  --color-border: #1f2630;
+  --color-bg-primary: #0c0e12;
+  --color-bg-secondary: #090a0d;
+  --color-bg-tertiary: #141820;
+  --color-bg-hover: rgba(255, 255, 255, 0.08);
+  --color-text-primary: #f7fafc;
+  --color-text-secondary: #c3cbd8;
+  --color-border: #1e232d;
   --color-accent: #1ed760;
   --color-accent-hover: #1fdf64;
   --color-danger: #f87171;
