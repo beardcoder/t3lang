@@ -54,9 +54,12 @@ export function FileGroup({
           animate={{ rotate: isExpanded ? 90 : 0 }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
         >
-          <ChevronRight size={14} style={{ color: "var(--color-text-secondary)" }} />
+          <ChevronRight
+            size={14}
+            style={{ color: "var(--color-text-secondary)" }}
+          />
         </motion.div>
-        <span className="text-sm font-semibold flex-1 truncate">
+        <span className="text-xs font-semibold flex-1 truncate">
           {baseName}
         </span>
         <motion.span

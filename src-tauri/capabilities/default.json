@@ -23,6 +23,10 @@
     {
       "identifier": "fs:allow-exists",
       "allow": [{ "path": "/**" }]
+    },
+    {
+      "identifier": "fs:allow-remove",
+      "allow": [{ "path": "/**" }]
     }
   ]
 }
