@@ -208,6 +208,23 @@ The application follows Tauri v2 best practices:
 - ✅ Optimized for performance
 - ✅ Type-safe TypeScript throughout
 
+## 🚢 Releases
+
+The project uses GitHub Actions for automated builds and releases:
+
+- **Continuous Integration**: Automated builds on every push and PR for macOS, Linux, and Windows
+- **Automated Releases**: Create a new release by pushing a tag (e.g., `git tag v0.1.0 && git push origin v0.1.0`)
+- **Multi-Platform**: Builds for macOS (Apple Silicon & Intel), Linux, and Windows
+- **Draft Releases**: Releases are created as drafts for review before publishing
+
+To create a new release:
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+The GitHub Actions workflow will automatically build the app for all platforms and create a draft release.
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
