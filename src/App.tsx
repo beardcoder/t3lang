@@ -312,7 +312,10 @@ function AppContent() {
       0,
       defaultFile.path.lastIndexOf("/")
     );
-    const newFileName = `${languageCode}.${selectedBaseName}.xlf`;
+
+    // Extract just the filename from baseName (which might contain relative path)
+    const actualBaseName = selectedBaseName.split('/').pop() || selectedBaseName;
+    const newFileName = `${languageCode}.${actualBaseName}.xlf`;
     const newFilePath = `${defaultDir}/${newFileName}`;
 
     try {
