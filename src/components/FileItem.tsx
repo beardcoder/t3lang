@@ -1,4 +1,3 @@
-import { motion } from "motion/react";
 import { FileText, Globe, X } from "lucide-react";
 import { useState } from "react";
 
@@ -25,14 +24,10 @@ export function FileItem({
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <motion.div
+    <div
       className="relative z-10"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -10 }}
-      transition={{ duration: 0.2 }}
       style={{ zIndex: isHovered ? 20 : 10 }}
     >
       <button
@@ -47,20 +42,7 @@ export function FileItem({
         <span className="text-xs flex-1 truncate">{name}</span>
         <div className="flex items-center gap-1.5">
           {!isSource && translationProgress !== undefined && (
-            <span
-              className="text-[9px] px-1.5 py-0.5 rounded-full font-semibold"
-              style={{
-                backgroundColor: translationProgress === 100
-                  ? "var(--color-accent)"
-                  : "var(--color-bg-tertiary)",
-                color: translationProgress === 100
-                  ? "white"
-                  : "var(--color-text-secondary)",
-                border: translationProgress === 100
-                  ? "none"
-                  : "1px solid var(--color-border)",
-              }}
-            >
+            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-semibold bg-gray-200 text-gray-800">
               {translationProgress}%
             </span>
           )}
@@ -98,6 +80,6 @@ export function FileItem({
           <X size={12} />
         </button>
       )}
-    </motion.div>
+    </div>
   );
 }
