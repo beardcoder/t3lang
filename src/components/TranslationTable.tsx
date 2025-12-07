@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Plus, Trash2, Check, X, Globe, Eraser, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
+import { Select } from './Select';
 
 interface TranslationUnit {
   id: string;
@@ -143,69 +144,77 @@ export function TranslationTable({
     <>
       <div className="flex flex-col h-full" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
         {/* Header */}
-        <div className="px-6 py-5 flex items-center justify-between" style={{
-          backgroundColor: 'var(--color-bg-secondary)',
-          borderBottom: '1px solid var(--color-border)'
-        }}>
-          <div className="flex items-center gap-4">
+        <motion.div
+          className="px-4 py-3 flex items-center justify-between"
+          style={{
+            backgroundColor: 'var(--color-bg-secondary)',
+            borderBottom: '1px solid var(--color-border)'
+          }}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="flex items-center gap-3">
             <div>
-              <h2 className="text-2xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+              <h2 className="text-xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>
                 Translations
               </h2>
-              <div className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+              <div className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
                 {sourceLanguage.toUpperCase()} → {targetLanguage.toUpperCase()} • {filteredUnits.length} of {units.length}
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <select
+          <div className="flex items-center gap-2">
+            <Select
               value={xliffVersion}
-              onChange={(e) => onVersionChange(e.target.value as '1.2' | '2.0')}
-              className="px-3 py-2 rounded-md text-sm font-medium"
-              style={{
-                backgroundColor: 'var(--color-bg-hover)',
-                color: 'var(--color-text-primary)',
-                border: 'none'
-              }}
-            >
-              <option value="1.2">XLIFF v1.2</option>
-              <option value="2.0">XLIFF v2.0</option>
-            </select>
+              onChange={(value) => onVersionChange(value as '1.2' | '2.0')}
+              options={[
+                { value: '1.2', label: 'XLIFF v1.2' },
+                { value: '2.0', label: 'XLIFF v2.0' }
+              ]}
+              className="w-32"
+            />
 
-            <button
+            <motion.button
               onClick={() => setShowAddDialog(true)}
-              className="px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 hover:scale-105"
+              className="px-3 py-2 rounded-full font-semibold text-sm flex items-center gap-2"
               style={{
                 backgroundColor: 'var(--color-accent)',
                 color: 'var(--color-bg-secondary)',
-                boxShadow: '0 10px 30px rgba(30, 215, 96, 0.25)'
+                boxShadow: '0 6px 20px rgba(30, 215, 96, 0.25)'
               }}
+              whileHover={{
+                scale: 1.03,
+                boxShadow: '0 8px 24px rgba(30, 215, 96, 0.35)'
+              }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >
-              <Plus size={18} />
+              <Plus size={16} />
               <span>Add Key</span>
-            </button>
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Table */}
-        <div className="flex-1 overflow-auto px-6 py-1" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
-          <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: '0 4px' }}>
+        <div className="flex-1 overflow-auto px-4 py-1" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
+          <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: '0 3px' }}>
             <thead style={{
               position: 'sticky',
               top: 0,
               backgroundColor: 'var(--color-bg-primary)',
-              zIndex: 10
+              zIndex: 5
             }}>
               <tr>
-                <th className="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider" style={{
+                <th className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider" style={{
                   color: 'var(--color-text-secondary)',
                   width: '20%',
                   backgroundColor: 'var(--color-bg-primary)'
                 }}>
                   ID
                 </th>
-                <th className="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider" style={{
+                <th className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider" style={{
                   color: 'var(--color-text-secondary)',
                   width: '35%',
                   backgroundColor: 'var(--color-bg-primary)'
@@ -213,7 +222,7 @@ export function TranslationTable({
                   Source ({sourceLanguage.toUpperCase()})
                 </th>
                 {!isSourceOnly && (
-                  <th className="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider" style={{
+                  <th className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider" style={{
                     color: 'var(--color-text-secondary)',
                     width: '35%',
                     backgroundColor: 'var(--color-bg-primary)'
@@ -221,7 +230,7 @@ export function TranslationTable({
                     Translation ({targetLanguage.toUpperCase()})
                   </th>
                 )}
-                <th className="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider" style={{
+                <th className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider" style={{
                   color: 'var(--color-text-secondary)',
                   width: '10%',
                   backgroundColor: 'var(--color-bg-primary)'
@@ -259,7 +268,7 @@ export function TranslationTable({
                       }}
                     >
                       {/* ID Cell */}
-                      <td className="px-4 py-3 text-sm align-top first:rounded-l-lg">
+                      <td className="px-3 py-2.5 text-sm align-top first:rounded-l-lg">
                         {isEditing ? (
                           <input
                             type="text"
@@ -284,7 +293,7 @@ export function TranslationTable({
                       </td>
 
                       {/* Source Cell */}
-                      <td className="px-4 py-3 text-sm align-top">
+                      <td className="px-3 py-2.5 text-sm align-top">
                         {isEditing ? (
                           <textarea
                             value={editValues.source}
@@ -310,7 +319,7 @@ export function TranslationTable({
 
                       {/* Target Cell */}
                       {!isSourceOnly && (
-                        <td className="px-4 py-3 text-sm align-top">
+                        <td className="px-3 py-2.5 text-sm align-top">
                           {isEditing ? (
                             <textarea
                               value={editValues.target}
@@ -340,7 +349,7 @@ export function TranslationTable({
                       )}
 
                       {/* Actions Cell */}
-                      <td className="px-4 py-3 text-sm align-top last:rounded-r-lg">
+                      <td className="px-3 py-2.5 text-sm align-top last:rounded-r-lg">
                         {isEditing ? (
                           <div className="flex gap-2 items-center">
                             <button
