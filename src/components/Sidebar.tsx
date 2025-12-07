@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "motion/react";
 import { Folder, FileText } from "lucide-react";
-import { FileTree, T3FileGroup } from "./FileTree";
+import { FileTree, T3FileGroup, FileDataMap } from "./FileTree";
 import { Button } from "./Button";
 import { useDialogs } from "../hooks/useDialogs";
 
@@ -11,6 +11,7 @@ interface SidebarProps {
   onDeleteFile: (filePath: string) => void;
   currentFile: string | null;
   fileGroups: T3FileGroup[];
+  fileDataMap: FileDataMap;
 }
 
 export function Sidebar({
@@ -20,6 +21,7 @@ export function Sidebar({
   onDeleteFile,
   currentFile,
   fileGroups,
+  fileDataMap,
 }: SidebarProps) {
   const { openFileDialog, openFolderDialog } = useDialogs();
 
@@ -39,7 +41,7 @@ export function Sidebar({
 
   return (
     <motion.div
-      className="w-56 h-full flex flex-col p-2.5 gap-2.5"
+      className="w-64 h-full flex flex-col p-2.5 gap-2.5"
       style={{
         backgroundColor: "var(--color-bg-secondary)",
         borderRight: "1px solid var(--color-border)",
@@ -182,6 +184,7 @@ export function Sidebar({
               onFileSelect={onFileOpen}
               onAddLanguage={onAddLanguage}
               onDeleteFile={onDeleteFile}
+              fileDataMap={fileDataMap}
             />
           </motion.div>
         )}

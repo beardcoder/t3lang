@@ -55,6 +55,12 @@ export function TranslationTable({
     );
   });
 
+  const translationProgress = useMemo(() => {
+    if (isSourceOnly || units.length === 0) return 0;
+    const translatedCount = units.filter(unit => unit.target && unit.target.trim() !== '').length;
+    return Math.round((translatedCount / units.length) * 100);
+  }, [units, isSourceOnly]);
+
   const handleEdit = (unit: TranslationUnit) => {
     setEditingId(unit.id);
     setEditValues({ id: unit.id, source: unit.source, target: unit.target });
@@ -154,15 +160,54 @@ export function TranslationTable({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <div>
               <h2 className="text-xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>
                 Translations
               </h2>
-              <div className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
-                {sourceLanguage.toUpperCase()} → {targetLanguage.toUpperCase()} • {filteredUnits.length} of {units.length}
+              <div className="text-xs mt-0.5 flex items-center gap-2" style={{ color: 'var(--color-text-secondary)' }}>
+                <span>{sourceLanguage.toUpperCase()} → {targetLanguage.toUpperCase()}</span>
+                <span>•</span>
+                <span>{filteredUnits.length} of {units.length}</span>
+                {!isSourceOnly && (
+                  <>
+                    <span>•</span>
+                    <motion.span
+                      className="font-semibold"
+                      style={{
+                        color: translationProgress === 100 ? 'var(--color-accent)' : 'var(--color-text-secondary)'
+                      }}
+                      animate={{
+                        scale: translationProgress === 100 ? [1, 1.1, 1] : 1
+                      }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {translationProgress}% translated
+                    </motion.span>
+                  </>
+                )}
               </div>
             </div>
+            {!isSourceOnly && (
+              <motion.div
+                className="flex items-center gap-2"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <div className="w-32 h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{
+                      backgroundColor: translationProgress === 100 ? 'var(--color-accent)' : 'rgba(30, 215, 96, 0.7)',
+                    }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${translationProgress}%` }}
+                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                  />
+                </div>
+              </motion.div>
+            )}
           </div>
 
           <div className="flex items-center gap-2">

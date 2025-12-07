@@ -474,6 +474,7 @@ function AppContent() {
           onDeleteFile={handleDeleteFile}
           currentFile={currentFile}
           fileGroups={fileGroups}
+          fileDataMap={fileDataMap as any}
         />
 
         <div className="flex-1 flex flex-col overflow-hidden">

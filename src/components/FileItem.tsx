@@ -10,6 +10,7 @@ interface FileItemProps {
   isSource?: boolean;
   onSelect: () => void;
   onDelete?: () => void;
+  translationProgress?: number;
 }
 
 export function FileItem({
@@ -19,6 +20,7 @@ export function FileItem({
   isSource,
   onSelect,
   onDelete,
+  translationProgress = 0,
 }: FileItemProps) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -43,22 +45,42 @@ export function FileItem({
       >
         <div>{isSource ? <FileText size={14} /> : <Globe size={14} />}</div>
         <span className="text-xs flex-1 truncate">{name}</span>
-        <span
-          className={`text-[10px] px-2 py-1 rounded-full font-semibold ${
-            isSource ? "" : "text-xs px-2 py-0.5 font-medium"
-          }`}
-          style={{
-            backgroundColor: isSource
-              ? "var(--color-accent)"
-              : "var(--color-bg-tertiary)",
-            color: isSource
-              ? "var(--color-bg-secondary)"
-              : "var(--color-text-secondary)",
-            border: isSource ? "none" : "1px solid var(--color-border)",
-          }}
-        >
-          {isSource ? "Source" : language.toUpperCase()}
-        </span>
+        <div className="flex items-center gap-1.5">
+          {!isSource && translationProgress !== undefined && (
+            <span
+              className="text-[9px] px-1.5 py-0.5 rounded-full font-semibold"
+              style={{
+                backgroundColor: translationProgress === 100
+                  ? "var(--color-accent)"
+                  : "var(--color-bg-tertiary)",
+                color: translationProgress === 100
+                  ? "white"
+                  : "var(--color-text-secondary)",
+                border: translationProgress === 100
+                  ? "none"
+                  : "1px solid var(--color-border)",
+              }}
+            >
+              {translationProgress}%
+            </span>
+          )}
+          <span
+            className={`text-[10px] px-2 py-1 rounded-full font-semibold ${
+              isSource ? "" : "text-xs px-2 py-0.5 font-medium"
+            }`}
+            style={{
+              backgroundColor: isSource
+                ? "var(--color-accent)"
+                : "var(--color-bg-tertiary)",
+              color: isSource
+                ? "var(--color-bg-secondary)"
+                : "var(--color-text-secondary)",
+              border: isSource ? "none" : "1px solid var(--color-border)",
+            }}
+          >
+            {isSource ? "Source" : language.toUpperCase()}
+          </span>
+        </div>
       </button>
       {onDelete && isHovered && (
         <button

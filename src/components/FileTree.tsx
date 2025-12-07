@@ -14,12 +14,20 @@ export interface T3FileGroup {
   files: T3File[];
 }
 
+export interface FileDataMap {
+  get: (path: string) => {
+    units: Array<{ id: string; source: string; target: string }>;
+    isSourceOnly: boolean;
+  } | undefined;
+}
+
 interface FileTreeProps {
   fileGroups: T3FileGroup[];
   selectedFile: string | null;
   onFileSelect: (path: string) => void;
   onAddLanguage: (baseName: string) => void;
   onDeleteFile: (filePath: string) => void;
+  fileDataMap: FileDataMap;
 }
 
 export function FileTree({
@@ -28,6 +36,7 @@ export function FileTree({
   onFileSelect,
   onAddLanguage,
   onDeleteFile,
+  fileDataMap,
 }: FileTreeProps) {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
     new Set(fileGroups.map((g) => g.baseName))
@@ -71,6 +80,7 @@ export function FileTree({
             onFileSelect={onFileSelect}
             onAddLanguage={() => onAddLanguage(group.baseName)}
             onDeleteFile={onDeleteFile}
+            fileDataMap={fileDataMap}
           />
         ))}
       </AnimatePresence>
