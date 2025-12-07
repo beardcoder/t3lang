@@ -129,7 +129,11 @@ export function Select({
     >
       <ReactSelect
         value={selectedOption}
-        onChange={(option) => option && onChange(option.value)}
+        onChange={(option) => {
+          if (option && !Array.isArray(option) && 'value' in option) {
+            onChange(option.value);
+          }
+        }}
         options={options}
         styles={customStyles}
         placeholder={placeholder}

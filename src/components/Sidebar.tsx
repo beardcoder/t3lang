@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from "motion/react";
 import { Folder, FileText } from "lucide-react";
 import { FileTree, T3FileGroup, FileDataMap } from "./FileTree";
-import { Button } from "./Button";
 import { useDialogs } from "../hooks/useDialogs";
 
 interface SidebarProps {

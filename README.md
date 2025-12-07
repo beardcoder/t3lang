@@ -25,6 +25,7 @@ A modern desktop application for managing TYPO3 translation files (XLIFF format)
 
 - **Table view** with 4 columns: ID, Source, Translation, Actions
 - **Click to edit** any translation inline
+- **Drag and drop** to reorder translation keys
 - **Add new translation keys** with dialog
 - **Delete translations** with confirmation
 - Real-time search across ID, source, and target text
@@ -98,6 +99,14 @@ npm run tauri build
 4. Edit the text in the textarea
 5. Click "Save" or press Cmd/Ctrl + S
 6. Click "Cancel" or press Esc to discard changes
+
+#### Reordering Translation Keys
+
+1. Hover over any translation row
+2. Click and hold the grip handle (⋮⋮) on the left
+3. Drag the row to the desired position
+4. Release to save the new order
+5. Changes are saved automatically
 
 #### Adding New Keys
 

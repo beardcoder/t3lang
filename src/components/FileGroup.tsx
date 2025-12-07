@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "motion/react";
+import { AnimatePresence } from "motion/react";
 import { ChevronRight, Plus } from "lucide-react";
 import { FileItem } from "./FileItem";
 import { T3File, FileDataMap } from "./FileTree";

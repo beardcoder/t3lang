@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Drag and drop functionality to reorder translation keys
+- Visual grip handle indicator for draggable rows
+- Automatic save when reordering translations
+
+### Changed
+- Updated dependencies with @dnd-kit packages for drag and drop support
+
+### Fixed
+- TypeScript errors in Select component
+- Removed unused imports in FileGroup and Sidebar components
+
 ## [0.1.0] - 2025-12-07
 
 ### Added

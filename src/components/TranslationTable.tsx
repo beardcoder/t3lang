@@ -1,7 +1,24 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Plus, Trash2, Check, X, Globe, Eraser, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Check, X, Globe, Eraser, Loader2, GripVertical } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Select } from './Select';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface TranslationUnit {
   id: string;
@@ -15,6 +32,7 @@ interface TranslationTableProps {
   onDelete: (id: string) => Promise<void> | void;
   onAddKey: (id: string, source: string) => Promise<void> | void;
   onClearTranslation: (id: string) => Promise<void> | void;
+  onReorder: (newOrder: TranslationUnit[]) => Promise<void> | void;
   searchQuery: string;
   sourceLanguage?: string;
   targetLanguage?: string;
@@ -23,12 +41,231 @@ interface TranslationTableProps {
   isSourceOnly: boolean;
 }
 
+interface SortableRowProps {
+  unit: TranslationUnit;
+  isEditing: boolean;
+  isSaving: boolean;
+  isJustSaved: boolean;
+  isSourceOnly: boolean;
+  editValues: { id: string; source: string; target: string };
+  isDirty: boolean;
+  onEdit: (unit: TranslationUnit) => void;
+  onSave: () => void;
+  onCancel: () => void;
+  onDelete: (id: string) => void;
+  onClearTranslation: (id: string) => void;
+  setEditValues: (values: { id: string; source: string; target: string }) => void;
+}
+
+function SortableRow({
+  unit,
+  isEditing,
+  isSaving,
+  isJustSaved,
+  isSourceOnly,
+  editValues,
+  isDirty,
+  onEdit,
+  onSave,
+  onCancel,
+  onDelete,
+  onClearTranslation,
+  setEditValues,
+}: SortableRowProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: unit.id, disabled: isEditing });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <motion.tr
+      ref={setNodeRef}
+      style={style}
+      layout
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0, backgroundColor: isJustSaved ? 'rgba(34,197,94,0.12)' : isEditing ? 'var(--color-bg-hover)' : 'var(--color-bg-secondary)' }}
+      exit={{ opacity: 0, y: -4 }}
+      transition={{ duration: 0.18, ease: 'easeOut' }}
+      className="group"
+      onMouseEnter={(e) => {
+        if (!isEditing && !isJustSaved) {
+          e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (isJustSaved) {
+          e.currentTarget.style.backgroundColor = 'rgba(34,197,94,0.12)';
+        } else if (!isEditing) {
+          e.currentTarget.style.backgroundColor = 'var(--color-bg-secondary)';
+        }
+      }}
+    >
+      {/* Drag Handle Cell */}
+      <td className="px-2 py-2.5 align-top first:rounded-l-lg w-8">
+        <div
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-opacity-10 hover:bg-white"
+          style={{ color: 'var(--color-text-secondary)', opacity: isEditing ? 0.3 : 0.6 }}
+        >
+          <GripVertical size={16} />
+        </div>
+      </td>
+
+      {/* ID Cell */}
+      <td className="px-3 py-2.5 text-sm align-top">
+        {isEditing ? (
+          <input
+            type="text"
+            value={editValues.id}
+            onChange={(e) => setEditValues({ ...editValues, id: e.target.value })}
+            className="w-full px-3 py-2 rounded-md text-sm font-mono"
+            style={{
+              backgroundColor: 'var(--color-bg-primary)',
+              color: 'var(--color-text-primary)',
+              border: '2px solid var(--color-accent)'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => onEdit(unit)}
+            className="cursor-pointer px-3 py-2 rounded-md font-mono"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            {unit.id}
+          </div>
+        )}
+      </td>
+
+      {/* Source Cell */}
+      <td className="px-3 py-2.5 text-sm align-top">
+        {isEditing ? (
+          <textarea
+            value={editValues.source}
+            onChange={(e) => setEditValues({ ...editValues, source: e.target.value })}
+            className="w-full px-3 py-2 rounded-md resize-none"
+            style={{
+              backgroundColor: 'var(--color-bg-primary)',
+              color: 'var(--color-text-primary)',
+              border: '2px solid var(--color-accent)',
+              minHeight: '80px'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => onEdit(unit)}
+            className="cursor-pointer px-3 py-2 rounded-md"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            {unit.source}
+          </div>
+        )}
+      </td>
+
+      {/* Target Cell */}
+      {!isSourceOnly && (
+        <td className="px-3 py-2.5 text-sm align-top">
+          {isEditing ? (
+            <textarea
+              value={editValues.target}
+              onChange={(e) => setEditValues({ ...editValues, target: e.target.value })}
+              className="w-full px-3 py-2 rounded-md resize-none"
+              style={{
+                backgroundColor: 'var(--color-bg-primary)',
+                color: 'var(--color-text-primary)',
+                border: '2px solid var(--color-accent)',
+                minHeight: '80px'
+              }}
+              autoFocus
+            />
+          ) : (
+            <div
+              onClick={() => onEdit(unit)}
+              className="cursor-pointer px-3 py-2 rounded-md"
+              style={{
+                color: unit.target ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                fontStyle: unit.target ? 'normal' : 'italic'
+              }}
+            >
+              {unit.target || 'Click to add...'}
+            </div>
+          )}
+        </td>
+      )}
+
+      {/* Actions Cell */}
+      <td className="px-3 py-2.5 text-sm align-top last:rounded-r-lg">
+        {isEditing ? (
+          <div className="flex gap-2 items-center">
+            <button
+              onClick={onSave}
+              disabled={isSaving || !isDirty}
+              className="p-2 rounded-full hover:scale-110 disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{ backgroundColor: 'var(--color-accent)', color: 'white' }}
+              title="Save (Cmd/Ctrl+S or Cmd/Ctrl+Enter)"
+            >
+              {isSaving ? <Loader2 className="animate-spin" size={18} /> : <Check size={18} />}
+            </button>
+            <button
+              onClick={onCancel}
+              disabled={isSaving}
+              className="p-2 rounded-full hover:scale-110 disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-primary)' }}
+              title="Cancel (Esc)"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        ) : (
+          <div className="flex gap-2 items-center">
+            {!isSourceOnly && !!unit.target && (
+              <button
+                onClick={() => onClearTranslation(unit.id)}
+                className="p-2 rounded-full hover:scale-110"
+                style={{
+                  backgroundColor: 'var(--color-bg-hover)',
+                  color: 'var(--color-text-primary)'
+                }}
+                title="Clear translation"
+              >
+                <Eraser size={16} />
+              </button>
+            )}
+            <button
+              onClick={() => onDelete(unit.id)}
+              className="opacity-0 group-hover:opacity-100 p-2 rounded-full hover:scale-110"
+              style={{
+                backgroundColor: 'var(--color-danger)',
+                color: 'white'
+              }}
+              title="Delete"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        )}
+      </td>
+    </motion.tr>
+  );
+}
+
 export function TranslationTable({
   units,
   onSave,
   onDelete,
   onAddKey,
   onClearTranslation,
+  onReorder,
   searchQuery,
   sourceLanguage = 'en',
   targetLanguage = 'de',
@@ -36,6 +273,12 @@ export function TranslationTable({
   onVersionChange,
   isSourceOnly
 }: TranslationTableProps) {
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState({ id: '', source: '', target: '' });
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -87,6 +330,41 @@ export function TranslationTable({
       setNewKeyId('');
       setNewKeySource('');
       setShowAddDialog(false);
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = filteredUnits.findIndex((unit) => unit.id === active.id);
+      const newIndex = filteredUnits.findIndex((unit) => unit.id === over.id);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newOrder = arrayMove(filteredUnits, oldIndex, newIndex);
+
+        // Map back to full units array while preserving search filter
+        const reorderedFullUnits = [...units];
+        const idsInNewOrder = newOrder.map(u => u.id);
+
+        // Sort the full units array based on the new order
+        reorderedFullUnits.sort((a, b) => {
+          const aIndex = idsInNewOrder.indexOf(a.id);
+          const bIndex = idsInNewOrder.indexOf(b.id);
+
+          // If both are in the filtered list, sort by their new position
+          if (aIndex !== -1 && bIndex !== -1) {
+            return aIndex - bIndex;
+          }
+          // If only one is in the filtered list, it comes first
+          if (aIndex !== -1) return -1;
+          if (bIndex !== -1) return 1;
+          // If neither is in the filtered list, maintain original order
+          return 0;
+        });
+
+        onReorder(reorderedFullUnits);
+      }
     }
   };
 
@@ -252,6 +530,12 @@ export function TranslationTable({
               zIndex: 5
             }}>
               <tr>
+                <th className="text-left px-2 py-2 font-semibold text-[10px] uppercase tracking-wider" style={{
+                  color: 'var(--color-text-secondary)',
+                  width: '32px',
+                  backgroundColor: 'var(--color-bg-primary)'
+                }}>
+                </th>
                 <th className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider" style={{
                   color: 'var(--color-text-secondary)',
                   width: '20%',
@@ -284,172 +568,44 @@ export function TranslationTable({
                 </th>
               </tr>
             </thead>
-            <tbody>
-              <AnimatePresence initial={false}>
-                {filteredUnits.map((unit) => {
-                  const isEditing = editingId === unit.id;
-                  const isSaving = savingId === unit.id;
-                  const isJustSaved = recentlySavedId === unit.id;
-                  return (
-                    <motion.tr
-                      key={unit.id}
-                      layout
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0, backgroundColor: isJustSaved ? 'rgba(34,197,94,0.12)' : isEditing ? 'var(--color-bg-hover)' : 'var(--color-bg-secondary)' }}
-                      exit={{ opacity: 0, y: -4 }}
-                      transition={{ duration: 0.18, ease: 'easeOut' }}
-                      className="group"
-                      onMouseEnter={(e) => {
-                        if (!isEditing && !isJustSaved) {
-                          e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (isJustSaved) {
-                          e.currentTarget.style.backgroundColor = 'rgba(34,197,94,0.12)';
-                        } else if (!isEditing) {
-                          e.currentTarget.style.backgroundColor = 'var(--color-bg-secondary)';
-                        }
-                      }}
-                    >
-                      {/* ID Cell */}
-                      <td className="px-3 py-2.5 text-sm align-top first:rounded-l-lg">
-                        {isEditing ? (
-                          <input
-                            type="text"
-                            value={editValues.id}
-                            onChange={(e) => setEditValues(prev => ({ ...prev, id: e.target.value }))}
-                            className="w-full px-3 py-2 rounded-md text-sm font-mono"
-                            style={{
-                              backgroundColor: 'var(--color-bg-primary)',
-                              color: 'var(--color-text-primary)',
-                              border: '2px solid var(--color-accent)'
-                            }}
-                          />
-                        ) : (
-                          <div
-                            onClick={() => handleEdit(unit)}
-                            className="cursor-pointer px-3 py-2 rounded-md font-mono"
-                            style={{ color: 'var(--color-text-secondary)' }}
-                          >
-                            {unit.id}
-                          </div>
-                        )}
-                      </td>
-
-                      {/* Source Cell */}
-                      <td className="px-3 py-2.5 text-sm align-top">
-                        {isEditing ? (
-                          <textarea
-                            value={editValues.source}
-                            onChange={(e) => setEditValues(prev => ({ ...prev, source: e.target.value }))}
-                            className="w-full px-3 py-2 rounded-md resize-none"
-                            style={{
-                              backgroundColor: 'var(--color-bg-primary)',
-                              color: 'var(--color-text-primary)',
-                              border: '2px solid var(--color-accent)',
-                              minHeight: '80px'
-                            }}
-                          />
-                        ) : (
-                          <div
-                            onClick={() => handleEdit(unit)}
-                            className="cursor-pointer px-3 py-2 rounded-md"
-                            style={{ color: 'var(--color-text-primary)' }}
-                          >
-                            {unit.source}
-                          </div>
-                        )}
-                      </td>
-
-                      {/* Target Cell */}
-                      {!isSourceOnly && (
-                        <td className="px-3 py-2.5 text-sm align-top">
-                          {isEditing ? (
-                            <textarea
-                              value={editValues.target}
-                              onChange={(e) => setEditValues(prev => ({ ...prev, target: e.target.value }))}
-                              className="w-full px-3 py-2 rounded-md resize-none"
-                              style={{
-                                backgroundColor: 'var(--color-bg-primary)',
-                                color: 'var(--color-text-primary)',
-                                border: '2px solid var(--color-accent)',
-                                minHeight: '80px'
-                              }}
-                              autoFocus
-                            />
-                          ) : (
-                            <div
-                              onClick={() => handleEdit(unit)}
-                              className="cursor-pointer px-3 py-2 rounded-md"
-                              style={{
-                                color: unit.target ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                                fontStyle: unit.target ? 'normal' : 'italic'
-                              }}
-                            >
-                              {unit.target || 'Click to add...'}
-                            </div>
-                          )}
-                        </td>
-                      )}
-
-                      {/* Actions Cell */}
-                      <td className="px-3 py-2.5 text-sm align-top last:rounded-r-lg">
-                        {isEditing ? (
-                          <div className="flex gap-2 items-center">
-                            <button
-                              onClick={handleSave}
-                              disabled={isSaving || !isDirty}
-                              className="p-2 rounded-full hover:scale-110 disabled:opacity-60 disabled:cursor-not-allowed"
-                              style={{ backgroundColor: 'var(--color-accent)', color: 'white' }}
-                              title="Save (Cmd/Ctrl+S or Cmd/Ctrl+Enter)"
-                            >
-                              {isSaving ? <Loader2 className="animate-spin" size={18} /> : <Check size={18} />}
-                            </button>
-                            <button
-                              onClick={handleCancel}
-                              disabled={isSaving}
-                              className="p-2 rounded-full hover:scale-110 disabled:opacity-60 disabled:cursor-not-allowed"
-                              style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-primary)' }}
-                              title="Cancel (Esc)"
-                            >
-                              <X size={18} />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex gap-2 items-center">
-                            {!isSourceOnly && !!unit.target && (
-                              <button
-                                onClick={() => onClearTranslation(unit.id)}
-                                className="p-2 rounded-full hover:scale-110"
-                                style={{
-                                  backgroundColor: 'var(--color-bg-hover)',
-                                  color: 'var(--color-text-primary)'
-                                }}
-                                title="Clear translation"
-                              >
-                                <Eraser size={16} />
-                              </button>
-                            )}
-                            <button
-                              onClick={() => onDelete(unit.id)}
-                              className="opacity-0 group-hover:opacity-100 p-2 rounded-full hover:scale-110"
-                              style={{
-                                backgroundColor: 'var(--color-danger)',
-                                color: 'white'
-                              }}
-                              title="Delete"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </motion.tr>
-                  );
-                })}
-              </AnimatePresence>
-            </tbody>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={filteredUnits.map(u => u.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <tbody>
+                  <AnimatePresence initial={false}>
+                    {filteredUnits.map((unit) => {
+                      const isEditing = editingId === unit.id;
+                      const isSaving = savingId === unit.id;
+                      const isJustSaved = recentlySavedId === unit.id;
+                      return (
+                        <SortableRow
+                          key={unit.id}
+                          unit={unit}
+                          isEditing={isEditing}
+                          isSaving={isSaving}
+                          isJustSaved={isJustSaved}
+                          isSourceOnly={isSourceOnly}
+                          editValues={editValues}
+                          isDirty={isDirty}
+                          onEdit={handleEdit}
+                          onSave={handleSave}
+                          onCancel={handleCancel}
+                          onDelete={onDelete}
+                          onClearTranslation={onClearTranslation}
+                          setEditValues={setEditValues}
+                        />
+                      );
+                    })}
+                  </AnimatePresence>
+                </tbody>
+              </SortableContext>
+            </DndContext>
           </table>
         </div>
       </div>

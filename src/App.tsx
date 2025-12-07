@@ -288,6 +288,30 @@ function AppContent() {
     setFileDataMap(newMap);
   };
 
+  const handleReorder = async (newOrder: Array<{ id: string; source: string; target: string }>) => {
+    if (!currentFile) return;
+
+    const fileData = fileDataMap.get(currentFile);
+    if (!fileData) return;
+
+    const updatedData = JSON.parse(JSON.stringify(fileData.xliffData));
+
+    // Replace units array with the new order
+    if (updatedData.files.length > 0) {
+      updatedData.files[0].units = newOrder;
+    }
+
+    await saveFile(currentFile, updatedData, showMessage);
+
+    const newMap = new Map(fileDataMap);
+    newMap.set(currentFile, {
+      ...fileData,
+      xliffData: updatedData,
+      units: newOrder,
+    });
+    setFileDataMap(newMap);
+  };
+
   const handleNewLanguage = async (languageCode: string) => {
     if (!folderPath || !selectedBaseName) return;
 
@@ -504,6 +528,7 @@ function AppContent() {
                     onDelete={handleDelete}
                     onAddKey={handleAddKey}
                     onClearTranslation={handleClearTranslation}
+                    onReorder={handleReorder}
                     searchQuery={searchQuery}
                     sourceLanguage={currentFileData.sourceLanguage}
                     targetLanguage={targetLanguage}
