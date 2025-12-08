@@ -345,7 +345,10 @@ function AppContent() {
       newMap.set(filePath, {
         ...relatedFileData,
         xliffData: updatedData,
-        units: updatedData.files[0].units,
+        units: updatedData.files[0].units.map((unit) => ({
+          ...unit,
+          target: unit.target || "",
+        })),
       });
     }
 
