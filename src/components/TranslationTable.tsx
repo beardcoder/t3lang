@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { Plus, Trash2, Save, Globe, Eraser, GripVertical } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
 import { Select } from "./Select";
 import {
   DndContext,
@@ -75,31 +74,18 @@ function SortableRow({
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const modifiedStyle = isModified
-    ? {
-        backgroundColor: "rgba(30, 215, 96, 0.1)",
-        borderLeft: "3px solid var(--color-accent)",
-      }
-    : {};
-
   return (
-    <motion.tr
+    <tr
       ref={setNodeRef}
-      style={{ ...style, ...modifiedStyle }}
-      layout
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -4 }}
-      transition={{ duration: 0.18, ease: "easeOut" }}
-      className="group"
+      style={style}
+      className={`group ${isModified ? 'bg-green-500/10 border-l-4 border-green-500' : 'bg-secondary'}`}
     >
       {/* Drag Handle Cell */}
       <td className="px-2 py-2.5 align-top first:rounded-l-lg w-8">
         <div
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-opacity-10 hover:bg-white"
-          style={{ color: "var(--color-text-secondary)", opacity: 0.6 }}
+          className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-white/10 text-secondary opacity-60"
         >
           <GripVertical size={16} />
         </div>
@@ -111,12 +97,9 @@ function SortableRow({
           type="text"
           value={modifiedValues.id}
           onChange={(e) => onValueChange(unit.id, 'id', e.target.value)}
-          className="w-full px-3 py-2 rounded-md text-sm font-mono border-2"
-          style={{
-            backgroundColor: "var(--color-bg-secondary)",
-            color: "var(--color-text-secondary)",
-            borderColor: isModified ? "var(--color-accent)" : "transparent",
-          }}
+          className={`w-full px-3 py-2 rounded-md text-sm font-mono bg-secondary text-secondary border-2 ${
+            isModified ? 'border-accent' : 'border-transparent'
+          }`}
         />
       </td>
 
@@ -125,13 +108,9 @@ function SortableRow({
         <textarea
           value={modifiedValues.source}
           onChange={(e) => onValueChange(unit.id, 'source', e.target.value)}
-          className="w-full px-3 py-2 rounded-md resize-none border-2"
-          style={{
-            backgroundColor: "var(--color-bg-secondary)",
-            color: "var(--color-text-primary)",
-            borderColor: isModified ? "var(--color-accent)" : "transparent",
-            minHeight: "60px",
-          }}
+          className={`w-full px-3 py-2 rounded-md resize-none bg-secondary text-primary border-2 ${
+            isModified ? 'border-accent' : 'border-transparent'
+          } min-h-[60px]`}
         />
       </td>
 
@@ -142,13 +121,9 @@ function SortableRow({
             value={modifiedValues.target}
             onChange={(e) => onValueChange(unit.id, 'target', e.target.value)}
             placeholder="Enter translation..."
-            className="w-full px-3 py-2 rounded-md resize-none border-2"
-            style={{
-              backgroundColor: "var(--color-bg-secondary)",
-              color: "var(--color-text-primary)",
-              borderColor: isModified ? "var(--color-accent)" : "transparent",
-              minHeight: "60px",
-            }}
+            className={`w-full px-3 py-2 rounded-md resize-none bg-secondary text-primary border-2 ${
+              isModified ? 'border-accent' : 'border-transparent'
+            } min-h-[60px]`}
           />
         </td>
       )}
@@ -159,11 +134,7 @@ function SortableRow({
           {!isSourceOnly && !!unit.target && (
             <button
               onClick={() => onClearTranslation(unit.id)}
-              className="p-2 rounded-full hover:scale-110"
-              style={{
-                backgroundColor: "var(--color-bg-hover)",
-                color: "var(--color-text-primary)",
-              }}
+              className="p-2 rounded-full hover:scale-110 bg-hover text-primary"
               title="Clear translation"
             >
               <Eraser size={16} />
@@ -171,18 +142,14 @@ function SortableRow({
           )}
           <button
             onClick={() => onDelete(unit.id)}
-            className="opacity-0 group-hover:opacity-100 p-2 rounded-full hover:scale-110"
-            style={{
-              backgroundColor: "var(--color-danger)",
-              color: "white",
-            }}
+            className="opacity-0 group-hover:opacity-100 p-2 rounded-full hover:scale-110 bg-danger text-white"
             title="Delete"
           >
             <Trash2 size={16} />
           </button>
         </div>
       </td>
-    </motion.tr>
+    </tr>
   );
 }
 
@@ -207,7 +174,6 @@ export function TranslationTable({
     })
   );
 
-  // Track modified values for each unit
   const [modifiedUnits, setModifiedUnits] = useState<Map<string, TranslationUnit>>(new Map());
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newKeyId, setNewKeyId] = useState("");
@@ -242,18 +208,15 @@ export function TranslationTable({
     const currentModified = modifiedUnits.get(unitId) || { ...originalUnit };
     const updated = { ...currentModified, [field]: value };
 
-    // Check if still different from original
     if (
       updated.id === originalUnit.id &&
       updated.source === originalUnit.source &&
       updated.target === originalUnit.target
     ) {
-      // No changes, remove from modified
       const newMap = new Map(modifiedUnits);
       newMap.delete(unitId);
       setModifiedUnits(newMap);
     } else {
-      // Has changes, add/update
       const newMap = new Map(modifiedUnits);
       newMap.set(unitId, updated);
       setModifiedUnits(newMap);
@@ -265,7 +228,6 @@ export function TranslationTable({
 
     setIsSaving(true);
     try {
-      // Save all modified units
       for (const [originalId, modifiedUnit] of modifiedUnits.entries()) {
         await onSave(
           originalId,
@@ -338,23 +300,13 @@ export function TranslationTable({
 
   if (units.length === 0) {
     return (
-      <div
-        className="flex items-center justify-center h-full"
-        style={{ backgroundColor: "var(--color-bg-primary)" }}
-      >
+      <div className="flex items-center justify-center h-full bg-primary">
         <div className="text-center">
-          <Globe
-            className="mx-auto mb-6"
-            size={80}
-            style={{ color: "var(--color-text-secondary)", opacity: 0.2 }}
-          />
-          <h2
-            className="text-2xl font-semibold mb-3"
-            style={{ color: "var(--color-text-primary)" }}
-          >
+          <Globe className="mx-auto mb-6 text-secondary opacity-20" size={80} />
+          <h2 className="text-2xl font-semibold mb-3 text-primary">
             No Translations
           </h2>
-          <p className="text-base" style={{ color: "var(--color-text-secondary)" }}>
+          <p className="text-base text-secondary">
             Open a file or folder to get started
           </p>
         </div>
@@ -364,33 +316,15 @@ export function TranslationTable({
 
   return (
     <>
-      <div
-        className="flex flex-col h-full"
-        style={{ backgroundColor: "var(--color-bg-primary)" }}
-      >
+      <div className="flex flex-col h-full bg-primary">
         {/* Header */}
-        <motion.div
-          className="px-4 py-3 flex items-center justify-between"
-          style={{
-            backgroundColor: "var(--color-bg-secondary)",
-            borderBottom: "1px solid var(--color-border)",
-          }}
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
+        <div className="px-4 py-3 flex items-center justify-between bg-secondary border-b border-border">
           <div className="flex items-center gap-4">
             <div>
-              <h2
-                className="text-xl font-semibold"
-                style={{ color: "var(--color-text-primary)" }}
-              >
+              <h2 className="text-xl font-semibold text-primary">
                 Translations
               </h2>
-              <div
-                className="text-xs mt-0.5 flex items-center gap-2"
-                style={{ color: "var(--color-text-secondary)" }}
-              >
+              <div className="text-xs mt-0.5 flex items-center gap-2 text-secondary">
                 <span>
                   {sourceLanguage.toUpperCase()} → {targetLanguage.toUpperCase()}
                 </span>
@@ -401,27 +335,15 @@ export function TranslationTable({
                 {!isSourceOnly && (
                   <>
                     <span>•</span>
-                    <motion.span
-                      className="font-semibold"
-                      style={{
-                        color:
-                          translationProgress === 100
-                            ? "var(--color-accent)"
-                            : "var(--color-text-secondary)",
-                      }}
-                      animate={{
-                        scale: translationProgress === 100 ? [1, 1.1, 1] : 1,
-                      }}
-                      transition={{ duration: 0.3 }}
-                    >
+                    <span className={`font-semibold ${translationProgress === 100 ? 'text-accent' : 'text-secondary'}`}>
                       {translationProgress}% translated
-                    </motion.span>
+                    </span>
                   </>
                 )}
                 {hasChanges && (
                   <>
                     <span>•</span>
-                    <span className="font-semibold" style={{ color: "var(--color-accent)" }}>
+                    <span className="font-semibold text-accent">
                       {modifiedUnits.size} unsaved
                     </span>
                   </>
@@ -429,30 +351,16 @@ export function TranslationTable({
               </div>
             </div>
             {!isSourceOnly && (
-              <motion.div
-                className="flex items-center gap-2"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <div
-                  className="w-32 h-2 rounded-full overflow-hidden"
-                  style={{ backgroundColor: "var(--color-bg-hover)" }}
-                >
-                  <motion.div
-                    className="h-full rounded-full"
-                    style={{
-                      backgroundColor:
-                        translationProgress === 100
-                          ? "var(--color-accent)"
-                          : "rgba(30, 215, 96, 0.7)",
-                    }}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${translationProgress}%` }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
+              <div className="flex items-center gap-2">
+                <div className="w-32 h-2 rounded-full overflow-hidden bg-hover">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      translationProgress === 100 ? 'bg-accent' : 'bg-accent/70'
+                    }`}
+                    style={{ width: `${translationProgress}%` }}
                   />
                 </div>
-              </motion.div>
+              </div>
             )}
           </div>
 
@@ -468,116 +376,44 @@ export function TranslationTable({
             />
 
             {hasChanges && (
-              <motion.button
+              <button
                 onClick={handleSaveAll}
                 disabled={isSaving}
-                className="px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2"
-                style={{
-                  backgroundColor: "var(--color-accent)",
-                  color: "var(--color-bg-secondary)",
-                  boxShadow: "0 6px 20px rgba(30, 215, 96, 0.25)",
-                }}
-                whileHover={{
-                  scale: 1.03,
-                  boxShadow: "0 8px 24px rgba(30, 215, 96, 0.35)",
-                }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
+                className="px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 bg-accent text-secondary shadow-lg hover:shadow-xl transition-all"
               >
                 <Save size={16} />
                 <span>{isSaving ? "Saving..." : `Save ${modifiedUnits.size} Changes`}</span>
-              </motion.button>
+              </button>
             )}
 
-            <motion.button
+            <button
               onClick={() => setShowAddDialog(true)}
-              className="px-3 py-2 rounded-full font-semibold text-sm flex items-center gap-2"
-              style={{
-                backgroundColor: "var(--color-accent)",
-                color: "var(--color-bg-secondary)",
-                boxShadow: "0 6px 20px rgba(30, 215, 96, 0.25)",
-              }}
-              whileHover={{
-                scale: 1.03,
-                boxShadow: "0 8px 24px rgba(30, 215, 96, 0.35)",
-              }}
-              whileTap={{ scale: 0.97 }}
-              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              className="px-3 py-2 rounded-full font-semibold text-sm flex items-center gap-2 bg-accent text-secondary shadow-lg hover:shadow-xl transition-all"
             >
               <Plus size={16} />
               <span>Add Key</span>
-            </motion.button>
+            </button>
           </div>
-        </motion.div>
+        </div>
 
         {/* Table */}
-        <div
-          className="flex-1 overflow-auto px-4 py-1"
-          style={{ backgroundColor: "var(--color-bg-primary)" }}
-        >
-          <table
-            className="w-full"
-            style={{ borderCollapse: "separate", borderSpacing: "0 3px" }}
-          >
-            <thead
-              style={{
-                position: "sticky",
-                top: 0,
-                backgroundColor: "var(--color-bg-primary)",
-                zIndex: 5,
-              }}
-            >
+        <div className="flex-1 overflow-auto px-4 py-1 bg-primary">
+          <table className="w-full" style={{ borderCollapse: "separate", borderSpacing: "0 3px" }}>
+            <thead className="sticky top-0 bg-primary z-[5]">
               <tr>
-                <th
-                  className="text-left px-2 py-2 font-semibold text-[10px] uppercase tracking-wider"
-                  style={{
-                    color: "var(--color-text-secondary)",
-                    width: "32px",
-                    backgroundColor: "var(--color-bg-primary)",
-                  }}
-                ></th>
-                <th
-                  className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider"
-                  style={{
-                    color: "var(--color-text-secondary)",
-                    width: "20%",
-                    backgroundColor: "var(--color-bg-primary)",
-                  }}
-                >
+                <th className="text-left px-2 py-2 font-semibold text-[10px] uppercase tracking-wider text-secondary w-8 bg-primary" />
+                <th className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider text-secondary w-[20%] bg-primary">
                   ID
                 </th>
-                <th
-                  className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider"
-                  style={{
-                    color: "var(--color-text-secondary)",
-                    width: "35%",
-                    backgroundColor: "var(--color-bg-primary)",
-                  }}
-                >
+                <th className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider text-secondary w-[35%] bg-primary">
                   Source ({sourceLanguage.toUpperCase()})
                 </th>
                 {!isSourceOnly && (
-                  <th
-                    className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider"
-                    style={{
-                      color: "var(--color-text-secondary)",
-                      width: "35%",
-                      backgroundColor: "var(--color-bg-primary)",
-                    }}
-                  >
+                  <th className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider text-secondary w-[35%] bg-primary">
                     Translation ({targetLanguage.toUpperCase()})
                   </th>
                 )}
-                <th
-                  className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider"
-                  style={{
-                    color: "var(--color-text-secondary)",
-                    width: "10%",
-                    backgroundColor: "var(--color-bg-primary)",
-                  }}
-                >
+                <th className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider text-secondary w-[10%] bg-primary">
                   Actions
                 </th>
               </tr>
@@ -592,26 +428,24 @@ export function TranslationTable({
                 strategy={verticalListSortingStrategy}
               >
                 <tbody>
-                  <AnimatePresence initial={false}>
-                    {filteredUnits.map((unit) => {
-                      const modifiedUnit = modifiedUnits.get(unit.id);
-                      const isModified = !!modifiedUnit;
-                      const displayValues = modifiedUnit || unit;
+                  {filteredUnits.map((unit) => {
+                    const modifiedUnit = modifiedUnits.get(unit.id);
+                    const isModified = !!modifiedUnit;
+                    const displayValues = modifiedUnit || unit;
 
-                      return (
-                        <SortableRow
-                          key={unit.id}
-                          unit={unit}
-                          isSourceOnly={isSourceOnly}
-                          isModified={isModified}
-                          modifiedValues={displayValues}
-                          onValueChange={handleValueChange}
-                          onDelete={onDelete}
-                          onClearTranslation={onClearTranslation}
-                        />
-                      );
-                    })}
-                  </AnimatePresence>
+                    return (
+                      <SortableRow
+                        key={unit.id}
+                        unit={unit}
+                        isSourceOnly={isSourceOnly}
+                        isModified={isModified}
+                        modifiedValues={displayValues}
+                        onValueChange={handleValueChange}
+                        onDelete={onDelete}
+                        onClearTranslation={onClearTranslation}
+                      />
+                    );
+                  })}
                 </tbody>
               </SortableContext>
             </DndContext>
@@ -620,112 +454,63 @@ export function TranslationTable({
       </div>
 
       {/* Add Key Dialog */}
-      <AnimatePresence>
-        {showAddDialog && (
-          <motion.div
-            className="fixed inset-0 flex items-center justify-center z-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{
-              backgroundColor: "rgba(0, 0, 0, 0.75)",
-              backdropFilter: "blur(4px)",
-            }}
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 10 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.97, opacity: 0, y: -8 }}
-              transition={{ type: "spring", stiffness: 200, damping: 16 }}
-              className="w-full max-w-lg p-8 rounded-2xl shadow-2xl"
-              style={{
-                backgroundColor: "var(--color-bg-primary)",
-                border: "1px solid var(--color-border)",
-              }}
-            >
-              <h3
-                className="text-2xl font-semibold mb-6"
-                style={{ color: "var(--color-text-primary)" }}
-              >
-                Add Translation Key
-              </h3>
+      {showAddDialog && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/75 backdrop-blur-sm">
+          <div className="w-full max-w-lg p-8 rounded-2xl shadow-2xl bg-primary border border-border">
+            <h3 className="text-2xl font-semibold mb-6 text-primary">
+              Add Translation Key
+            </h3>
 
-              <div className="space-y-4">
-                <div>
-                  <label
-                    className="block text-sm font-semibold mb-2"
-                    style={{ color: "var(--color-text-secondary)" }}
-                  >
-                    Key ID
-                  </label>
-                  <input
-                    type="text"
-                    value={newKeyId}
-                    onChange={(e) => setNewKeyId(e.target.value)}
-                    placeholder="e.g., button.submit"
-                    className="w-full px-4 py-3 rounded-lg font-mono"
-                    style={{
-                      backgroundColor: "var(--color-bg-secondary)",
-                      color: "var(--color-text-primary)",
-                      border: "2px solid var(--color-border)",
-                    }}
-                    autoFocus
-                  />
-                </div>
-
-                <div>
-                  <label
-                    className="block text-sm font-semibold mb-2"
-                    style={{ color: "var(--color-text-secondary)" }}
-                  >
-                    Source Text ({sourceLanguage.toUpperCase()})
-                  </label>
-                  <textarea
-                    value={newKeySource}
-                    onChange={(e) => setNewKeySource(e.target.value)}
-                    placeholder="Enter source text..."
-                    className="w-full px-4 py-3 rounded-lg resize-none"
-                    style={{
-                      backgroundColor: "var(--color-bg-secondary)",
-                      color: "var(--color-text-primary)",
-                      border: "2px solid var(--color-border)",
-                      minHeight: "100px",
-                    }}
-                  />
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <button
-                    onClick={handleAddKey}
-                    disabled={!newKeyId.trim() || !newKeySource.trim()}
-                    className="flex-1 px-4 py-3 rounded-full font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
-                    style={{
-                      backgroundColor: "var(--color-accent)",
-                      color: "white",
-                    }}
-                  >
-                    Add Key
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowAddDialog(false);
-                      setNewKeyId("");
-                      setNewKeySource("");
-                    }}
-                    className="flex-1 px-4 py-3 rounded-full font-semibold hover:scale-105"
-                    style={{
-                      backgroundColor: "var(--color-bg-hover)",
-                      color: "var(--color-text-primary)",
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-secondary">
+                  Key ID
+                </label>
+                <input
+                  type="text"
+                  value={newKeyId}
+                  onChange={(e) => setNewKeyId(e.target.value)}
+                  placeholder="e.g., button.submit"
+                  className="w-full px-4 py-3 rounded-lg font-mono bg-secondary text-primary border-2 border-border"
+                  autoFocus
+                />
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-secondary">
+                  Source Text ({sourceLanguage.toUpperCase()})
+                </label>
+                <textarea
+                  value={newKeySource}
+                  onChange={(e) => setNewKeySource(e.target.value)}
+                  placeholder="Enter source text..."
+                  className="w-full px-4 py-3 rounded-lg resize-none bg-secondary text-primary border-2 border-border min-h-[100px]"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={handleAddKey}
+                  disabled={!newKeyId.trim() || !newKeySource.trim()}
+                  className="flex-1 px-4 py-3 rounded-full font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 transition-transform bg-accent text-white"
+                >
+                  Add Key
+                </button>
+                <button
+                  onClick={() => {
+                    setShowAddDialog(false);
+                    setNewKeyId("");
+                    setNewKeySource("");
+                  }}
+                  className="flex-1 px-4 py-3 rounded-full font-semibold hover:scale-105 transition-transform bg-hover text-primary"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
