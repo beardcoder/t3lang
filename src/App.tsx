@@ -456,12 +456,45 @@ function AppContent() {
     currentFileData?.targetLanguage ?? parsedMeta?.language ?? "";
 
   useEffect(() => {
+    let unlisten: (() => void) | undefined;
+
+    const setupCliListener = async () => {
+      try {
+        const { listen } = await import("@tauri-apps/api/event");
+        const { stat } = await import("@tauri-apps/plugin-fs");
+
+        unlisten = await listen<string>("open-path", async (event) => {
+          const path = event.payload;
+          try {
+            const fileInfo = await stat(path);
+            if (fileInfo.isDirectory) {
+              await handleFolderOpen(path);
+            } else if (fileInfo.isFile) {
+              await handleFileOpen(path);
+            }
+          } catch (error) {
+            await showMessage(`Failed to open: ${error}`, "Error", "error");
+          }
+        });
+      } catch {
+        // Event listener not available
+      }
+    };
+
+    setupCliListener();
+    return () => unlisten?.();
+  }, []);
+
+  useEffect(() => {
     let unlistenFile: (() => void) | undefined;
     let unlistenFolder: (() => void) | undefined;
+    let unlistenInstallCli: (() => void) | undefined;
+    let unlistenUninstallCli: (() => void) | undefined;
 
     const setupListeners = async () => {
       try {
         const { listen } = await import("@tauri-apps/api/event");
+        const { invoke } = await import("@tauri-apps/api/core");
 
         unlistenFile = await listen("menu-open-file", async () => {
           try {
@@ -509,6 +542,30 @@ function AppContent() {
             );
           }
         });
+
+        unlistenInstallCli = await listen("menu-install-cli", async () => {
+          try {
+            const result = await invoke<string>("install_cli");
+            await showMessage(result, "CLI Installation", "info");
+            notify("CLI Installed", "You can now use 't3lang' in the terminal");
+          } catch (error) {
+            if (error !== "Installation cancelled.") {
+              await showMessage(`${error}`, "Installation Error", "error");
+            }
+          }
+        });
+
+        unlistenUninstallCli = await listen("menu-uninstall-cli", async () => {
+          try {
+            const result = await invoke<string>("uninstall_cli");
+            await showMessage(result, "CLI Uninstallation", "info");
+            notify("CLI Uninstalled", "'t3lang' command removed");
+          } catch (error) {
+            if (error !== "Uninstallation cancelled.") {
+              await showMessage(`${error}`, "Uninstallation Error", "error");
+            }
+          }
+        });
       } catch {
         // Menu listeners are unavailable (e.g., non-Tauri environment)
       }
@@ -519,6 +576,8 @@ function AppContent() {
     return () => {
       unlistenFile?.();
       unlistenFolder?.();
+      unlistenInstallCli?.();
+      unlistenUninstallCli?.();
     };
   }, []);
 

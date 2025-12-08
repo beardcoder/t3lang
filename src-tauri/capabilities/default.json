@@ -29,6 +29,10 @@
     {
       "identifier": "fs:allow-remove",
       "allow": [{ "path": "/**" }]
+    },
+    {
+      "identifier": "fs:allow-stat",
+      "allow": [{ "path": "/**" }]
     }
   ]
 }
