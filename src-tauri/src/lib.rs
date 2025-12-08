@@ -1,5 +1,5 @@
 use tauri::{
-    menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder},
+    menu::{AboutMetadata, MenuBuilder, MenuItemBuilder, PredefinedMenuItem, SubmenuBuilder},
     Emitter, Manager,
 };
 use std::process::Command;
@@ -74,33 +74,95 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![install_cli, uninstall_cli, is_cli_installed])
         .setup(|app| {
-            // Build menu
+            // App menu (T3Lang)
+            let about = PredefinedMenuItem::about(app, Some("About T3Lang"), Some(AboutMetadata {
+                name: Some("T3Lang".to_string()),
+                version: Some(env!("CARGO_PKG_VERSION").to_string()),
+                copyright: Some("© 2024 Markus Sommer".to_string()),
+                ..Default::default()
+            }))?;
+            let settings_item = MenuItemBuilder::with_id("settings", "Settings...")
+                .accelerator("CmdOrCtrl+,")
+                .build(app)?;
+            let install_cli_item = MenuItemBuilder::with_id("install-cli", "Install 't3lang' Command in PATH...")
+                .build(app)?;
+            let uninstall_cli_item = MenuItemBuilder::with_id("uninstall-cli", "Uninstall 't3lang' Command from PATH...")
+                .build(app)?;
+            let services = PredefinedMenuItem::services(app, Some("Services"))?;
+            let hide = PredefinedMenuItem::hide(app, Some("Hide T3Lang"))?;
+            let hide_others = PredefinedMenuItem::hide_others(app, Some("Hide Others"))?;
+            let show_all = PredefinedMenuItem::show_all(app, Some("Show All"))?;
+            let quit = PredefinedMenuItem::quit(app, Some("Quit T3Lang"))?;
+
+            let app_menu = SubmenuBuilder::new(app, "T3Lang")
+                .item(&about)
+                .separator()
+                .item(&settings_item)
+                .separator()
+                .item(&install_cli_item)
+                .item(&uninstall_cli_item)
+                .separator()
+                .item(&services)
+                .separator()
+                .item(&hide)
+                .item(&hide_others)
+                .item(&show_all)
+                .separator()
+                .item(&quit)
+                .build()?;
+
+            // File menu
             let open_file = MenuItemBuilder::with_id("open-file", "Open File...")
                 .accelerator("CmdOrCtrl+O")
                 .build(app)?;
             let open_folder = MenuItemBuilder::with_id("open-folder", "Open Folder...")
                 .accelerator("CmdOrCtrl+Shift+O")
                 .build(app)?;
-            let settings_item = MenuItemBuilder::with_id("settings", "Settings...")
-                .accelerator("CmdOrCtrl+,")
-                .build(app)?;
-            let install_cli_item = MenuItemBuilder::with_id("install-cli", "Install 't3lang' command...")
-                .build(app)?;
-            let uninstall_cli_item = MenuItemBuilder::with_id("uninstall-cli", "Uninstall 't3lang' command...")
-                .build(app)?;
+            let close_window = PredefinedMenuItem::close_window(app, Some("Close Window"))?;
 
             let file_menu = SubmenuBuilder::new(app, "File")
                 .item(&open_file)
                 .item(&open_folder)
                 .separator()
-                .item(&settings_item)
+                .item(&close_window)
+                .build()?;
+
+            // Edit menu
+            let undo = PredefinedMenuItem::undo(app, Some("Undo"))?;
+            let redo = PredefinedMenuItem::redo(app, Some("Redo"))?;
+            let cut = PredefinedMenuItem::cut(app, Some("Cut"))?;
+            let copy = PredefinedMenuItem::copy(app, Some("Copy"))?;
+            let paste = PredefinedMenuItem::paste(app, Some("Paste"))?;
+            let select_all = PredefinedMenuItem::select_all(app, Some("Select All"))?;
+
+            let edit_menu = SubmenuBuilder::new(app, "Edit")
+                .item(&undo)
+                .item(&redo)
                 .separator()
-                .item(&install_cli_item)
-                .item(&uninstall_cli_item)
+                .item(&cut)
+                .item(&copy)
+                .item(&paste)
+                .separator()
+                .item(&select_all)
+                .build()?;
+
+            // Window menu
+            let minimize = PredefinedMenuItem::minimize(app, Some("Minimize"))?;
+            let maximize = PredefinedMenuItem::maximize(app, Some("Zoom"))?;
+            let fullscreen = PredefinedMenuItem::fullscreen(app, Some("Enter Full Screen"))?;
+
+            let window_menu = SubmenuBuilder::new(app, "Window")
+                .item(&minimize)
+                .item(&maximize)
+                .separator()
+                .item(&fullscreen)
                 .build()?;
 
             let menu = MenuBuilder::new(app)
+                .item(&app_menu)
                 .item(&file_menu)
+                .item(&edit_menu)
+                .item(&window_menu)
                 .build()?;
 
             app.set_menu(menu)?;
