@@ -37,9 +37,7 @@
       "icons/icon.ico"
     ],
     "macOS": {
-      "signingIdentity": null,
-      "entitlements": null,
-      "providerShortName": null
+      "signingIdentity": "-"
     }
   }
 }
