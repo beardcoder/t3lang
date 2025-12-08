@@ -1,4 +1,3 @@
-import { AnimatePresence } from "motion/react";
 import { ChevronRight, Plus } from "lucide-react";
 import { FileItem } from "./FileItem";
 import { T3File, FileDataMap } from "./FileTree";
@@ -40,74 +39,60 @@ export function FileGroup({
   };
 
   return (
-    <div className="mb-2 relative z-0">
+    <div className="mb-3">
       <button
         onClick={onToggle}
-        className="w-full flex items-center gap-2 px-3 py-3 text-left rounded-xl border"
-        style={{
-          backgroundColor: "var(--color-bg-tertiary)",
-          color: "var(--color-text-primary)",
-          borderColor: "var(--color-border)",
-        }}
+        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-lg bg-white/5 hover:bg-white/8 transition-all"
       >
-        <div>
-          <ChevronRight
-            size={14}
-            style={{ color: "var(--color-text-secondary)" }}
-          />
-        </div>
-        <span className="text-xs font-semibold flex-1 truncate">
+        <ChevronRight
+          size={16}
+          className={`text-white/60 transition-transform ${
+            isExpanded ? "rotate-90" : ""
+          }`}
+        />
+        <span className="text-sm font-semibold flex-1 truncate text-white/90">
           {baseName}
         </span>
-        <span
-          className="text-xs px-2 py-0.5 rounded-full font-medium"
-          style={{
-            backgroundColor: "var(--color-bg-hover)",
-            color: "var(--color-text-secondary)",
-            border: "1px solid var(--color-border)",
-          }}
-        >
+        <span className="text-xs px-2 py-0.5 rounded-md font-medium bg-white/10 text-white/70">
           {files.length}
         </span>
       </button>
 
-      <AnimatePresence>
-        {isExpanded && (
-          <div className="ml-4 mt-2 space-y-2">
-            {defaultFile && (
-              <FileItem
-                name={defaultFile.name}
-                path={defaultFile.path}
-                language={defaultFile.language}
-                isSelected={selectedFile === defaultFile.path}
-                isSource
-                onSelect={() => onFileSelect(defaultFile.path)}
-              />
-            )}
+      {isExpanded && (
+        <div className="mt-1.5 space-y-1">
+          {defaultFile && (
+            <FileItem
+              name={defaultFile.name}
+              path={defaultFile.path}
+              language={defaultFile.language}
+              isSelected={selectedFile === defaultFile.path}
+              isSource
+              onSelect={() => onFileSelect(defaultFile.path)}
+            />
+          )}
 
-            {translationFiles.map((file) => (
-              <FileItem
-                key={file.path}
-                name={file.name}
-                path={file.path}
-                language={file.language}
-                isSelected={selectedFile === file.path}
-                onSelect={() => onFileSelect(file.path)}
-                onDelete={() => onDeleteFile(file.path)}
-                translationProgress={calculateProgress(file.path)}
-              />
-            ))}
+          {translationFiles.map((file) => (
+            <FileItem
+              key={file.path}
+              name={file.name}
+              path={file.path}
+              language={file.language}
+              isSelected={selectedFile === file.path}
+              onSelect={() => onFileSelect(file.path)}
+              onDelete={() => onDeleteFile(file.path)}
+              translationProgress={calculateProgress(file.path)}
+            />
+          ))}
 
-            <button
-              onClick={onAddLanguage}
-              className="w-full flex text-xs items-center gap-2 px-3 py-2 hover:bg-(--color-bg-hover) cursor-pointer"
-            >
-              <Plus size={14} />
-              <span>Add language</span>
-            </button>
-          </div>
-        )}
-      </AnimatePresence>
+          <button
+            onClick={onAddLanguage}
+            className="w-full flex text-xs items-center gap-2 px-3 py-2 text-white/60 hover:text-accent hover:bg-white/5 rounded-lg transition-all ml-0"
+          >
+            <Plus size={14} />
+            <span>Add language</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

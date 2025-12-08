@@ -27,7 +27,12 @@ interface TranslationUnit {
 
 interface TranslationTableProps {
   units: TranslationUnit[];
-  onSave: (oldId: string, newId: string, source: string, target: string) => Promise<void> | void;
+  onSave: (
+    oldId: string,
+    newId: string,
+    source: string,
+    target: string
+  ) => Promise<void> | void;
   onDelete: (id: string) => Promise<void> | void;
   onAddKey: (id: string, source: string) => Promise<void> | void;
   onClearTranslation: (id: string) => Promise<void> | void;
@@ -45,7 +50,11 @@ interface SortableRowProps {
   isSourceOnly: boolean;
   isModified: boolean;
   modifiedValues: { id: string; source: string; target: string };
-  onValueChange: (id: string, field: 'id' | 'source' | 'target', value: string) => void;
+  onValueChange: (
+    id: string,
+    field: "id" | "source" | "target",
+    value: string
+  ) => void;
   onDelete: (id: string) => void;
   onClearTranslation: (id: string) => void;
 }
@@ -78,7 +87,11 @@ function SortableRow({
     <tr
       ref={setNodeRef}
       style={style}
-      className={`group ${isModified ? 'bg-green-500/10 border-l-4 border-green-500' : 'bg-secondary'}`}
+      className={`group ${
+        isModified
+          ? "bg-accent/10 border-l-4 border-accent"
+          : "bg-secondary"
+      }`}
     >
       {/* Drag Handle Cell */}
       <td className="px-2 py-2.5 align-top first:rounded-l-lg w-8">
@@ -96,9 +109,9 @@ function SortableRow({
         <input
           type="text"
           value={modifiedValues.id}
-          onChange={(e) => onValueChange(unit.id, 'id', e.target.value)}
-          className={`w-full px-3 py-2 rounded-md text-sm font-mono bg-secondary text-secondary border-2 ${
-            isModified ? 'border-accent' : 'border-transparent'
+          onChange={(e) => onValueChange(unit.id, "id", e.target.value)}
+          className={`w-full px-3 py-2 rounded-md text-xs font-mono bg-white/5 text-white/80 border-2 placeholder:text-white/30 ${
+            isModified ? "border-accent" : "border-transparent"
           }`}
         />
       </td>
@@ -107,9 +120,9 @@ function SortableRow({
       <td className="px-3 py-2.5 text-sm align-top">
         <textarea
           value={modifiedValues.source}
-          onChange={(e) => onValueChange(unit.id, 'source', e.target.value)}
-          className={`w-full px-3 py-2 rounded-md resize-none bg-secondary text-primary border-2 ${
-            isModified ? 'border-accent' : 'border-transparent'
+          onChange={(e) => onValueChange(unit.id, "source", e.target.value)}
+          className={`w-full px-3 py-2 rounded-md resize-none text-xs bg-white/5 text-white/90 border-2 placeholder:text-white/30 ${
+            isModified ? "border-accent" : "border-transparent"
           } min-h-[60px]`}
         />
       </td>
@@ -119,10 +132,10 @@ function SortableRow({
         <td className="px-3 py-2.5 text-sm align-top">
           <textarea
             value={modifiedValues.target}
-            onChange={(e) => onValueChange(unit.id, 'target', e.target.value)}
+            onChange={(e) => onValueChange(unit.id, "target", e.target.value)}
             placeholder="Enter translation..."
-            className={`w-full px-3 py-2 rounded-md resize-none bg-secondary text-primary border-2 ${
-              isModified ? 'border-accent' : 'border-transparent'
+            className={`w-full px-3 py-2 rounded-md resize-none text-xs bg-white/5 text-white/90 border-2 placeholder:text-white/30 ${
+              isModified ? "border-accent" : "border-transparent"
             } min-h-[60px]`}
           />
         </td>
@@ -174,7 +187,9 @@ export function TranslationTable({
     })
   );
 
-  const [modifiedUnits, setModifiedUnits] = useState<Map<string, TranslationUnit>>(new Map());
+  const [modifiedUnits, setModifiedUnits] = useState<
+    Map<string, TranslationUnit>
+  >(new Map());
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newKeyId, setNewKeyId] = useState("");
   const [newKeySource, setNewKeySource] = useState("");
@@ -201,7 +216,11 @@ export function TranslationTable({
 
   const hasChanges = modifiedUnits.size > 0;
 
-  const handleValueChange = (unitId: string, field: 'id' | 'source' | 'target', value: string) => {
+  const handleValueChange = (
+    unitId: string,
+    field: "id" | "source" | "target",
+    value: string
+  ) => {
     const originalUnit = units.find((u) => u.id === unitId);
     if (!originalUnit) return;
 
@@ -302,11 +321,11 @@ export function TranslationTable({
     return (
       <div className="flex items-center justify-center h-full bg-primary">
         <div className="text-center">
-          <Globe className="mx-auto mb-6 text-secondary opacity-20" size={80} />
-          <h2 className="text-2xl font-semibold mb-3 text-primary">
+          <Globe className="mx-auto mb-6 text-white/20" size={80} />
+          <h2 className="text-2xl font-semibold mb-3 text-white">
             No Translations
           </h2>
-          <p className="text-base text-secondary">
+          <p className="text-base text-white/60">
             Open a file or folder to get started
           </p>
         </div>
@@ -321,12 +340,13 @@ export function TranslationTable({
         <div className="px-4 py-3 flex items-center justify-between bg-secondary border-b border-border">
           <div className="flex items-center gap-4">
             <div>
-              <h2 className="text-xl font-semibold text-primary">
+              <h2 className="text-xl font-semibold text-white">
                 Translations
               </h2>
-              <div className="text-xs mt-0.5 flex items-center gap-2 text-secondary">
+              <div className="text-xs mt-0.5 flex items-center gap-2 text-white/60">
                 <span>
-                  {sourceLanguage.toUpperCase()} → {targetLanguage.toUpperCase()}
+                  {sourceLanguage.toUpperCase()} →{" "}
+                  {targetLanguage.toUpperCase()}
                 </span>
                 <span>•</span>
                 <span>
@@ -335,7 +355,13 @@ export function TranslationTable({
                 {!isSourceOnly && (
                   <>
                     <span>•</span>
-                    <span className={`font-semibold ${translationProgress === 100 ? 'text-accent' : 'text-secondary'}`}>
+                    <span
+                      className={`font-semibold ${
+                        translationProgress === 100
+                          ? "text-accent"
+                          : "text-white/60"
+                      }`}
+                    >
                       {translationProgress}% translated
                     </span>
                   </>
@@ -355,7 +381,9 @@ export function TranslationTable({
                 <div className="w-32 h-2 rounded-full overflow-hidden bg-hover">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
-                      translationProgress === 100 ? 'bg-accent' : 'bg-accent/70'
+                      translationProgress === 100
+                        ? "bg-accent"
+                        : "bg-accent/70"
                     }`}
                     style={{ width: `${translationProgress}%` }}
                   />
@@ -379,16 +407,20 @@ export function TranslationTable({
               <button
                 onClick={handleSaveAll}
                 disabled={isSaving}
-                className="px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 bg-accent text-secondary shadow-lg hover:shadow-xl transition-all"
+                className="px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 bg-accent text-white shadow-lg hover:shadow-xl hover:bg-accent-hover transition-all disabled:opacity-50"
               >
                 <Save size={16} />
-                <span>{isSaving ? "Saving..." : `Save ${modifiedUnits.size} Changes`}</span>
+                <span>
+                  {isSaving
+                    ? "Saving..."
+                    : `Save ${modifiedUnits.size} Changes`}
+                </span>
               </button>
             )}
 
             <button
               onClick={() => setShowAddDialog(true)}
-              className="px-3 py-2 rounded-full font-semibold text-sm flex items-center gap-2 bg-accent text-secondary shadow-lg hover:shadow-xl transition-all"
+              className="px-3 py-2 rounded-full font-semibold text-sm flex items-center gap-2 bg-accent text-white shadow-lg hover:shadow-xl hover:bg-accent-hover transition-all"
             >
               <Plus size={16} />
               <span>Add Key</span>
@@ -398,22 +430,25 @@ export function TranslationTable({
 
         {/* Table */}
         <div className="flex-1 overflow-auto px-4 py-1 bg-primary">
-          <table className="w-full" style={{ borderCollapse: "separate", borderSpacing: "0 3px" }}>
+          <table
+            className="w-full"
+            style={{ borderCollapse: "separate", borderSpacing: "0 3px" }}
+          >
             <thead className="sticky top-0 bg-primary z-[5]">
               <tr>
-                <th className="text-left px-2 py-2 font-semibold text-[10px] uppercase tracking-wider text-secondary w-8 bg-primary" />
-                <th className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider text-secondary w-[20%] bg-primary">
+                <th className="text-left px-2 py-2 font-semibold text-[10px] uppercase tracking-wider text-white/50 w-8 bg-primary" />
+                <th className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider text-white/50 w-[20%] bg-primary">
                   ID
                 </th>
-                <th className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider text-secondary w-[35%] bg-primary">
+                <th className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider text-white/50 w-[35%] bg-primary">
                   Source ({sourceLanguage.toUpperCase()})
                 </th>
                 {!isSourceOnly && (
-                  <th className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider text-secondary w-[35%] bg-primary">
+                  <th className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider text-white/50 w-[35%] bg-primary">
                     Translation ({targetLanguage.toUpperCase()})
                   </th>
                 )}
-                <th className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider text-secondary w-[10%] bg-primary">
+                <th className="text-left px-3 py-2 font-semibold text-[10px] uppercase tracking-wider text-white/50 w-[10%] bg-primary">
                   Actions
                 </th>
               </tr>
@@ -457,13 +492,13 @@ export function TranslationTable({
       {showAddDialog && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/75 backdrop-blur-sm">
           <div className="w-full max-w-lg p-8 rounded-2xl shadow-2xl bg-primary border border-border">
-            <h3 className="text-2xl font-semibold mb-6 text-primary">
+            <h3 className="text-2xl font-semibold mb-6 text-white">
               Add Translation Key
             </h3>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold mb-2 text-secondary">
+                <label className="block text-sm font-semibold mb-2 text-white/70">
                   Key ID
                 </label>
                 <input
@@ -471,20 +506,20 @@ export function TranslationTable({
                   value={newKeyId}
                   onChange={(e) => setNewKeyId(e.target.value)}
                   placeholder="e.g., button.submit"
-                  className="w-full px-4 py-3 rounded-lg font-mono bg-secondary text-primary border-2 border-border"
+                  className="w-full px-4 py-3 rounded-lg font-mono bg-white/5 text-white border-2 border-border placeholder:text-white/30"
                   autoFocus
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2 text-secondary">
+                <label className="block text-sm font-semibold mb-2 text-white/70">
                   Source Text ({sourceLanguage.toUpperCase()})
                 </label>
                 <textarea
                   value={newKeySource}
                   onChange={(e) => setNewKeySource(e.target.value)}
                   placeholder="Enter source text..."
-                  className="w-full px-4 py-3 rounded-lg resize-none bg-secondary text-primary border-2 border-border min-h-[100px]"
+                  className="w-full px-4 py-3 rounded-lg resize-none bg-white/5 text-white border-2 border-border min-h-[100px] placeholder:text-white/30"
                 />
               </div>
 
@@ -492,7 +527,7 @@ export function TranslationTable({
                 <button
                   onClick={handleAddKey}
                   disabled={!newKeyId.trim() || !newKeySource.trim()}
-                  className="flex-1 px-4 py-3 rounded-full font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 transition-transform bg-accent text-white"
+                  className="flex-1 px-4 py-3 rounded-full font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 transition-transform bg-accent hover:bg-accent-hover text-white"
                 >
                   Add Key
                 </button>
@@ -502,7 +537,7 @@ export function TranslationTable({
                     setNewKeyId("");
                     setNewKeySource("");
                   }}
-                  className="flex-1 px-4 py-3 rounded-full font-semibold hover:scale-105 transition-transform bg-hover text-primary"
+                  className="flex-1 px-4 py-3 rounded-full font-semibold hover:scale-105 transition-transform bg-white/10 text-white"
                 >
                   Cancel
                 </button>

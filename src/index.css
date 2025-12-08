@@ -1,33 +1,17 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
-:root {
-  --font-sans: "Plus Jakarta Sans", "Inter", system-ui, -apple-system,
-    sans-serif;
+@theme {
+  --font-family-sans: font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, Adwaita Sans, Cantarell, Ubuntu, roboto, noto, helvetica, arial, sans-serif;
 
-  --color-bg-primary: #0c0e12;
-  --color-bg-secondary: #090a0d;
-  --color-bg-tertiary: #141820;
-  --color-bg-hover: rgba(255, 255, 255, 0.08);
-  --color-text-primary: #f7fafc;
-  --color-text-secondary: #c3cbd8;
+  --color-primary: #0c0e12;
+  --color-secondary: #090a0d;
+  --color-tertiary: #141820;
+  --color-hover: rgba(255, 255, 255, 0.08);
   --color-border: #1e232d;
+
   --color-accent: #1ed760;
   --color-accent-hover: #1fdf64;
-  --color-danger: #f87171;
-  --color-danger-hover: #ef4444;
-}
 
-.dark {
-  --color-bg-primary: #0c0e12;
-  --color-bg-secondary: #090a0d;
-  --color-bg-tertiary: #141820;
-  --color-bg-hover: rgba(255, 255, 255, 0.08);
-  --color-text-primary: #f7fafc;
-  --color-text-secondary: #c3cbd8;
-  --color-border: #1e232d;
-  --color-accent: #1ed760;
-  --color-accent-hover: #1fdf64;
   --color-danger: #f87171;
   --color-danger-hover: #ef4444;
 }
@@ -45,12 +29,11 @@ body,
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: var(--font-family-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--color-bg-primary);
-  color: var(--color-text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: var(--color-primary);
+  color: #f7fafc;
 }
 
 /* Custom scrollbar */
@@ -66,18 +49,18 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--color-border);
   border-radius: 5px;
-  border: 2px solid var(--color-bg-primary);
+  border: 2px solid var(--color-primary);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-secondary);
+  background: #c3cbd8;
 }
 
 button,
 input,
 textarea,
 select {
-  transition: all 0.18s ease-in-out;
+  transition: all 0.15s ease;
 }
 
 input:focus,
@@ -85,7 +68,7 @@ textarea:focus,
 select:focus {
   outline: none;
   border-color: var(--color-accent) !important;
-  box-shadow: 0 0 0 2px rgba(30, 215, 96, 0.15);
+  box-shadow: 0 0 0 2px rgb(30 215 96 / 0.15);
 }
 
 html {

@@ -25,40 +25,36 @@ export function FileItem({
 
   return (
     <div
-      className="relative z-10"
+      className="relative group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      style={{ zIndex: isHovered ? 20 : 10 }}
     >
       <button
         onClick={onSelect}
-        className="w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg"
-        style={{
-          backgroundColor: isSelected ? "var(--color-bg-hover)" : "transparent",
-          color: "var(--color-text-primary)",
-        }}
+        className={`w-full flex items-center gap-2.5 px-3 py-2 text-left rounded-lg transition-all ${
+          isSelected
+            ? "bg-white/10"
+            : "bg-transparent hover:bg-white/5"
+        }`}
       >
-        <div>{isSource ? <FileText size={14} /> : <Globe size={14} />}</div>
-        <span className="text-xs flex-1 truncate">{name}</span>
+        <div className={`${isSelected ? "text-white/80" : "text-white/50"}`}>
+          {isSource ? <FileText size={15} /> : <Globe size={15} />}
+        </div>
+        <span className={`text-xs flex-1 truncate ${isSelected ? "text-white/90" : "text-white/80"}`}>
+          {name}
+        </span>
         <div className="flex items-center gap-1.5">
           {!isSource && translationProgress !== undefined && (
-            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-semibold bg-gray-200 text-gray-800">
+            <span className="text-[10px] px-1.5 py-0.5 rounded-md font-semibold bg-accent/15 text-accent">
               {translationProgress}%
             </span>
           )}
           <span
-            className={`text-[10px] px-2 py-1 rounded-full font-semibold ${
-              isSource ? "" : "text-xs px-2 py-0.5 font-medium"
+            className={`rounded-md font-semibold ${
+              isSource
+                ? "text-[10px] px-2 py-0.5 bg-accent text-white"
+                : "text-[10px] px-2 py-0.5 font-medium bg-white/10 text-white/70"
             }`}
-            style={{
-              backgroundColor: isSource
-                ? "var(--color-accent)"
-                : "var(--color-bg-tertiary)",
-              color: isSource
-                ? "var(--color-bg-secondary)"
-                : "var(--color-text-secondary)",
-              border: isSource ? "none" : "1px solid var(--color-border)",
-            }}
           >
             {isSource ? "Source" : language.toUpperCase()}
           </span>
@@ -70,14 +66,10 @@ export function FileItem({
             e.stopPropagation();
             onDelete();
           }}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md z-30"
-          style={{
-            backgroundColor: "var(--color-danger)",
-            color: "white",
-          }}
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md bg-danger hover:bg-danger-hover text-white transition-all shadow-lg"
           title="Delete language file"
         >
-          <X size={12} />
+          <X size={13} />
         </button>
       )}
     </div>

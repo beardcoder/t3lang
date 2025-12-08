@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { FileGroup } from "./FileGroup";
 
 export interface T3File {
@@ -54,36 +53,28 @@ export function FileTree({
 
   if (fileGroups.length === 0) {
     return (
-      <motion.div
-        className="p-4 text-center text-sm"
-        style={{ color: "var(--color-text-secondary)" }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-      >
+      <div className="p-4 text-center text-sm text-gray-500">
         No files loaded
-      </motion.div>
+      </div>
     );
   }
 
   return (
     <div className="px-2 pb-3">
-      <AnimatePresence>
-        {fileGroups.map((group) => (
-          <FileGroup
-            key={group.baseName}
-            baseName={group.baseName}
-            files={group.files}
-            isExpanded={expandedGroups.has(group.baseName)}
-            selectedFile={selectedFile}
-            onToggle={() => toggleGroup(group.baseName)}
-            onFileSelect={onFileSelect}
-            onAddLanguage={() => onAddLanguage(group.baseName)}
-            onDeleteFile={onDeleteFile}
-            fileDataMap={fileDataMap}
-          />
-        ))}
-      </AnimatePresence>
+      {fileGroups.map((group) => (
+        <FileGroup
+          key={group.baseName}
+          baseName={group.baseName}
+          files={group.files}
+          isExpanded={expandedGroups.has(group.baseName)}
+          selectedFile={selectedFile}
+          onToggle={() => toggleGroup(group.baseName)}
+          onFileSelect={onFileSelect}
+          onAddLanguage={() => onAddLanguage(group.baseName)}
+          onDeleteFile={onDeleteFile}
+          fileDataMap={fileDataMap}
+        />
+      ))}
     </div>
   );
 }
