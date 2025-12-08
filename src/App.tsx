@@ -2,15 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 import type { XliffDocument } from "xliff-simple";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { SettingsProvider } from "./contexts/SettingsContext";
 import { Sidebar } from "./components/Sidebar";
 import { TranslationTable } from "./components/TranslationTable";
 import { EmptyState } from "./components/EmptyState";
 import { SearchBar } from "./components/SearchBar";
 import { NewLanguageDialog } from "./components/NewLanguageDialog";
+import { SettingsDialog } from "./components/SettingsDialog";
 import { T3FileGroup } from "./components/FileTree";
 import { useDialogs } from "./hooks/useDialogs";
 import { useNotifications } from "./hooks/useNotifications";
 import { useFileOperations, FileData } from "./hooks/useFileOperations";
+import { useSettings } from "./contexts/SettingsContext";
 
 const cloneXliffData = (data: XliffDocument): XliffDocument =>
   JSON.parse(JSON.stringify(data));
@@ -24,10 +27,12 @@ function AppContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [folderPath, setFolderPath] = useState<string | null>(null);
   const [showNewLanguageDialog, setShowNewLanguageDialog] = useState(false);
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [selectedBaseName, setSelectedBaseName] = useState<string>("");
 
   const { showMessage, confirmDialog } = useDialogs();
   const { notify } = useNotifications();
+  const { getIndentString } = useSettings();
   const {
     loadFile,
     saveFile,
@@ -151,7 +156,7 @@ function AppContent() {
       if (found) break;
     }
 
-    await saveFile(currentFile, updatedData, showMessage);
+    await saveFile(currentFile, updatedData, showMessage, getIndentString());
 
     const updatedUnits = fileData.units.map((unit) =>
       unit.id === oldId ? { id: newId, source, target: nextTarget } : unit,
@@ -183,7 +188,7 @@ function AppContent() {
       file.units = file.units.filter((unit) => unit.id !== id);
     }
 
-    await saveFile(currentFile, updatedData, showMessage);
+    await saveFile(currentFile, updatedData, showMessage, getIndentString());
 
     const updatedUnits = fileData.units.filter((unit) => unit.id !== id);
 
@@ -217,7 +222,7 @@ function AppContent() {
 
     if (!changed) return;
 
-    await saveFile(currentFile, updatedData, showMessage);
+    await saveFile(currentFile, updatedData, showMessage, getIndentString());
 
     const updatedUnits = fileData.units.map((unit) =>
       unit.id === id ? { ...unit, target: "" } : unit,
@@ -257,7 +262,7 @@ function AppContent() {
       });
     }
 
-    await saveFile(currentFile, updatedData, showMessage);
+    await saveFile(currentFile, updatedData, showMessage, getIndentString());
 
     const updatedUnits = [...fileData.units, { id, source, target: "" }];
 
@@ -290,7 +295,7 @@ function AppContent() {
       const updatedData = cloneXliffData(relatedFileData.xliffData);
       updatedData.version = version;
 
-      await saveFile(filePath, updatedData, showMessage);
+      await saveFile(filePath, updatedData, showMessage, getIndentString());
 
       newMap.set(filePath, {
         ...relatedFileData,
@@ -340,7 +345,7 @@ function AppContent() {
         updatedData.files[0].units = sortedUnits;
       }
 
-      await saveFile(filePath, updatedData, showMessage);
+      await saveFile(filePath, updatedData, showMessage, getIndentString());
 
       newMap.set(filePath, {
         ...relatedFileData,
@@ -403,7 +408,7 @@ function AppContent() {
         });
       }
 
-      await saveFile(newFilePath, newXliffData, showMessage);
+      await saveFile(newFilePath, newXliffData, showMessage, getIndentString());
 
       await handleFolderOpen(folderPath);
       setCurrentFile(newFilePath);
@@ -490,6 +495,7 @@ function AppContent() {
     let unlistenFolder: (() => void) | undefined;
     let unlistenInstallCli: (() => void) | undefined;
     let unlistenUninstallCli: (() => void) | undefined;
+    let unlistenSettings: (() => void) | undefined;
 
     const setupListeners = async () => {
       try {
@@ -566,6 +572,10 @@ function AppContent() {
             }
           }
         });
+
+        unlistenSettings = await listen("menu-settings", () => {
+          setShowSettingsDialog(true);
+        });
       } catch {
         // Menu listeners are unavailable (e.g., non-Tauri environment)
       }
@@ -578,6 +588,7 @@ function AppContent() {
       unlistenFolder?.();
       unlistenInstallCli?.();
       unlistenUninstallCli?.();
+      unlistenSettings?.();
     };
   }, []);
 
@@ -651,6 +662,11 @@ function AppContent() {
         }}
         onConfirm={handleNewLanguage}
       />
+
+      <SettingsDialog
+        isOpen={showSettingsDialog}
+        onClose={() => setShowSettingsDialog(false)}
+      />
     </div>
   );
 }
@@ -662,7 +678,9 @@ export default function App() {
       reducedMotion="user"
     >
       <ThemeProvider>
-        <AppContent />
+        <SettingsProvider>
+          <AppContent />
+        </SettingsProvider>
       </ThemeProvider>
     </MotionConfig>
   );

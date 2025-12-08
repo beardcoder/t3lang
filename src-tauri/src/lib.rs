@@ -81,6 +81,9 @@ pub fn run() {
             let open_folder = MenuItemBuilder::with_id("open-folder", "Open Folder...")
                 .accelerator("CmdOrCtrl+Shift+O")
                 .build(app)?;
+            let settings_item = MenuItemBuilder::with_id("settings", "Settings...")
+                .accelerator("CmdOrCtrl+,")
+                .build(app)?;
             let install_cli_item = MenuItemBuilder::with_id("install-cli", "Install 't3lang' command...")
                 .build(app)?;
             let uninstall_cli_item = MenuItemBuilder::with_id("uninstall-cli", "Uninstall 't3lang' command...")
@@ -89,6 +92,8 @@ pub fn run() {
             let file_menu = SubmenuBuilder::new(app, "File")
                 .item(&open_file)
                 .item(&open_folder)
+                .separator()
+                .item(&settings_item)
                 .separator()
                 .item(&install_cli_item)
                 .item(&uninstall_cli_item)
@@ -109,6 +114,9 @@ pub fn run() {
                     }
                     "open-folder" => {
                         let _ = window.emit("menu-open-folder", ());
+                    }
+                    "settings" => {
+                        let _ = window.emit("menu-settings", ());
                     }
                     "install-cli" => {
                         let _ = window.emit("menu-install-cli", ());

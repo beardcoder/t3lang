@@ -105,9 +105,13 @@ export function useFileOperations() {
     filePath: string,
     xliffData: XliffDocument,
     showError: (message: string, title: string, kind: "error") => Promise<void>,
+    indent?: string,
   ) => {
     try {
-      const xliffContent = xliff.write(xliffData);
+      const xliffContent = xliff.write(xliffData, undefined, {
+        format: true,
+        indent: indent ?? "\t",
+      });
       const { writeTextFile } = await import("@tauri-apps/plugin-fs");
       await writeTextFile(filePath, xliffContent);
     } catch (error) {
