@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FileGroup } from "./FileGroup";
+import type { FileData } from "../hooks/useFileOperations";
 
 export interface T3File {
   name: string;
@@ -13,12 +14,7 @@ export interface T3FileGroup {
   files: T3File[];
 }
 
-export interface FileDataMap {
-  get: (path: string) => {
-    units: Array<{ id: string; source: string; target: string }>;
-    isSourceOnly: boolean;
-  } | undefined;
-}
+export type FileDataMap = Map<string, FileData>;
 
 interface FileTreeProps {
   fileGroups: T3FileGroup[];
@@ -38,7 +34,7 @@ export function FileTree({
   fileDataMap,
 }: FileTreeProps) {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
-    new Set(fileGroups.map((g) => g.baseName))
+    new Set(fileGroups.map((g) => g.baseName)),
   );
 
   const toggleGroup = (baseName: string) => {

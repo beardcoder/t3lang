@@ -1,19 +1,30 @@
 @import "tailwindcss";
 
 @theme {
-  --font-family-sans: font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, Adwaita Sans, Cantarell, Ubuntu, roboto, noto, helvetica, arial, sans-serif;
+  --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Helvetica Neue", Arial, sans-serif;
+  --font-family-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono",
+    monospace;
 
-  --color-primary: #0c0e12;
-  --color-secondary: #090a0d;
-  --color-tertiary: #141820;
-  --color-hover: rgba(255, 255, 255, 0.08);
-  --color-border: #1e232d;
+  --color-bg-primary: #1a1a1a;
+  --color-bg-secondary: #1f1f1f;
+  --color-bg-tertiary: #2a2a2a;
+  --color-bg-hover: #2f2f2f;
+  --color-border: #404040;
 
-  --color-accent: #1ed760;
-  --color-accent-hover: #1fdf64;
+  --color-text-primary: #e8e8e8;
+  --color-text-secondary: #a0a0a0;
 
-  --color-danger: #f87171;
-  --color-danger-hover: #ef4444;
+  --color-accent: #2f81f7;
+  --color-accent-hover: #478bfd;
+
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+}
+
+:root {
+  color-scheme: dark;
+  background-color: var(--color-bg-primary);
 }
 
 * {
@@ -32,14 +43,29 @@ body {
   font-family: var(--font-family-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--color-primary);
-  color: #f7fafc;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  position: relative;
+}
+
+code,
+pre,
+input,
+textarea,
+button {
+  font-family: var(--font-family-sans);
+}
+
+code,
+pre {
+  font-family: var(--font-family-mono);
+  letter-spacing: -0.01em;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -47,13 +73,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 5px;
-  border: 2px solid var(--color-primary);
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #c3cbd8;
+  background: rgba(255, 255, 255, 0.25);
 }
 
 button,
@@ -68,9 +93,28 @@ textarea:focus,
 select:focus {
   outline: none;
   border-color: var(--color-accent) !important;
-  box-shadow: 0 0 0 2px rgb(30 215 96 / 0.15);
+  box-shadow: 0 0 0 3px rgba(47, 129, 247, 0.12);
 }
 
 html {
   overscroll-behavior: none;
+}
+
+*[data-tauri-drag-region] {
+  app-region: drag;
+  -webkit-app-region: drag;
+}
+
+:not(input):not(textarea),
+:not(input):not(textarea)::after,
+:not(input):not(textarea)::before {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
+}
+input,
+button,
+textarea,
+:focus {
+  outline: none;
 }

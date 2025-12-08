@@ -1,4 +1,8 @@
-import ReactSelect, { StylesConfig, components, DropdownIndicatorProps } from "react-select";
+import ReactSelect, {
+  StylesConfig,
+  components,
+  DropdownIndicatorProps,
+} from "react-select";
 import { motion } from "motion/react";
 import { ChevronDown } from "lucide-react";
 
@@ -40,43 +44,38 @@ export function Select({
   const customStyles: StylesConfig<Option> = {
     control: (base, state) => ({
       ...base,
-      backgroundColor: "var(--color-bg-hover)",
-      borderColor: state.isFocused
-        ? "var(--color-accent)"
-        : "transparent",
-      borderWidth: "2px",
+      backgroundColor: "rgba(255, 255, 255, 0.03)",
+      borderColor: state.isFocused ? "var(--color-accent)" : "transparent",
+      borderWidth: "1px",
       borderRadius: "8px",
-      padding: "2px 4px",
+      padding: "1px 4px",
       boxShadow: state.isFocused
-        ? "0 0 0 3px rgba(30, 215, 96, 0.1)"
+        ? "0 0 0 3px rgba(47, 129, 247, 0.12)"
         : "none",
       cursor: "pointer",
-      transition: "all 0.2s ease",
-      minHeight: "36px",
+      transition: "all 0.15s ease",
+      minHeight: "32px",
       "&:hover": {
-        borderColor: state.isFocused
-          ? "var(--color-accent)"
-          : "var(--color-border)",
-        backgroundColor: "var(--color-bg-tertiary)",
+        backgroundColor: "rgba(255, 255, 255, 0.05)",
       },
     }),
     singleValue: (base) => ({
       ...base,
       color: "var(--color-text-primary)",
-      fontSize: "0.75rem",
+      fontSize: "0.875rem",
       fontWeight: 500,
     }),
     placeholder: (base) => ({
       ...base,
       color: "var(--color-text-secondary)",
-      fontSize: "0.75rem",
+      fontSize: "0.875rem",
     }),
     menu: (base) => ({
       ...base,
-      backgroundColor: "var(--color-bg-tertiary)",
-      borderRadius: "12px",
-      border: "1px solid var(--color-border)",
-      boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
+      backgroundColor: "var(--color-bg-secondary)",
+      borderRadius: "8px",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+      boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
       overflow: "hidden",
       marginTop: "4px",
       zIndex: 100,
@@ -91,16 +90,14 @@ export function Select({
       backgroundColor: state.isSelected
         ? "var(--color-accent)"
         : state.isFocused
-        ? "var(--color-bg-hover)"
-        : "transparent",
-      color: state.isSelected
-        ? "white"
-        : "var(--color-text-primary)",
+          ? "rgba(255, 255, 255, 0.05)"
+          : "transparent",
+      color: state.isSelected ? "white" : "var(--color-text-primary)",
       cursor: "pointer",
-      fontSize: "0.75rem",
-      fontWeight: state.isSelected ? 600 : 500,
-      padding: "8px 12px",
-      borderRadius: "8px",
+      fontSize: "0.875rem",
+      fontWeight: state.isSelected ? 500 : 400,
+      padding: "6px 10px",
+      borderRadius: "6px",
       transition: "all 0.15s ease",
       "&:active": {
         backgroundColor: "var(--color-accent)",
@@ -121,16 +118,11 @@ export function Select({
   };
 
   return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.2 }}
-    >
+    <div className={className}>
       <ReactSelect
         value={selectedOption}
         onChange={(option) => {
-          if (option && !Array.isArray(option) && 'value' in option) {
+          if (option && !Array.isArray(option) && "value" in option) {
             onChange(option.value);
           }
         }}
@@ -140,6 +132,6 @@ export function Select({
         components={{ DropdownIndicator }}
         isSearchable={false}
       />
-    </motion.div>
+    </div>
   );
 }

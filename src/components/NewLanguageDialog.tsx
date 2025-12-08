@@ -31,7 +31,7 @@ export function NewLanguageDialog({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 flex items-center justify-center z-50"
+          className="fixed inset-0 z-50 flex items-center justify-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -46,15 +46,14 @@ export function NewLanguageDialog({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.97, opacity: 0, y: -8 }}
             transition={{ type: "spring", stiffness: 200, damping: 16 }}
-            className="w-full max-w-md p-8 rounded-2xl shadow-2xl"
+            className="border-border w-full max-w-md rounded-xl border p-7 shadow-[0_30px_80px_rgba(0,0,0,0.45)]"
             style={{
-              backgroundColor: "var(--color-bg-primary)",
-              border: "1px solid var(--color-border)",
+              backgroundColor: "var(--color-bg-secondary)",
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <motion.h3
-              className="text-2xl font-semibold mb-6"
+              className="mb-6 text-2xl font-semibold"
               style={{ color: "var(--color-text-primary)" }}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -71,7 +70,7 @@ export function NewLanguageDialog({
             >
               <div>
                 <label
-                  className="block text-sm font-semibold mb-2"
+                  className="mb-2 block font-mono text-sm font-semibold tracking-[0.08em] uppercase"
                   style={{ color: "var(--color-text-secondary)" }}
                 >
                   Language Code (2 letters)
@@ -86,20 +85,21 @@ export function NewLanguageDialog({
                   }}
                   placeholder="e.g., de, fr, es"
                   maxLength={2}
-                  className="w-full px-4 py-3 rounded-lg font-mono uppercase"
+                  className="w-full rounded-lg border px-4 py-3 font-mono uppercase"
                   style={{
-                    backgroundColor: "var(--color-bg-secondary)",
+                    backgroundColor: "var(--color-bg-tertiary)",
                     color: "var(--color-text-primary)",
-                    border: "2px solid var(--color-border)",
+                    borderColor: "var(--color-border)",
+                    boxShadow: "0 12px 32px rgba(0,0,0,0.3)",
                   }}
                   autoFocus
                   whileFocus={{
                     borderColor: "var(--color-accent)",
-                    boxShadow: "0 0 0 3px rgba(30, 215, 96, 0.1)",
+                    boxShadow: "0 0 0 3px rgba(103, 232, 249, 0.12)",
                   }}
                 />
                 <motion.p
-                  className="text-xs mt-2"
+                  className="mt-2 font-mono text-xs text-white/60"
                   style={{ color: "var(--color-text-secondary)" }}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -120,14 +120,14 @@ export function NewLanguageDialog({
                   onClick={handleConfirm}
                   disabled={languageCode.trim().length !== 2}
                   variant="primary"
-                  className="flex-1"
+                  className="flex-1 !rounded-lg"
                 >
                   Create Language File
                 </Button>
                 <Button
                   onClick={handleClose}
                   variant="secondary"
-                  className="flex-1"
+                  className="flex-1 !rounded-lg"
                 >
                   Cancel
                 </Button>

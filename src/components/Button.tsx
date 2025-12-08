@@ -24,7 +24,8 @@ export function Button({
   title,
   type = "button",
 }: ButtonProps) {
-  const baseStyles = "font-semibold flex items-center justify-center gap-2 rounded-full transition-all";
+  const baseStyles =
+    "font-semibold flex items-center justify-center gap-2 rounded-lg transition-all border";
 
   const sizeStyles = {
     sm: "px-3 py-2 text-xs",
@@ -36,6 +37,8 @@ export function Button({
     primary: {
       backgroundColor: "var(--color-accent)",
       color: "white",
+      border: "1px solid var(--color-accent)",
+      boxShadow: "0 14px 36px rgba(103, 232, 249, 0.25)",
     },
     secondary: {
       backgroundColor: "var(--color-bg-tertiary)",
@@ -45,6 +48,8 @@ export function Button({
     danger: {
       backgroundColor: "var(--color-danger)",
       color: "white",
+      border: "1px solid var(--color-danger)",
+      boxShadow: "0 12px 30px rgba(255, 123, 114, 0.25)",
     },
   };
 

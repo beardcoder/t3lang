@@ -33,7 +33,7 @@ export function FileGroup({
     if (!fileData || fileData.isSourceOnly || fileData.units.length === 0)
       return 0;
     const translatedCount = fileData.units.filter(
-      (unit) => unit.target && unit.target.trim() !== ""
+      (unit) => unit.target && unit.target.trim() !== "",
     ).length;
     return Math.round((translatedCount / fileData.units.length) * 100);
   };
@@ -42,19 +42,23 @@ export function FileGroup({
     <div className="mb-3">
       <button
         onClick={onToggle}
-        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-lg bg-white/5 hover:bg-white/8 transition-all"
+        className={`flex w-full items-center gap-2.5 rounded-md border px-3 py-2 text-left transition-all ${
+          isExpanded
+            ? "border-border bg-white/5"
+            : "hover:border-border border-transparent bg-transparent hover:bg-white/5"
+        }`}
       >
         <ChevronRight
           size={16}
-          className={`text-white/60 transition-transform ${
+          className={`text-secondary transition-transform ${
             isExpanded ? "rotate-90" : ""
           }`}
         />
-        <span className="text-sm font-semibold flex-1 truncate text-white/90">
+        <span className="flex-1 truncate font-mono text-sm font-semibold text-white/90">
           {baseName}
         </span>
-        <span className="text-xs px-2 py-0.5 rounded-md font-medium bg-white/10 text-white/70">
-          {files.length}
+        <span className="border-border rounded-md border bg-white/5 px-2 py-0.5 font-mono text-[11px] font-medium text-white/70">
+          {files.length} files
         </span>
       </button>
 
@@ -86,7 +90,7 @@ export function FileGroup({
 
           <button
             onClick={onAddLanguage}
-            className="w-full flex text-xs items-center gap-2 px-3 py-2 text-white/60 hover:text-accent hover:bg-white/5 rounded-lg transition-all ml-0"
+            className="hover:text-accent ml-0 flex w-full items-center gap-2 rounded-md px-3 py-2 font-mono text-xs text-white/70 transition-all hover:bg-white/5"
           >
             <Plus size={14} />
             <span>Add language</span>

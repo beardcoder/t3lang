@@ -18,44 +18,29 @@ export function SearchBar({
       initial={{ opacity: 0, y: -6 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -6 }}
-      transition={{ duration: 0.18 }}
-      className="px-6 py-4"
+      transition={{ duration: 0.15 }}
+      className="border-b px-6 py-3"
       style={{
-        backgroundColor: "var(--color-bg-primary)",
-        borderBottom: "1px solid var(--color-border)",
+        borderColor: "rgba(255, 255, 255, 0.06)",
       }}
     >
-      <motion.div
-        initial={{ scale: 0.99 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 0.18 }}
-        className="relative"
-      >
-        <motion.div
-          className="absolute left-4 top-1/2 -translate-y-1/2"
-          animate={{ scale: value ? 1.1 : 1 }}
-          transition={{ type: "spring", stiffness: 300, damping: 15 }}
-        >
-          <Search size={18} style={{ color: "var(--color-text-secondary)" }} />
-        </motion.div>
-        <motion.input
+      <div className="relative">
+        <div className="absolute top-1/2 left-3 -translate-y-1/2">
+          <Search size={16} style={{ color: "var(--color-text-secondary)" }} />
+        </div>
+        <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full pl-12 pr-4 py-3 rounded-full text-sm"
+          className="w-full rounded-lg border py-2 pr-3 pl-10 text-sm transition-all"
           style={{
-            backgroundColor: "var(--color-bg-hover)",
+            backgroundColor: "rgba(255, 255, 255, 0.03)",
             color: "var(--color-text-primary)",
-            border: "2px solid transparent",
+            borderColor: "transparent",
           }}
-          whileFocus={{
-            borderColor: "var(--color-accent)",
-            boxShadow: "0 0 0 3px rgba(30, 215, 96, 0.1)",
-          }}
-          transition={{ duration: 0.2 }}
         />
-      </motion.div>
+      </div>
     </motion.div>
   );
 }

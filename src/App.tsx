@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import type { XliffDocument } from "xliff-simple";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { Sidebar } from "./components/Sidebar";
@@ -11,10 +12,13 @@ import { useDialogs } from "./hooks/useDialogs";
 import { useNotifications } from "./hooks/useNotifications";
 import { useFileOperations, FileData } from "./hooks/useFileOperations";
 
+const cloneXliffData = (data: XliffDocument): XliffDocument =>
+  JSON.parse(JSON.stringify(data));
+
 function AppContent() {
   const [currentFile, setCurrentFile] = useState<string | null>(null);
   const [fileDataMap, setFileDataMap] = useState<Map<string, FileData>>(
-    new Map()
+    new Map(),
   );
   const [fileGroups, setFileGroups] = useState<T3FileGroup[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -113,11 +117,10 @@ function AppContent() {
         setCurrentFile(t3Files[0].path);
       }
     } catch (error) {
-      console.error("Failed to open folder:", error);
       await showMessage(
         `Failed to open folder: ${error}`,
         "Folder error",
-        "error"
+        "error",
       );
     }
   };
@@ -126,13 +129,13 @@ function AppContent() {
     oldId: string,
     newId: string,
     source: string,
-    target: string
+    target: string,
   ) => {
     if (!currentFile) return;
     const fileData = fileDataMap.get(currentFile);
     if (!fileData) return;
 
-    const updatedData = JSON.parse(JSON.stringify(fileData.xliffData));
+    const updatedData = cloneXliffData(fileData.xliffData);
     const nextTarget = fileData.isSourceOnly ? "" : target;
     let found = false;
     for (const file of updatedData.files) {
@@ -151,7 +154,7 @@ function AppContent() {
     await saveFile(currentFile, updatedData, showMessage);
 
     const updatedUnits = fileData.units.map((unit) =>
-      unit.id === oldId ? { id: newId, source, target: nextTarget } : unit
+      unit.id === oldId ? { id: newId, source, target: nextTarget } : unit,
     );
 
     const newMap = new Map(fileDataMap);
@@ -168,16 +171,16 @@ function AppContent() {
     if (!currentFile) return;
     const confirmed = await confirmDialog(
       `Delete translation key "${id}"?`,
-      "Remove key"
+      "Remove key",
     );
     if (!confirmed) return;
 
     const fileData = fileDataMap.get(currentFile);
     if (!fileData) return;
 
-    const updatedData = JSON.parse(JSON.stringify(fileData.xliffData));
+    const updatedData = cloneXliffData(fileData.xliffData);
     for (const file of updatedData.files) {
-      file.units = file.units.filter((unit: any) => unit.id !== id);
+      file.units = file.units.filter((unit) => unit.id !== id);
     }
 
     await saveFile(currentFile, updatedData, showMessage);
@@ -199,11 +202,11 @@ function AppContent() {
     const fileData = fileDataMap.get(currentFile);
     if (!fileData || fileData.isSourceOnly) return;
 
-    const updatedData = JSON.parse(JSON.stringify(fileData.xliffData));
+    const updatedData = cloneXliffData(fileData.xliffData);
     let changed = false;
 
-    updatedData.files.forEach((file: any) => {
-      file.units = file.units.map((unit: any) => {
+    updatedData.files.forEach((file) => {
+      file.units = file.units.map((unit) => {
         if (unit.id === id) {
           changed = true;
           return { ...unit, target: "" };
@@ -217,7 +220,7 @@ function AppContent() {
     await saveFile(currentFile, updatedData, showMessage);
 
     const updatedUnits = fileData.units.map((unit) =>
-      unit.id === id ? { ...unit, target: "" } : unit
+      unit.id === id ? { ...unit, target: "" } : unit,
     );
 
     const newMap = new Map(fileDataMap);
@@ -240,12 +243,12 @@ function AppContent() {
       await showMessage(
         `Translation key "${id}" already exists!`,
         "Duplicate key",
-        "warning"
+        "warning",
       );
       return;
     }
 
-    const updatedData = JSON.parse(JSON.stringify(fileData.xliffData));
+    const updatedData = cloneXliffData(fileData.xliffData);
     if (updatedData.files.length > 0) {
       updatedData.files[0].units.push({
         id,
@@ -274,42 +277,80 @@ function AppContent() {
     const fileData = fileDataMap.get(currentFile);
     if (!fileData) return;
 
-    const updatedData = JSON.parse(JSON.stringify(fileData.xliffData));
-    updatedData.version = version;
-
-    await saveFile(currentFile, updatedData, showMessage);
+    // Find all related files (same baseName, different languages)
+    const currentBaseName = fileData.baseName;
+    const relatedFiles = Array.from(fileDataMap.entries()).filter(
+      ([, data]) => data.baseName === currentBaseName,
+    );
 
     const newMap = new Map(fileDataMap);
-    newMap.set(currentFile, {
-      ...fileData,
-      xliffData: updatedData,
-      version,
-    });
+
+    // Update version for all related files
+    for (const [filePath, relatedFileData] of relatedFiles) {
+      const updatedData = cloneXliffData(relatedFileData.xliffData);
+      updatedData.version = version;
+
+      await saveFile(filePath, updatedData, showMessage);
+
+      newMap.set(filePath, {
+        ...relatedFileData,
+        xliffData: updatedData,
+        version,
+      });
+    }
+
     setFileDataMap(newMap);
+    notify(
+      "Format synchronized",
+      `Updated ${relatedFiles.length} files to XLIFF ${version}`,
+    );
   };
 
-  const handleReorder = async (newOrder: Array<{ id: string; source: string; target: string }>) => {
+  const handleReorder = async (
+    newOrder: Array<{ id: string; source: string; target: string }>,
+  ) => {
     if (!currentFile) return;
 
     const fileData = fileDataMap.get(currentFile);
     if (!fileData) return;
 
-    const updatedData = JSON.parse(JSON.stringify(fileData.xliffData));
+    // Find all related files (same baseName, different languages)
+    const currentBaseName = fileData.baseName;
+    const relatedFiles = Array.from(fileDataMap.entries()).filter(
+      ([, data]) => data.baseName === currentBaseName,
+    );
 
-    // Replace units array with the new order
-    if (updatedData.files.length > 0) {
-      updatedData.files[0].units = newOrder;
-    }
-
-    await saveFile(currentFile, updatedData, showMessage);
+    // Create order map from new order
+    const orderMap = new Map(newOrder.map((unit, index) => [unit.id, index]));
 
     const newMap = new Map(fileDataMap);
-    newMap.set(currentFile, {
-      ...fileData,
-      xliffData: updatedData,
-      units: newOrder,
-    });
+
+    // Update all related files with the same order
+    for (const [filePath, relatedFileData] of relatedFiles) {
+      const updatedData = cloneXliffData(relatedFileData.xliffData);
+
+      if (updatedData.files.length > 0) {
+        // Sort units based on the order from newOrder
+        const sortedUnits = [...updatedData.files[0].units].sort((a, b) => {
+          const aIndex = orderMap.get(a.id) ?? Number.MAX_SAFE_INTEGER;
+          const bIndex = orderMap.get(b.id) ?? Number.MAX_SAFE_INTEGER;
+          return aIndex - bIndex;
+        });
+
+        updatedData.files[0].units = sortedUnits;
+      }
+
+      await saveFile(filePath, updatedData, showMessage);
+
+      newMap.set(filePath, {
+        ...relatedFileData,
+        xliffData: updatedData,
+        units: updatedData.files[0].units,
+      });
+    }
+
     setFileDataMap(newMap);
+    notify("Order synchronized", `Updated ${relatedFiles.length} files`);
   };
 
   const handleNewLanguage = async (languageCode: string) => {
@@ -321,9 +362,7 @@ function AppContent() {
       return;
     }
 
-    const defaultFile = targetGroup.files.find(
-      (f) => f.language === "default"
-    );
+    const defaultFile = targetGroup.files.find((f) => f.language === "default");
     if (!defaultFile) {
       await showMessage("No default file found", "Language code", "warning");
       return;
@@ -334,11 +373,12 @@ function AppContent() {
 
     const defaultDir = defaultFile.path.substring(
       0,
-      defaultFile.path.lastIndexOf("/")
+      defaultFile.path.lastIndexOf("/"),
     );
 
     // Extract just the filename from baseName (which might contain relative path)
-    const actualBaseName = selectedBaseName.split('/').pop() || selectedBaseName;
+    const actualBaseName =
+      selectedBaseName.split("/").pop() || selectedBaseName;
     const newFileName = `${languageCode}.${actualBaseName}.xlf`;
     const newFilePath = `${defaultDir}/${newFileName}`;
 
@@ -347,15 +387,15 @@ function AppContent() {
         await showMessage(
           `File ${newFileName} already exists!`,
           "Duplicate file",
-          "warning"
+          "warning",
         );
         return;
       }
 
-      const newXliffData = JSON.parse(JSON.stringify(defaultData.xliffData));
+      const newXliffData = cloneXliffData(defaultData.xliffData);
       if (newXliffData.files.length > 0) {
         newXliffData.files[0].targetLanguage = languageCode;
-        newXliffData.files[0].units.forEach((unit: any) => {
+        newXliffData.files[0].units.forEach((unit) => {
           unit.target = "";
         });
       }
@@ -368,22 +408,21 @@ function AppContent() {
       setSelectedBaseName("");
       notify(
         "Language file created",
-        `${languageCode.toUpperCase()} ready to translate`
+        `${languageCode.toUpperCase()} ready to translate`,
       );
     } catch (error) {
-      console.error("Failed to create language file:", error);
       await showMessage(
         `Failed to create language file: ${error}`,
         "Language error",
-        "error"
+        "error",
       );
     }
   };
 
   const handleDeleteFile = async (filePath: string) => {
     const confirmed = await confirmDialog(
-      `Delete this language file?\n\nThis action cannot be undone.`,
-      "Delete file"
+      "Delete this language file?\n\nThis action cannot be undone.",
+      "Delete file",
     );
     if (!confirmed) return;
 
@@ -423,9 +462,8 @@ function AppContent() {
 
         unlistenFile = await listen("menu-open-file", async () => {
           try {
-            const { open: openDialog } = await import(
-              "@tauri-apps/plugin-dialog"
-            );
+            const { open: openDialog } =
+              await import("@tauri-apps/plugin-dialog");
             const selected = await openDialog({
               multiple: false,
               filters: [
@@ -437,32 +475,39 @@ function AppContent() {
             });
 
             if (selected && typeof selected === "string") {
-              handleFileOpen(selected);
+              await handleFileOpen(selected);
             }
           } catch (error) {
-            console.error("Failed to open file:", error);
+            await showMessage(
+              `Failed to open file: ${error}`,
+              "File error",
+              "error",
+            );
           }
         });
 
         unlistenFolder = await listen("menu-open-folder", async () => {
           try {
-            const { open: openDialog } = await import(
-              "@tauri-apps/plugin-dialog"
-            );
+            const { open: openDialog } =
+              await import("@tauri-apps/plugin-dialog");
             const selected = await openDialog({
               directory: true,
               multiple: false,
             });
 
             if (selected && typeof selected === "string") {
-              handleFolderOpen(selected);
+              await handleFolderOpen(selected);
             }
           } catch (error) {
-            console.error("Failed to open folder:", error);
+            await showMessage(
+              `Failed to open folder: ${error}`,
+              "Folder error",
+              "error",
+            );
           }
         });
-      } catch (error) {
-        console.debug("Menu listeners not available:", error);
+      } catch {
+        // Menu listeners are unavailable (e.g., non-Tauri environment)
       }
     };
 
@@ -476,18 +521,12 @@ function AppContent() {
 
   return (
     <div
-      className="h-screen flex flex-col"
-      style={{ backgroundColor: "var(--color-bg-secondary)" }}
+      className="flex h-screen flex-col"
+      style={{ backgroundColor: "var(--color-bg-primary)" }}
     >
-      <div
-        data-tauri-drag-region
-        className="h-8 shrink-0"
-        style={{
-          backgroundColor: "var(--color-bg-secondary)",
-        }}
-      />
+      <div data-tauri-drag-region className="fixed z-50 h-8 w-full shrink-0" />
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar
           onFileOpen={handleFileOpen}
           onFolderOpen={handleFolderOpen}
@@ -498,16 +537,13 @@ function AppContent() {
           onDeleteFile={handleDeleteFile}
           currentFile={currentFile}
           fileGroups={fileGroups}
-          fileDataMap={fileDataMap as any}
+          fileDataMap={fileDataMap}
         />
 
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden">
           <AnimatePresence>
             {currentFileData && (
-              <SearchBar
-                value={searchQuery}
-                onChange={setSearchQuery}
-              />
+              <SearchBar value={searchQuery} onChange={setSearchQuery} />
             )}
           </AnimatePresence>
 

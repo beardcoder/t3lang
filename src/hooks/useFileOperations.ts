@@ -1,18 +1,20 @@
 import * as xliff from "xliff-simple";
+import type {
+  TranslationFile,
+  TranslationUnit as XliffUnit,
+  XliffDocument,
+  XliffVersion,
+} from "xliff-simple";
 
-interface TranslationUnit {
-  id: string;
-  source: string;
-  target: string;
-}
+type UiTranslationUnit = XliffUnit & { target: string };
 
 export interface FileData {
   path: string;
-  xliffData: any;
-  units: TranslationUnit[];
+  xliffData: XliffDocument;
+  units: UiTranslationUnit[];
   sourceLanguage: string;
   targetLanguage: string;
-  version: "1.2" | "2.0";
+  version: XliffVersion;
   language: string;
   baseName: string;
   isSourceOnly: boolean;
@@ -47,7 +49,7 @@ function parseT3FileName(fileName: string): {
 export function useFileOperations() {
   const loadFile = async (
     filePath: string,
-    showError: (message: string, title: string, kind: "error") => Promise<void>
+    showError: (message: string, title: string, kind: "error") => Promise<void>,
   ): Promise<FileData | null> => {
     try {
       const { readTextFile } = await import("@tauri-apps/plugin-fs");
@@ -58,21 +60,26 @@ export function useFileOperations() {
       const isSourceOnly = language === "default";
 
       const parsed = xliff.parse(content);
-      const extractedUnits: TranslationUnit[] = [];
+      const extractedUnits: UiTranslationUnit[] = [];
       let sourceLanguage = "en";
       let targetLanguage = isSourceOnly ? "" : language || "de";
-      let version: "1.2" | "2.0" = parsed.version || "1.2";
+      const version: XliffVersion = parsed.version ?? "1.2";
 
-      parsed.files.forEach((file: any) => {
-        if (file.sourceLanguage) sourceLanguage = file.sourceLanguage;
-        if (!isSourceOnly && file.targetLanguage)
+      parsed.files.forEach((file: TranslationFile) => {
+        if (file.sourceLanguage) {
+          sourceLanguage = file.sourceLanguage;
+        }
+        if (!isSourceOnly && file.targetLanguage) {
           targetLanguage = file.targetLanguage;
+        }
 
-        file.units.forEach((unit: any) => {
+        file.units.forEach((unit: XliffUnit) => {
           extractedUnits.push({
             id: unit.id,
             source: unit.source,
             target: isSourceOnly ? "" : unit.target || "",
+            note: unit.note,
+            state: unit.state,
           });
         });
       });
@@ -89,7 +96,6 @@ export function useFileOperations() {
         isSourceOnly,
       };
     } catch (error) {
-      console.error("Failed to load file:", error);
       await showError(`Failed to load file: ${error}`, "File error", "error");
       return null;
     }
@@ -97,21 +103,20 @@ export function useFileOperations() {
 
   const saveFile = async (
     filePath: string,
-    xliffData: any,
-    showError: (message: string, title: string, kind: "error") => Promise<void>
+    xliffData: XliffDocument,
+    showError: (message: string, title: string, kind: "error") => Promise<void>,
   ) => {
     try {
       const xliffContent = xliff.write(xliffData);
       const { writeTextFile } = await import("@tauri-apps/plugin-fs");
       await writeTextFile(filePath, xliffContent);
     } catch (error) {
-      console.error("Failed to save file:", error);
       await showError(`Failed to save: ${error}`, "Save error", "error");
     }
   };
 
   const scanForXliffFiles = async (
-    dirPath: string
+    dirPath: string,
   ): Promise<Array<{ name: string; path: string }>> => {
     try {
       const { readDir } = await import("@tauri-apps/plugin-fs");
@@ -131,8 +136,7 @@ export function useFileOperations() {
       }
 
       return xliffFiles;
-    } catch (error) {
-      console.warn(`Failed to scan directory ${dirPath}:`, error);
+    } catch {
       return [];
     }
   };
@@ -148,18 +152,17 @@ export function useFileOperations() {
 
   const deleteFile = async (
     filePath: string,
-    showError: (message: string, title: string, kind: "error") => Promise<void>
+    showError: (message: string, title: string, kind: "error") => Promise<void>,
   ): Promise<boolean> => {
     try {
       const { remove } = await import("@tauri-apps/plugin-fs");
       await remove(filePath);
       return true;
     } catch (error) {
-      console.error("Failed to delete file:", error);
       await showError(
         `Failed to delete file: ${error}`,
         "Delete error",
-        "error"
+        "error",
       );
       return false;
     }

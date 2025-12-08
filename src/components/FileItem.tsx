@@ -25,35 +25,46 @@ export function FileItem({
 
   return (
     <div
-      className="relative group"
+      className="group relative"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <button
         onClick={onSelect}
-        className={`w-full flex items-center gap-2.5 px-3 py-2 text-left rounded-lg transition-all ${
+        className={`relative flex w-full items-center gap-3 rounded-md border px-3 py-2.5 text-left transition-colors ${
           isSelected
-            ? "bg-white/10"
-            : "bg-transparent hover:bg-white/5"
+            ? "border-border bg-white/5"
+            : "hover:border-border border-transparent bg-transparent hover:bg-white/5"
         }`}
       >
-        <div className={`${isSelected ? "text-white/80" : "text-white/50"}`}>
+        <div
+          className={`rounded-md p-2 ${
+            isSelected ? "bg-white/10 text-white" : "bg-white/5 text-white/70"
+          }`}
+        >
           {isSource ? <FileText size={15} /> : <Globe size={15} />}
         </div>
-        <span className={`text-xs flex-1 truncate ${isSelected ? "text-white/90" : "text-white/80"}`}>
-          {name}
-        </span>
+        <div className="flex-1 truncate">
+          <div
+            className={`truncate text-xs font-semibold ${isSelected ? "text-white" : "text-white/90"}`}
+          >
+            {name}
+          </div>
+          <div className="font-mono text-[11px] tracking-[0.08em] text-white/60 uppercase">
+            {isSource ? "source" : language}
+          </div>
+        </div>
         <div className="flex items-center gap-1.5">
           {!isSource && translationProgress !== undefined && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded-md font-semibold bg-accent/15 text-accent">
+            <span className="border-border rounded-md border bg-white/5 px-2 py-0.5 font-mono text-[10px] font-semibold text-white/80">
               {translationProgress}%
             </span>
           )}
           <span
-            className={`rounded-md font-semibold ${
+            className={`rounded-md border font-semibold ${
               isSource
-                ? "text-[10px] px-2 py-0.5 bg-accent text-white"
-                : "text-[10px] px-2 py-0.5 font-medium bg-white/10 text-white/70"
+                ? "bg-accent text-primary border-transparent px-2 py-0.5 text-[10px]"
+                : "border-border bg-white/5 px-2 py-0.5 text-[10px] font-medium text-white/70"
             }`}
           >
             {isSource ? "Source" : language.toUpperCase()}
@@ -66,7 +77,7 @@ export function FileItem({
             e.stopPropagation();
             onDelete();
           }}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md bg-danger hover:bg-danger-hover text-white transition-all shadow-lg"
+          className="bg-danger hover:bg-danger-hover absolute top-2 right-2 rounded-md p-1.5 text-white shadow-lg transition-all"
           title="Delete language file"
         >
           <X size={13} />

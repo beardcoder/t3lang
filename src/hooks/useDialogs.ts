@@ -2,7 +2,7 @@ export function useDialogs() {
   const showMessage = async (
     content: string,
     title = "T3Lang",
-    kind: "info" | "warning" | "error" = "info"
+    kind: "info" | "warning" | "error" = "info",
   ) => {
     try {
       const { message } = await import("@tauri-apps/plugin-dialog");
@@ -38,8 +38,8 @@ export function useDialogs() {
         return selected;
       }
       return null;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Failed to open file dialog:", error);
       return null;
     }
   };
@@ -56,8 +56,8 @@ export function useDialogs() {
         return selected;
       }
       return null;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Failed to open folder dialog:", error);
       return null;
     }
   };

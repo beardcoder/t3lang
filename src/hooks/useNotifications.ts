@@ -11,8 +11,9 @@ export function useNotifications() {
       if (permission) {
         sendNotification({ title, body });
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.debug("Notification skipped", error);
+      // do nothing if notifications are not available
     }
   };
 
