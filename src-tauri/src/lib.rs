@@ -6,37 +6,22 @@ use std::process::Command;
 
 #[tauri::command]
 fn install_cli() -> Result<String, String> {
-    let script = r#"
-        do shell script "
-            cat > /usr/local/bin/t3lang << 'SCRIPT'
-#!/bin/bash
-APP_NAME=\"T3Lang\"
-APP_PATH=\"/Applications/${APP_NAME}.app\"
-if [ ! -d \"$APP_PATH\" ]; then
-    echo \"Error: ${APP_NAME} is not installed in /Applications\"
-    exit 1
-fi
-if [ $# -eq 0 ]; then
-    open -a \"$APP_NAME\"
-else
-    TARGET=\"$1\"
-    if [[ ! \"$TARGET\" = /* ]]; then
-        TARGET=\"$(cd \"$(dirname \"$TARGET\")\" 2>/dev/null && pwd)/$(basename \"$TARGET\")\"
-    fi
-    if [ ! -e \"$TARGET\" ]; then
-        echo \"Error: Path does not exist: $1\"
-        exit 1
-    fi
-    open -a \"$APP_NAME\" --args \"$TARGET\"
-fi
-SCRIPT
-            chmod +x /usr/local/bin/t3lang
-        " with administrator privileges
-    "#;
+    let source = "/Applications/T3Lang.app/Contents/Resources/t3lang";
+    let target = "/usr/local/bin/t3lang";
+
+    // Check if source exists
+    if !std::path::Path::new(source).exists() {
+        return Err("T3Lang is not installed in /Applications. Please move the app there first.".to_string());
+    }
+
+    let script = format!(
+        r#"do shell script "ln -sf '{}' '{}'" with administrator privileges"#,
+        source, target
+    );
 
     let output = Command::new("osascript")
         .arg("-e")
-        .arg(script)
+        .arg(&script)
         .output()
         .map_err(|e| e.to_string())?;
 
