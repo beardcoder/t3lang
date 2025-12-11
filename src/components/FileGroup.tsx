@@ -30,11 +30,13 @@ export function FileGroup({
 
   const calculateProgress = (filePath: string): number => {
     const fileData = fileDataMap.get(filePath);
+
     if (!fileData || fileData.isSourceOnly || fileData.units.length === 0)
       return 0;
     const translatedCount = fileData.units.filter(
       (unit) => unit.target && unit.target.trim() !== "",
     ).length;
+
     return Math.round((translatedCount / fileData.units.length) * 100);
   };
 

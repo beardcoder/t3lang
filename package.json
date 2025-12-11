@@ -50,6 +50,7 @@
     "@eslint/compat": "^2.0.0",
     "@eslint/css": "^0.14.1",
     "@eslint/js": "^9.39.1",
+    "@stylistic/eslint-plugin": "^5.6.1",
     "@tailwindcss/postcss": "^4.1.17",
     "@tauri-apps/cli": "^2.9.5",
     "@types/node": "^24.10.1",

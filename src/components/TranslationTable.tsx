@@ -211,6 +211,7 @@ export function TranslationTable({
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     const targetHaystack = isSourceOnly ? [] : [unit.target.toLowerCase()];
+
     return (
       unit.id.toLowerCase().includes(query) ||
       unit.source.toLowerCase().includes(query) ||
@@ -223,6 +224,7 @@ export function TranslationTable({
     const translatedCount = units.filter(
       (unit) => unit.target && unit.target.trim() !== "",
     ).length;
+
     return Math.round((translatedCount / units.length) * 100);
   }, [units, isSourceOnly]);
 
@@ -234,6 +236,7 @@ export function TranslationTable({
     value: string,
   ) => {
     const originalUnit = units.find((u) => u.id === unitId);
+
     if (!originalUnit) return;
 
     const currentModified = modifiedUnits.get(unitId) || { ...originalUnit };
@@ -245,12 +248,15 @@ export function TranslationTable({
       updated.target === originalUnit.target
     ) {
       const newMap = new Map(modifiedUnits);
+
       newMap.delete(unitId);
       setModifiedUnits(newMap);
+
       return;
     }
 
     const newMap = new Map(modifiedUnits);
+
     newMap.set(unitId, updated);
     setModifiedUnits(newMap);
   };
@@ -305,6 +311,7 @@ export function TranslationTable({
           }
           if (aIndex !== -1) return -1;
           if (bIndex !== -1) return 1;
+
           return 0;
         });
 
@@ -327,6 +334,7 @@ export function TranslationTable({
     };
 
     window.addEventListener("keydown", handleKeyDown);
+
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [hasChanges, showAddDialog]);
 

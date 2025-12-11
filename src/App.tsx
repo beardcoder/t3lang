@@ -44,8 +44,10 @@ function AppContent() {
 
   const handleFileOpen = async (filePath: string) => {
     const fileData = await loadFile(filePath, showMessage);
+
     if (fileData) {
       const newMap = new Map(fileDataMap);
+
       newMap.set(filePath, fileData);
       setFileDataMap(newMap);
       setCurrentFile(filePath);
@@ -71,6 +73,7 @@ function AppContent() {
           newMap.set(file.path, fileData);
 
           const { baseName, language } = parseT3FileName(file.name);
+
           t3Files.push({
             name: file.name,
             path: file.path,
@@ -81,6 +84,7 @@ function AppContent() {
       }
 
       const groups = new Map<string, typeof t3Files>();
+
       t3Files.forEach((file) => {
         const directory = file.path.substring(0, file.path.lastIndexOf("/"));
         const groupKey = `${directory}/${file.baseName}`;
@@ -108,6 +112,7 @@ function AppContent() {
             files: files.sort((a, b) => {
               if (a.language === "default") return -1;
               if (b.language === "default") return 1;
+
               return a.language.localeCompare(b.language);
             }),
           };
@@ -138,11 +143,13 @@ function AppContent() {
   ) => {
     if (!currentFile) return;
     const fileData = fileDataMap.get(currentFile);
+
     if (!fileData) return;
 
     const updatedData = cloneXliffData(fileData.xliffData);
     const nextTarget = fileData.isSourceOnly ? "" : target;
     let found = false;
+
     for (const file of updatedData.files) {
       for (const unit of file.units) {
         if (unit.id === oldId) {
@@ -163,6 +170,7 @@ function AppContent() {
     );
 
     const newMap = new Map(fileDataMap);
+
     newMap.set(currentFile, {
       ...fileData,
       xliffData: updatedData,
@@ -178,12 +186,15 @@ function AppContent() {
       `Delete translation key "${id}"?`,
       "Remove key",
     );
+
     if (!confirmed) return;
 
     const fileData = fileDataMap.get(currentFile);
+
     if (!fileData) return;
 
     const updatedData = cloneXliffData(fileData.xliffData);
+
     for (const file of updatedData.files) {
       file.units = file.units.filter((unit) => unit.id !== id);
     }
@@ -191,8 +202,8 @@ function AppContent() {
     await saveFile(currentFile, updatedData, showMessage, getIndentString());
 
     const updatedUnits = fileData.units.filter((unit) => unit.id !== id);
-
     const newMap = new Map(fileDataMap);
+
     newMap.set(currentFile, {
       ...fileData,
       xliffData: updatedData,
@@ -205,6 +216,7 @@ function AppContent() {
   const handleClearTranslation = async (id: string) => {
     if (!currentFile) return;
     const fileData = fileDataMap.get(currentFile);
+
     if (!fileData || fileData.isSourceOnly) return;
 
     const updatedData = cloneXliffData(fileData.xliffData);
@@ -214,8 +226,10 @@ function AppContent() {
       file.units = file.units.map((unit) => {
         if (unit.id === id) {
           changed = true;
+
           return { ...unit, target: "" };
         }
+
         return unit;
       });
     });
@@ -229,6 +243,7 @@ function AppContent() {
     );
 
     const newMap = new Map(fileDataMap);
+
     newMap.set(currentFile, {
       ...fileData,
       xliffData: updatedData,
@@ -242,6 +257,7 @@ function AppContent() {
     if (!currentFile) return;
 
     const fileData = fileDataMap.get(currentFile);
+
     if (!fileData) return;
 
     if (fileData.units.some((u) => u.id === id)) {
@@ -250,10 +266,12 @@ function AppContent() {
         "Duplicate key",
         "warning",
       );
+
       return;
     }
 
     const updatedData = cloneXliffData(fileData.xliffData);
+
     if (updatedData.files.length > 0) {
       updatedData.files[0].units.push({
         id,
@@ -267,6 +285,7 @@ function AppContent() {
     const updatedUnits = [...fileData.units, { id, source, target: "" }];
 
     const newMap = new Map(fileDataMap);
+
     newMap.set(currentFile, {
       ...fileData,
       xliffData: updatedData,
@@ -280,6 +299,7 @@ function AppContent() {
     if (!currentFile) return;
 
     const fileData = fileDataMap.get(currentFile);
+
     if (!fileData) return;
 
     // Find all related files (same baseName, different languages)
@@ -293,6 +313,7 @@ function AppContent() {
     // Update version for all related files
     for (const [filePath, relatedFileData] of relatedFiles) {
       const updatedData = cloneXliffData(relatedFileData.xliffData);
+
       updatedData.version = version;
 
       await saveFile(filePath, updatedData, showMessage, getIndentString());
@@ -317,6 +338,7 @@ function AppContent() {
     if (!currentFile) return;
 
     const fileData = fileDataMap.get(currentFile);
+
     if (!fileData) return;
 
     // Find all related files (same baseName, different languages)
@@ -339,6 +361,7 @@ function AppContent() {
         const sortedUnits = [...updatedData.files[0].units].sort((a, b) => {
           const aIndex = orderMap.get(a.id) ?? Number.MAX_SAFE_INTEGER;
           const bIndex = orderMap.get(b.id) ?? Number.MAX_SAFE_INTEGER;
+
           return aIndex - bIndex;
         });
 
@@ -365,18 +388,23 @@ function AppContent() {
     if (!folderPath || !selectedBaseName) return;
 
     const targetGroup = fileGroups.find((g) => g.baseName === selectedBaseName);
+
     if (!targetGroup) {
       await showMessage("File group not found", "Error", "error");
+
       return;
     }
 
     const defaultFile = targetGroup.files.find((f) => f.language === "default");
+
     if (!defaultFile) {
       await showMessage("No default file found", "Language code", "warning");
+
       return;
     }
 
     const defaultData = fileDataMap.get(defaultFile.path);
+
     if (!defaultData) return;
 
     const defaultDir = defaultFile.path.substring(
@@ -397,10 +425,12 @@ function AppContent() {
           "Duplicate file",
           "warning",
         );
+
         return;
       }
 
       const newXliffData = cloneXliffData(defaultData.xliffData);
+
       if (newXliffData.files.length > 0) {
         newXliffData.files[0].targetLanguage = languageCode;
         newXliffData.files[0].units.forEach((unit) => {
@@ -432,9 +462,11 @@ function AppContent() {
       "Delete this language file?\n\nThis action cannot be undone.",
       "Delete file",
     );
+
     if (!confirmed) return;
 
     const success = await deleteFile(filePath, showMessage);
+
     if (!success) return;
 
     if (currentFile === filePath) {
@@ -452,6 +484,7 @@ function AppContent() {
   const parsedMeta = useMemo(() => {
     if (!currentFile) return null;
     const name = currentFile.split(/[\\/]/).pop() || currentFile;
+
     return parseT3FileName(name);
   }, [currentFile]);
 
@@ -470,8 +503,10 @@ function AppContent() {
 
         unlisten = await listen<string>("open-path", async (event) => {
           const path = event.payload;
+
           try {
             const fileInfo = await stat(path);
+
             if (fileInfo.isDirectory) {
               await handleFolderOpen(path);
             } else if (fileInfo.isFile) {
@@ -487,6 +522,7 @@ function AppContent() {
     };
 
     setupCliListener();
+
     return () => unlisten?.();
   }, []);
 
@@ -552,6 +588,7 @@ function AppContent() {
         unlistenInstallCli = await listen("menu-install-cli", async () => {
           try {
             const result = await invoke<string>("install_cli");
+
             await showMessage(result, "CLI Installation", "info");
             notify("CLI Installed", "You can now use 't3lang' in the terminal");
           } catch (error) {
@@ -564,6 +601,7 @@ function AppContent() {
         unlistenUninstallCli = await listen("menu-uninstall-cli", async () => {
           try {
             const result = await invoke<string>("uninstall_cli");
+
             await showMessage(result, "CLI Uninstallation", "info");
             notify("CLI Uninstalled", "'t3lang' command removed");
           } catch (error) {

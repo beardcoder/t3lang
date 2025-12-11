@@ -4,8 +4,10 @@ export function useNotifications() {
       const { isPermissionGranted, requestPermission, sendNotification } =
         await import("@tauri-apps/plugin-notification");
       let permission = await isPermissionGranted();
+
       if (!permission) {
         const request = await requestPermission();
+
         permission = request === "granted";
       }
       if (permission) {

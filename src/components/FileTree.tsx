@@ -39,6 +39,7 @@ export function FileTree({
 
   const toggleGroup = (baseName: string) => {
     const newExpanded = new Set(expandedGroups);
+
     if (newExpanded.has(baseName)) {
       newExpanded.delete(baseName);
     } else {

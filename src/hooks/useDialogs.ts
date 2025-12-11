@@ -6,6 +6,7 @@ export function useDialogs() {
   ) => {
     try {
       const { message } = await import("@tauri-apps/plugin-dialog");
+
       await message(content, { title, kind });
     } catch {
       alert(content);
@@ -15,6 +16,7 @@ export function useDialogs() {
   const confirmDialog = async (content: string, title = "Confirm") => {
     try {
       const { ask } = await import("@tauri-apps/plugin-dialog");
+
       return await ask(content, { title, kind: "warning" });
     } catch {
       return confirm(content);
@@ -37,6 +39,7 @@ export function useDialogs() {
       if (selected && typeof selected === "string") {
         return selected;
       }
+
       return null;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
@@ -55,6 +58,7 @@ export function useDialogs() {
       if (selected && typeof selected === "string") {
         return selected;
       }
+
       return null;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {

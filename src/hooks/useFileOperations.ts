@@ -25,6 +25,7 @@ function parseT3FileName(fileName: string): {
   language: string;
 } {
   const langMatch = fileName.match(/^([a-z]{2})\.(.+)\.xlf$/);
+
   if (langMatch) {
     return {
       language: langMatch[1],
@@ -33,6 +34,7 @@ function parseT3FileName(fileName: string): {
   }
 
   const baseMatch = fileName.match(/^(.+)\.xlf$/);
+
   if (baseMatch) {
     return {
       language: "default",
@@ -97,6 +99,7 @@ export function useFileOperations() {
       };
     } catch (error) {
       await showError(`Failed to load file: ${error}`, "File error", "error");
+
       return null;
     }
   };
@@ -113,6 +116,7 @@ export function useFileOperations() {
         indent: indent ?? "\t",
       });
       const { writeTextFile } = await import("@tauri-apps/plugin-fs");
+
       await writeTextFile(filePath, xliffContent);
     } catch (error) {
       await showError(`Failed to save: ${error}`, "Save error", "error");
@@ -133,6 +137,7 @@ export function useFileOperations() {
 
         if (entry.isDirectory) {
           const subFiles = await scanForXliffFiles(fullPath);
+
           xliffFiles.push(...subFiles);
         } else if (entry.name.endsWith(".xlf")) {
           xliffFiles.push({ name: entry.name, path: fullPath });
@@ -148,6 +153,7 @@ export function useFileOperations() {
   const checkFileExists = async (filePath: string): Promise<boolean> => {
     try {
       const { exists } = await import("@tauri-apps/plugin-fs");
+
       return await exists(filePath);
     } catch {
       return false;
@@ -160,7 +166,9 @@ export function useFileOperations() {
   ): Promise<boolean> => {
     try {
       const { remove } = await import("@tauri-apps/plugin-fs");
+
       await remove(filePath);
+
       return true;
     } catch (error) {
       await showError(
@@ -168,6 +176,7 @@ export function useFileOperations() {
         "Delete error",
         "error",
       );
+
       return false;
     }
   };

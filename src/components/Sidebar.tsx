@@ -26,6 +26,7 @@ export function Sidebar({
 
   const handleOpenFile = async () => {
     const selected = await openFileDialog();
+
     if (selected) {
       onFileOpen(selected);
     }
@@ -33,6 +34,7 @@ export function Sidebar({
 
   const handleOpenFolder = async () => {
     const selected = await openFolderDialog();
+
     if (selected) {
       onFolderOpen(selected);
     }

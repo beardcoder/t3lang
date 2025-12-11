@@ -28,12 +28,14 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<Settings>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
+
       if (stored) {
         return { ...defaultSettings, ...JSON.parse(stored) };
       }
     } catch {
       // Ignore parse errors
     }
+
     return defaultSettings;
   });
 
@@ -49,6 +51,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     if (settings.indentType === "tabs") {
       return "\t";
     }
+
     return " ".repeat(settings.indentSize);
   };
 
@@ -63,8 +66,10 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 
 export function useSettings() {
   const context = useContext(SettingsContext);
+
   if (!context) {
     throw new Error("useSettings must be used within SettingsProvider");
   }
+
   return context;
 }
