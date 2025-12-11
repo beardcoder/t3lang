@@ -1,55 +1,54 @@
-import { motion } from "motion/react";
-import { LucideIcon } from "lucide-react";
+import { motion } from 'motion/react';
+import { LucideIcon } from 'lucide-react';
 
 interface ButtonProps {
   onClick?: () => void;
   children: React.ReactNode;
   icon?: LucideIcon;
-  variant?: "primary" | "secondary" | "danger";
-  size?: "sm" | "md" | "lg";
+  variant?: 'primary' | 'secondary' | 'danger';
+  size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
   className?: string;
   title?: string;
-  type?: "button" | "submit";
+  type?: 'button' | 'submit';
 }
 
 export function Button({
   onClick,
   children,
   icon: Icon,
-  variant = "primary",
-  size = "md",
+  variant = 'primary',
+  size = 'md',
   disabled = false,
-  className = "",
+  className = '',
   title,
-  type = "button",
+  type = 'button',
 }: ButtonProps) {
-  const baseStyles =
-    "font-semibold flex items-center justify-center gap-2 rounded-lg transition-all border";
+  const baseStyles = 'font-semibold flex items-center justify-center gap-2 rounded-lg transition-all border';
 
   const sizeStyles = {
-    sm: "px-3 py-2 text-xs",
-    md: "px-4 py-3 text-sm",
-    lg: "px-6 py-4 text-base",
+    sm: 'px-3 py-2 text-xs',
+    md: 'px-4 py-3 text-sm',
+    lg: 'px-6 py-4 text-base',
   };
 
   const variantStyles = {
     primary: {
-      backgroundColor: "var(--color-accent)",
-      color: "white",
-      border: "1px solid var(--color-accent)",
-      boxShadow: "0 14px 36px rgba(103, 232, 249, 0.25)",
+      backgroundColor: 'var(--color-accent)',
+      color: 'white',
+      border: '1px solid var(--color-accent)',
+      boxShadow: '0 14px 36px rgba(103, 232, 249, 0.25)',
     },
     secondary: {
-      backgroundColor: "var(--color-bg-tertiary)",
-      color: "var(--color-text-primary)",
-      border: "1px solid var(--color-border)",
+      backgroundColor: 'var(--color-bg-tertiary)',
+      color: 'var(--color-text-primary)',
+      border: '1px solid var(--color-border)',
     },
     danger: {
-      backgroundColor: "var(--color-danger)",
-      color: "white",
-      border: "1px solid var(--color-danger)",
-      boxShadow: "0 12px 30px rgba(255, 123, 114, 0.25)",
+      backgroundColor: 'var(--color-danger)',
+      color: 'white',
+      border: '1px solid var(--color-danger)',
+      boxShadow: '0 12px 30px rgba(255, 123, 114, 0.25)',
     },
   };
 
@@ -63,9 +62,9 @@ export function Button({
       style={variantStyles[variant]}
       whileHover={{ scale: disabled ? 1 : 1.02 }}
       whileTap={{ scale: disabled ? 1 : 0.98 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
     >
-      {Icon && <Icon size={size === "sm" ? 14 : size === "md" ? 16 : 18} />}
+      {Icon && <Icon size={size === 'sm' ? 14 : size === 'md' ? 16 : 18} />}
       {children}
     </motion.button>
   );

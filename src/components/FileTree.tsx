@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { FileGroup } from "./FileGroup";
-import type { FileData } from "../hooks/useFileOperations";
+import { useState } from 'react';
+import { FileGroup } from './FileGroup';
+import type { FileData } from '../hooks/useFileOperations';
 
 export interface T3File {
   name: string;
@@ -33,9 +33,7 @@ export function FileTree({
   onDeleteFile,
   fileDataMap,
 }: FileTreeProps) {
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
-    new Set(fileGroups.map((g) => g.baseName)),
-  );
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(fileGroups.map((g) => g.baseName)));
 
   const toggleGroup = (baseName: string) => {
     const newExpanded = new Set(expandedGroups);
@@ -49,11 +47,7 @@ export function FileTree({
   };
 
   if (fileGroups.length === 0) {
-    return (
-      <div className="p-4 text-center text-sm text-gray-500">
-        No files loaded
-      </div>
-    );
+    return <div className="p-4 text-center text-sm text-gray-500">No files loaded</div>;
   }
 
   return (

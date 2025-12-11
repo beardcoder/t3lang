@@ -1,57 +1,48 @@
-import { useEffect, useMemo, useState } from "react";
-import type { XliffDocument } from "xliff-simple";
-import { AnimatePresence, MotionConfig, motion } from "motion/react";
-import { ThemeProvider } from "./contexts/ThemeContext";
-import { SettingsProvider } from "./contexts/SettingsContext";
-import { Sidebar } from "./components/Sidebar";
-import { TranslationTable } from "./components/TranslationTable";
-import { EmptyState } from "./components/EmptyState";
-import { SearchBar } from "./components/SearchBar";
-import { NewLanguageDialog } from "./components/NewLanguageDialog";
-import { SettingsDialog } from "./components/SettingsDialog";
-import { T3FileGroup } from "./components/FileTree";
-import { useDialogs } from "./hooks/useDialogs";
-import { useNotifications } from "./hooks/useNotifications";
-import { useFileOperations, FileData } from "./hooks/useFileOperations";
-import { useSettings } from "./contexts/SettingsContext";
+import { useEffect, useMemo, useState } from 'react';
+import type { XliffDocument } from 'xliff-simple';
+import { AnimatePresence, MotionConfig, motion } from 'motion/react';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { SettingsProvider } from './contexts/SettingsContext';
+import { Sidebar } from './components/Sidebar';
+import { TranslationTable } from './components/TranslationTable';
+import { EmptyState } from './components/EmptyState';
+import { SearchBar } from './components/SearchBar';
+import { NewLanguageDialog } from './components/NewLanguageDialog';
+import { SettingsDialog } from './components/SettingsDialog';
+import { T3FileGroup } from './components/FileTree';
+import { useDialogs } from './hooks/useDialogs';
+import { useNotifications } from './hooks/useNotifications';
+import { useFileOperations, FileData } from './hooks/useFileOperations';
+import { useSettings } from './contexts/SettingsContext';
 
-const cloneXliffData = (data: XliffDocument): XliffDocument =>
-  JSON.parse(JSON.stringify(data));
+const cloneXliffData = (data: XliffDocument): XliffDocument => JSON.parse(JSON.stringify(data));
 
 function AppContent() {
   const [currentFile, setCurrentFile] = useState<string | null>(null);
-  const [fileDataMap, setFileDataMap] = useState<Map<string, FileData>>(
-    new Map(),
-  );
+  const [fileDataMap, setFileDataMap] = useState<Map<string, FileData>>(new Map());
   const [fileGroups, setFileGroups] = useState<T3FileGroup[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [folderPath, setFolderPath] = useState<string | null>(null);
   const [showNewLanguageDialog, setShowNewLanguageDialog] = useState(false);
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
-  const [selectedBaseName, setSelectedBaseName] = useState<string>("");
+  const [selectedBaseName, setSelectedBaseName] = useState<string>('');
 
   const { showMessage, confirmDialog } = useDialogs();
   const { notify } = useNotifications();
   const { getIndentString } = useSettings();
-  const {
-    loadFile,
-    saveFile,
-    scanForXliffFiles,
-    checkFileExists,
-    deleteFile,
-    parseT3FileName,
-  } = useFileOperations();
+  const { loadFile, saveFile, scanForXliffFiles, checkFileExists, deleteFile, parseT3FileName } = useFileOperations();
 
   const handleFileOpen = async (filePath: string) => {
     const fileData = await loadFile(filePath, showMessage);
 
-    if (fileData) {
-      const newMap = new Map(fileDataMap);
-
-      newMap.set(filePath, fileData);
-      setFileDataMap(newMap);
-      setCurrentFile(filePath);
+    if (!fileData) {
+      return;
     }
+    const newMap = new Map(fileDataMap);
+
+    newMap.set(filePath, fileData);
+    setFileDataMap(newMap);
+    setCurrentFile(filePath);
   };
 
   const handleFolderOpen = async (folderPathValue: string) => {
@@ -86,7 +77,7 @@ function AppContent() {
       const groups = new Map<string, typeof t3Files>();
 
       t3Files.forEach((file) => {
-        const directory = file.path.substring(0, file.path.lastIndexOf("/"));
+        const directory = file.path.substring(0, file.path.lastIndexOf('/'));
         const groupKey = `${directory}/${file.baseName}`;
 
         if (!groups.has(groupKey)) {
@@ -97,21 +88,17 @@ function AppContent() {
 
       const groupArray: T3FileGroup[] = Array.from(groups.entries())
         .map(([groupKey, files]) => {
-          const baseName = groupKey.substring(groupKey.lastIndexOf("/") + 1);
-          const directory = groupKey.substring(0, groupKey.lastIndexOf("/"));
+          const baseName = groupKey.substring(groupKey.lastIndexOf('/') + 1);
+          const directory = groupKey.substring(0, groupKey.lastIndexOf('/'));
 
-          const relativePath = directory
-            .replace(folderPathValue, "")
-            .replace(/^\//, "");
-          const displayName = relativePath
-            ? `${relativePath}/${baseName}`
-            : baseName;
+          const relativePath = directory.replace(folderPathValue, '').replace(/^\//, '');
+          const displayName = relativePath ? `${relativePath}/${baseName}` : baseName;
 
           return {
             baseName: displayName,
             files: files.sort((a, b) => {
-              if (a.language === "default") return -1;
-              if (b.language === "default") return 1;
+              if (a.language === 'default') return -1;
+              if (b.language === 'default') return 1;
 
               return a.language.localeCompare(b.language);
             }),
@@ -127,27 +114,18 @@ function AppContent() {
         setCurrentFile(t3Files[0].path);
       }
     } catch (error) {
-      await showMessage(
-        `Failed to open folder: ${error}`,
-        "Folder error",
-        "error",
-      );
+      await showMessage(`Failed to open folder: ${error}`, 'Folder error', 'error');
     }
   };
 
-  const handleSave = async (
-    oldId: string,
-    newId: string,
-    source: string,
-    target: string,
-  ) => {
+  const handleSave = async (oldId: string, newId: string, source: string, target: string) => {
     if (!currentFile) return;
     const fileData = fileDataMap.get(currentFile);
 
     if (!fileData) return;
 
     const updatedData = cloneXliffData(fileData.xliffData);
-    const nextTarget = fileData.isSourceOnly ? "" : target;
+    const nextTarget = fileData.isSourceOnly ? '' : target;
     let found = false;
 
     for (const file of updatedData.files) {
@@ -177,15 +155,12 @@ function AppContent() {
       units: updatedUnits,
     });
     setFileDataMap(newMap);
-    notify("Saved translation", `${newId} was updated`);
+    notify('Saved translation', `${newId} was updated`);
   };
 
   const handleDelete = async (id: string) => {
     if (!currentFile) return;
-    const confirmed = await confirmDialog(
-      `Delete translation key "${id}"?`,
-      "Remove key",
-    );
+    const confirmed = await confirmDialog(`Delete translation key "${id}"?`, 'Remove key');
 
     if (!confirmed) return;
 
@@ -210,7 +185,7 @@ function AppContent() {
       units: updatedUnits,
     });
     setFileDataMap(newMap);
-    notify("Deleted translation", `${id} was removed`);
+    notify('Deleted translation', `${id} was removed`);
   };
 
   const handleClearTranslation = async (id: string) => {
@@ -227,7 +202,7 @@ function AppContent() {
         if (unit.id === id) {
           changed = true;
 
-          return { ...unit, target: "" };
+          return { ...unit, target: '' };
         }
 
         return unit;
@@ -238,9 +213,7 @@ function AppContent() {
 
     await saveFile(currentFile, updatedData, showMessage, getIndentString());
 
-    const updatedUnits = fileData.units.map((unit) =>
-      unit.id === id ? { ...unit, target: "" } : unit,
-    );
+    const updatedUnits = fileData.units.map((unit) => (unit.id === id ? { ...unit, target: '' } : unit));
 
     const newMap = new Map(fileDataMap);
 
@@ -250,7 +223,7 @@ function AppContent() {
       units: updatedUnits,
     });
     setFileDataMap(newMap);
-    notify("Cleared translation", `${id} target cleared`);
+    notify('Cleared translation', `${id} target cleared`);
   };
 
   const handleAddKey = async (id: string, source: string) => {
@@ -261,11 +234,7 @@ function AppContent() {
     if (!fileData) return;
 
     if (fileData.units.some((u) => u.id === id)) {
-      await showMessage(
-        `Translation key "${id}" already exists!`,
-        "Duplicate key",
-        "warning",
-      );
+      await showMessage(`Translation key "${id}" already exists!`, 'Duplicate key', 'warning');
 
       return;
     }
@@ -276,13 +245,13 @@ function AppContent() {
       updatedData.files[0].units.push({
         id,
         source,
-        target: "",
+        target: '',
       });
     }
 
     await saveFile(currentFile, updatedData, showMessage, getIndentString());
 
-    const updatedUnits = [...fileData.units, { id, source, target: "" }];
+    const updatedUnits = [...fileData.units, { id, source, target: '' }];
 
     const newMap = new Map(fileDataMap);
 
@@ -292,10 +261,10 @@ function AppContent() {
       units: updatedUnits,
     });
     setFileDataMap(newMap);
-    notify("Added key", `${id} created in ${fileData.baseName}`);
+    notify('Added key', `${id} created in ${fileData.baseName}`);
   };
 
-  const handleVersionChange = async (version: "1.2" | "2.0") => {
+  const handleVersionChange = async (version: '1.2' | '2.0') => {
     if (!currentFile) return;
 
     const fileData = fileDataMap.get(currentFile);
@@ -304,9 +273,7 @@ function AppContent() {
 
     // Find all related files (same baseName, different languages)
     const currentBaseName = fileData.baseName;
-    const relatedFiles = Array.from(fileDataMap.entries()).filter(
-      ([, data]) => data.baseName === currentBaseName,
-    );
+    const relatedFiles = Array.from(fileDataMap.entries()).filter(([, data]) => data.baseName === currentBaseName);
 
     const newMap = new Map(fileDataMap);
 
@@ -326,15 +293,10 @@ function AppContent() {
     }
 
     setFileDataMap(newMap);
-    notify(
-      "Format synchronized",
-      `Updated ${relatedFiles.length} files to XLIFF ${version}`,
-    );
+    notify('Format synchronized', `Updated ${relatedFiles.length} files to XLIFF ${version}`);
   };
 
-  const handleReorder = async (
-    newOrder: Array<{ id: string; source: string; target: string }>,
-  ) => {
+  const handleReorder = async (newOrder: Array<{ id: string; source: string; target: string }>) => {
     if (!currentFile) return;
 
     const fileData = fileDataMap.get(currentFile);
@@ -343,9 +305,7 @@ function AppContent() {
 
     // Find all related files (same baseName, different languages)
     const currentBaseName = fileData.baseName;
-    const relatedFiles = Array.from(fileDataMap.entries()).filter(
-      ([, data]) => data.baseName === currentBaseName,
-    );
+    const relatedFiles = Array.from(fileDataMap.entries()).filter(([, data]) => data.baseName === currentBaseName);
 
     // Create order map from new order
     const orderMap = new Map(newOrder.map((unit, index) => [unit.id, index]));
@@ -375,13 +335,13 @@ function AppContent() {
         xliffData: updatedData,
         units: updatedData.files[0].units.map((unit) => ({
           ...unit,
-          target: unit.target || "",
+          target: unit.target || '',
         })),
       });
     }
 
     setFileDataMap(newMap);
-    notify("Order synchronized", `Updated ${relatedFiles.length} files`);
+    notify('Order synchronized', `Updated ${relatedFiles.length} files`);
   };
 
   const handleNewLanguage = async (languageCode: string) => {
@@ -390,15 +350,15 @@ function AppContent() {
     const targetGroup = fileGroups.find((g) => g.baseName === selectedBaseName);
 
     if (!targetGroup) {
-      await showMessage("File group not found", "Error", "error");
+      await showMessage('File group not found', 'Error', 'error');
 
       return;
     }
 
-    const defaultFile = targetGroup.files.find((f) => f.language === "default");
+    const defaultFile = targetGroup.files.find((f) => f.language === 'default');
 
     if (!defaultFile) {
-      await showMessage("No default file found", "Language code", "warning");
+      await showMessage('No default file found', 'Language code', 'warning');
 
       return;
     }
@@ -407,24 +367,16 @@ function AppContent() {
 
     if (!defaultData) return;
 
-    const defaultDir = defaultFile.path.substring(
-      0,
-      defaultFile.path.lastIndexOf("/"),
-    );
+    const defaultDir = defaultFile.path.substring(0, defaultFile.path.lastIndexOf('/'));
 
     // Extract just the filename from baseName (which might contain relative path)
-    const actualBaseName =
-      selectedBaseName.split("/").pop() || selectedBaseName;
+    const actualBaseName = selectedBaseName.split('/').pop() || selectedBaseName;
     const newFileName = `${languageCode}.${actualBaseName}.xlf`;
     const newFilePath = `${defaultDir}/${newFileName}`;
 
     try {
       if (await checkFileExists(newFilePath)) {
-        await showMessage(
-          `File ${newFileName} already exists!`,
-          "Duplicate file",
-          "warning",
-        );
+        await showMessage(`File ${newFileName} already exists!`, 'Duplicate file', 'warning');
 
         return;
       }
@@ -434,7 +386,7 @@ function AppContent() {
       if (newXliffData.files.length > 0) {
         newXliffData.files[0].targetLanguage = languageCode;
         newXliffData.files[0].units.forEach((unit) => {
-          unit.target = "";
+          unit.target = '';
         });
       }
 
@@ -443,25 +395,15 @@ function AppContent() {
       await handleFolderOpen(folderPath);
       setCurrentFile(newFilePath);
       setShowNewLanguageDialog(false);
-      setSelectedBaseName("");
-      notify(
-        "Language file created",
-        `${languageCode.toUpperCase()} ready to translate`,
-      );
+      setSelectedBaseName('');
+      notify('Language file created', `${languageCode.toUpperCase()} ready to translate`);
     } catch (error) {
-      await showMessage(
-        `Failed to create language file: ${error}`,
-        "Language error",
-        "error",
-      );
+      await showMessage(`Failed to create language file: ${error}`, 'Language error', 'error');
     }
   };
 
   const handleDeleteFile = async (filePath: string) => {
-    const confirmed = await confirmDialog(
-      "Delete this language file?\n\nThis action cannot be undone.",
-      "Delete file",
-    );
+    const confirmed = await confirmDialog('Delete this language file?\n\nThis action cannot be undone.', 'Delete file');
 
     if (!confirmed) return;
 
@@ -477,7 +419,7 @@ function AppContent() {
       await handleFolderOpen(folderPath);
     }
 
-    notify("File deleted", "Language file removed");
+    notify('File deleted', 'Language file removed');
   };
 
   const currentFileData = currentFile ? fileDataMap.get(currentFile) : null;
@@ -488,20 +430,18 @@ function AppContent() {
     return parseT3FileName(name);
   }, [currentFile]);
 
-  const isSourceOnly =
-    currentFileData?.isSourceOnly ?? parsedMeta?.language === "default";
-  const targetLanguage =
-    currentFileData?.targetLanguage ?? parsedMeta?.language ?? "";
+  const isSourceOnly = currentFileData?.isSourceOnly ?? parsedMeta?.language === 'default';
+  const targetLanguage = currentFileData?.targetLanguage ?? parsedMeta?.language ?? '';
 
   useEffect(() => {
     let unlisten: (() => void) | undefined;
 
     const setupCliListener = async () => {
       try {
-        const { listen } = await import("@tauri-apps/api/event");
-        const { stat } = await import("@tauri-apps/plugin-fs");
+        const { listen } = await import('@tauri-apps/api/event');
+        const { stat } = await import('@tauri-apps/plugin-fs');
 
-        unlisten = await listen<string>("open-path", async (event) => {
+        unlisten = await listen<string>('open-path', async (event) => {
           const path = event.payload;
 
           try {
@@ -513,7 +453,7 @@ function AppContent() {
               await handleFileOpen(path);
             }
           } catch (error) {
-            await showMessage(`Failed to open: ${error}`, "Error", "error");
+            await showMessage(`Failed to open: ${error}`, 'Error', 'error');
           }
         });
       } catch {
@@ -535,83 +475,73 @@ function AppContent() {
 
     const setupListeners = async () => {
       try {
-        const { listen } = await import("@tauri-apps/api/event");
-        const { invoke } = await import("@tauri-apps/api/core");
+        const { listen } = await import('@tauri-apps/api/event');
+        const { invoke } = await import('@tauri-apps/api/core');
 
-        unlistenFile = await listen("menu-open-file", async () => {
+        unlistenFile = await listen('menu-open-file', async () => {
           try {
-            const { open: openDialog } =
-              await import("@tauri-apps/plugin-dialog");
+            const { open: openDialog } = await import('@tauri-apps/plugin-dialog');
             const selected = await openDialog({
               multiple: false,
               filters: [
                 {
-                  name: "XLIFF",
-                  extensions: ["xlf", "xliff"],
+                  name: 'XLIFF',
+                  extensions: ['xlf', 'xliff'],
                 },
               ],
             });
 
-            if (selected && typeof selected === "string") {
+            if (selected && typeof selected === 'string') {
               await handleFileOpen(selected);
             }
           } catch (error) {
-            await showMessage(
-              `Failed to open file: ${error}`,
-              "File error",
-              "error",
-            );
+            await showMessage(`Failed to open file: ${error}`, 'File error', 'error');
           }
         });
 
-        unlistenFolder = await listen("menu-open-folder", async () => {
+        unlistenFolder = await listen('menu-open-folder', async () => {
           try {
-            const { open: openDialog } =
-              await import("@tauri-apps/plugin-dialog");
+            const { open: openDialog } = await import('@tauri-apps/plugin-dialog');
             const selected = await openDialog({
               directory: true,
               multiple: false,
             });
 
-            if (selected && typeof selected === "string") {
+            if (selected && typeof selected === 'string') {
               await handleFolderOpen(selected);
             }
           } catch (error) {
-            await showMessage(
-              `Failed to open folder: ${error}`,
-              "Folder error",
-              "error",
-            );
+            await showMessage(`Failed to open folder: ${error}`, 'Folder error', 'error');
           }
         });
 
-        unlistenInstallCli = await listen("menu-install-cli", async () => {
+        unlistenInstallCli = await listen('menu-install-cli', async () => {
           try {
-            const result = await invoke<string>("install_cli");
+            const result = await invoke<string>('install_cli');
 
-            await showMessage(result, "CLI Installation", "info");
-            notify("CLI Installed", "You can now use 't3lang' in the terminal");
+            await showMessage(result, 'CLI Installation', 'info');
+            notify('CLI Installed', 'You can now use "t3lang" in the terminal');
           } catch (error) {
-            if (error !== "Installation cancelled.") {
-              await showMessage(`${error}`, "Installation Error", "error");
+            if (error !== 'Installation cancelled.') {
+              await showMessage(`${error}`, 'Installation Error', 'error');
             }
           }
         });
 
-        unlistenUninstallCli = await listen("menu-uninstall-cli", async () => {
+        unlistenUninstallCli = await listen('menu-uninstall-cli', async () => {
           try {
-            const result = await invoke<string>("uninstall_cli");
+            const result = await invoke<string>('uninstall_cli');
 
-            await showMessage(result, "CLI Uninstallation", "info");
-            notify("CLI Uninstalled", "'t3lang' command removed");
+            await showMessage(result, 'CLI Uninstallation', 'info');
+            notify('CLI Uninstalled', '"t3lang" command removed');
           } catch (error) {
-            if (error !== "Uninstallation cancelled.") {
-              await showMessage(`${error}`, "Uninstallation Error", "error");
+            if (error !== 'Uninstallation cancelled.') {
+              await showMessage(`${error}`, 'Uninstallation Error', 'error');
             }
           }
         });
 
-        unlistenSettings = await listen("menu-settings", () => {
+        unlistenSettings = await listen('menu-settings', () => {
           setShowSettingsDialog(true);
         });
       } catch {
@@ -631,10 +561,7 @@ function AppContent() {
   }, []);
 
   return (
-    <div
-      className="flex h-screen flex-col"
-      style={{ backgroundColor: "var(--color-bg-primary)" }}
-    >
+    <div className="flex h-screen flex-col" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
       <div data-tauri-drag-region className="fixed z-50 h-8 w-full shrink-0" />
 
       <div className="flex flex-1 overflow-hidden">
@@ -653,9 +580,7 @@ function AppContent() {
 
         <div className="flex flex-1 flex-col overflow-hidden">
           <AnimatePresence>
-            {currentFileData && (
-              <SearchBar value={searchQuery} onChange={setSearchQuery} />
-            )}
+            {currentFileData && <SearchBar value={searchQuery} onChange={setSearchQuery} />}
           </AnimatePresence>
 
           <div className="flex-1 overflow-hidden">
@@ -666,7 +591,7 @@ function AppContent() {
                   initial={{ opacity: 0, y: 6, scale: 0.995 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -6, scale: 0.995 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
                   className="h-full"
                 >
                   <TranslationTable
@@ -696,25 +621,19 @@ function AppContent() {
         isOpen={showNewLanguageDialog}
         onClose={() => {
           setShowNewLanguageDialog(false);
-          setSelectedBaseName("");
+          setSelectedBaseName('');
         }}
         onConfirm={handleNewLanguage}
       />
 
-      <SettingsDialog
-        isOpen={showSettingsDialog}
-        onClose={() => setShowSettingsDialog(false)}
-      />
+      <SettingsDialog isOpen={showSettingsDialog} onClose={() => setShowSettingsDialog(false)} />
     </div>
   );
 }
 
 export default function App() {
   return (
-    <MotionConfig
-      transition={{ duration: 0.2, ease: "easeOut" }}
-      reducedMotion="user"
-    >
+    <MotionConfig transition={{ duration: 0.2, ease: 'easeOut' }} reducedMotion="user">
       <ThemeProvider>
         <SettingsProvider>
           <AppContent />

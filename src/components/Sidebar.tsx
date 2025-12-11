@@ -1,7 +1,7 @@
-import { motion, AnimatePresence } from "motion/react";
-import { Folder, FileText } from "lucide-react";
-import { FileTree, T3FileGroup, FileDataMap } from "./FileTree";
-import { useDialogs } from "../hooks/useDialogs";
+import { motion, AnimatePresence } from 'motion/react';
+import { Folder, FileText } from 'lucide-react';
+import { FileTree, T3FileGroup, FileDataMap } from './FileTree';
+import { useDialogs } from '../hooks/useDialogs';
 
 interface SidebarProps {
   onFileOpen: (filePath: string) => void;
@@ -44,23 +44,17 @@ export function Sidebar({
     <div
       className="flex h-full w-72 flex-col gap-4 p-5"
       style={{
-        backgroundColor: "var(--color-bg-secondary)",
-        borderRight: "1px solid rgba(255, 255, 255, 0.06)",
+        backgroundColor: 'var(--color-bg-secondary)',
+        borderRight: '1px solid rgba(255, 255, 255, 0.06)',
       }}
     >
       <div className="px-1 pt-8">
         <div className="flex items-start justify-between">
           <div>
-            <h1
-              className="mb-1 text-xl font-semibold"
-              style={{ color: "var(--color-text-primary)" }}
-            >
+            <h1 className="mb-1 text-xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>
               t3lang
             </h1>
-            <p
-              className="text-sm leading-relaxed"
-              style={{ color: "var(--color-text-secondary)" }}
-            >
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
               Translation workspace
             </p>
           </div>
@@ -72,17 +66,17 @@ export function Sidebar({
           onClick={handleOpenFolder}
           className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm transition-colors"
           style={{
-            backgroundColor: "transparent",
-            color: "var(--color-text-primary)",
+            backgroundColor: 'transparent',
+            color: 'var(--color-text-primary)',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "transparent";
+            e.currentTarget.style.backgroundColor = 'transparent';
           }}
         >
-          <Folder size={18} style={{ color: "var(--color-text-secondary)" }} />
+          <Folder size={18} style={{ color: 'var(--color-text-secondary)' }} />
           <span className="font-medium">Open workspace</span>
         </button>
 
@@ -90,20 +84,17 @@ export function Sidebar({
           onClick={handleOpenFile}
           className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm transition-colors"
           style={{
-            backgroundColor: "transparent",
-            color: "var(--color-text-primary)",
+            backgroundColor: 'transparent',
+            color: 'var(--color-text-primary)',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "transparent";
+            e.currentTarget.style.backgroundColor = 'transparent';
           }}
         >
-          <FileText
-            size={18}
-            style={{ color: "var(--color-text-secondary)" }}
-          />
+          <FileText size={18} style={{ color: 'var(--color-text-secondary)' }} />
           <span className="font-medium">Open file</span>
         </button>
       </div>
@@ -113,7 +104,7 @@ export function Sidebar({
           <motion.div
             className="flex-1 overflow-y-auto rounded-lg"
             style={{
-              backgroundColor: "transparent",
+              backgroundColor: 'transparent',
             }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -123,21 +114,18 @@ export function Sidebar({
             <div
               className="sticky top-0 z-10 mb-1 flex items-center justify-between px-2 py-2"
               style={{
-                backgroundColor: "rgba(31, 31, 31, 0.95)",
-                backdropFilter: "blur(8px)",
+                backgroundColor: 'rgba(31, 31, 31, 0.95)',
+                backdropFilter: 'blur(8px)',
               }}
             >
-              <h2
-                className="text-xs font-medium"
-                style={{ color: "var(--color-text-secondary)" }}
-              >
+              <h2 className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>
                 Files
               </h2>
               <span
                 className="rounded px-2 py-0.5 text-xs font-medium"
                 style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.06)",
-                  color: "var(--color-text-secondary)",
+                  backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                  color: 'var(--color-text-secondary)',
                 }}
               >
                 {fileGroups.length}

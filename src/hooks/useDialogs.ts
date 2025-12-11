@@ -1,11 +1,7 @@
 export function useDialogs() {
-  const showMessage = async (
-    content: string,
-    title = "T3Lang",
-    kind: "info" | "warning" | "error" = "info",
-  ) => {
+  const showMessage = async (content: string, title = 'T3Lang', kind: 'info' | 'warning' | 'error' = 'info') => {
     try {
-      const { message } = await import("@tauri-apps/plugin-dialog");
+      const { message } = await import('@tauri-apps/plugin-dialog');
 
       await message(content, { title, kind });
     } catch {
@@ -13,11 +9,11 @@ export function useDialogs() {
     }
   };
 
-  const confirmDialog = async (content: string, title = "Confirm") => {
+  const confirmDialog = async (content: string, title = 'Confirm') => {
     try {
-      const { ask } = await import("@tauri-apps/plugin-dialog");
+      const { ask } = await import('@tauri-apps/plugin-dialog');
 
-      return await ask(content, { title, kind: "warning" });
+      return await ask(content, { title, kind: 'warning' });
     } catch {
       return confirm(content);
     }
@@ -25,18 +21,18 @@ export function useDialogs() {
 
   const openFileDialog = async () => {
     try {
-      const { open: openDialog } = await import("@tauri-apps/plugin-dialog");
+      const { open: openDialog } = await import('@tauri-apps/plugin-dialog');
       const selected = await openDialog({
         multiple: false,
         filters: [
           {
-            name: "XLIFF",
-            extensions: ["xlf", "xliff"],
+            name: 'XLIFF',
+            extensions: ['xlf', 'xliff'],
           },
         ],
       });
 
-      if (selected && typeof selected === "string") {
+      if (selected && typeof selected === 'string') {
         return selected;
       }
 
@@ -49,13 +45,13 @@ export function useDialogs() {
 
   const openFolderDialog = async () => {
     try {
-      const { open: openDialog } = await import("@tauri-apps/plugin-dialog");
+      const { open: openDialog } = await import('@tauri-apps/plugin-dialog');
       const selected = await openDialog({
         directory: true,
         multiple: false,
       });
 
-      if (selected && typeof selected === "string") {
+      if (selected && typeof selected === 'string') {
         return selected;
       }
 

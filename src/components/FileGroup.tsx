@@ -1,6 +1,6 @@
-import { ChevronRight, Plus } from "lucide-react";
-import { FileItem } from "./FileItem";
-import { T3File, FileDataMap } from "./FileTree";
+import { ChevronRight, Plus } from 'lucide-react';
+import { FileItem } from './FileItem';
+import { T3File, FileDataMap } from './FileTree';
 
 interface FileGroupProps {
   baseName: string;
@@ -25,17 +25,14 @@ export function FileGroup({
   onDeleteFile,
   fileDataMap,
 }: FileGroupProps) {
-  const defaultFile = files.find((f) => f.language === "default");
-  const translationFiles = files.filter((f) => f.language !== "default");
+  const defaultFile = files.find((f) => f.language === 'default');
+  const translationFiles = files.filter((f) => f.language !== 'default');
 
   const calculateProgress = (filePath: string): number => {
     const fileData = fileDataMap.get(filePath);
 
-    if (!fileData || fileData.isSourceOnly || fileData.units.length === 0)
-      return 0;
-    const translatedCount = fileData.units.filter(
-      (unit) => unit.target && unit.target.trim() !== "",
-    ).length;
+    if (!fileData || fileData.isSourceOnly || fileData.units.length === 0) return 0;
+    const translatedCount = fileData.units.filter((unit) => unit.target && unit.target.trim() !== '').length;
 
     return Math.round((translatedCount / fileData.units.length) * 100);
   };
@@ -46,19 +43,12 @@ export function FileGroup({
         onClick={onToggle}
         className={`flex w-full items-center gap-2.5 rounded-md border px-3 py-2 text-left transition-all ${
           isExpanded
-            ? "border-border bg-white/5"
-            : "hover:border-border border-transparent bg-transparent hover:bg-white/5"
+            ? 'border-border bg-white/5'
+            : 'hover:border-border border-transparent bg-transparent hover:bg-white/5'
         }`}
       >
-        <ChevronRight
-          size={16}
-          className={`text-secondary transition-transform ${
-            isExpanded ? "rotate-90" : ""
-          }`}
-        />
-        <span className="flex-1 truncate font-mono text-sm font-semibold text-white/90">
-          {baseName}
-        </span>
+        <ChevronRight size={16} className={`text-secondary transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+        <span className="flex-1 truncate font-mono text-sm font-semibold text-white/90">{baseName}</span>
         <span className="border-border rounded-md border bg-white/5 px-2 py-0.5 font-mono text-[11px] font-medium text-white/70">
           {files.length} files
         </span>

@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
-export type IndentType = "tabs" | "spaces";
+export type IndentType = 'tabs' | 'spaces';
 
 export interface Settings {
   indentType: IndentType;
@@ -14,15 +14,13 @@ interface SettingsContextType {
 }
 
 const defaultSettings: Settings = {
-  indentType: "tabs",
+  indentType: 'tabs',
   indentSize: 4,
 };
 
-const STORAGE_KEY = "t3lang-settings";
+const STORAGE_KEY = 't3lang-settings';
 
-const SettingsContext = createContext<SettingsContextType | undefined>(
-  undefined,
-);
+const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<Settings>(() => {
@@ -48,17 +46,15 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   };
 
   const getIndentString = () => {
-    if (settings.indentType === "tabs") {
-      return "\t";
+    if (settings.indentType === 'tabs') {
+      return '\t';
     }
 
-    return " ".repeat(settings.indentSize);
+    return ' '.repeat(settings.indentSize);
   };
 
   return (
-    <SettingsContext.Provider
-      value={{ settings, updateSettings, getIndentString }}
-    >
+    <SettingsContext.Provider value={{ settings, updateSettings, getIndentString }}>
       {children}
     </SettingsContext.Provider>
   );
@@ -68,7 +64,7 @@ export function useSettings() {
   const context = useContext(SettingsContext);
 
   if (!context) {
-    throw new Error("useSettings must be used within SettingsProvider");
+    throw new Error('useSettings must be used within SettingsProvider');
   }
 
   return context;

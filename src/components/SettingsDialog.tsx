@@ -1,6 +1,6 @@
-import { motion, AnimatePresence } from "motion/react";
-import { Button } from "./Button";
-import { useSettings, IndentType } from "../contexts/SettingsContext";
+import { motion, AnimatePresence } from 'motion/react';
+import { Button } from './Button';
+import { useSettings, IndentType } from '../contexts/SettingsContext';
 
 interface SettingsDialogProps {
   isOpen: boolean;
@@ -19,8 +19,8 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           style={{
-            backgroundColor: "rgba(0, 0, 0, 0.75)",
-            backdropFilter: "blur(4px)",
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(4px)',
           }}
           onClick={onClose}
         >
@@ -28,16 +28,16 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
             initial={{ scale: 0.95, opacity: 0, y: 10 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.97, opacity: 0, y: -8 }}
-            transition={{ type: "spring", stiffness: 200, damping: 16 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 16 }}
             className="border-border w-full max-w-md rounded-xl border p-7 shadow-[0_30px_80px_rgba(0,0,0,0.45)]"
             style={{
-              backgroundColor: "var(--color-bg-secondary)",
+              backgroundColor: 'var(--color-bg-secondary)',
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <motion.h3
               className="mb-6 text-2xl font-semibold"
-              style={{ color: "var(--color-text-primary)" }}
+              style={{ color: 'var(--color-text-primary)' }}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
@@ -55,47 +55,31 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
               <div>
                 <label
                   className="mb-3 block font-mono text-sm font-semibold tracking-[0.08em] uppercase"
-                  style={{ color: "var(--color-text-secondary)" }}
+                  style={{ color: 'var(--color-text-secondary)' }}
                 >
                   Indentation
                 </label>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => updateSettings({ indentType: "tabs" })}
+                    onClick={() => updateSettings({ indentType: 'tabs' })}
                     className="flex-1 rounded-lg border px-4 py-3 font-medium transition-all"
                     style={{
                       backgroundColor:
-                        settings.indentType === "tabs"
-                          ? "var(--color-accent)"
-                          : "var(--color-bg-tertiary)",
-                      color:
-                        settings.indentType === "tabs"
-                          ? "#000"
-                          : "var(--color-text-primary)",
-                      borderColor:
-                        settings.indentType === "tabs"
-                          ? "var(--color-accent)"
-                          : "var(--color-border)",
+                        settings.indentType === 'tabs' ? 'var(--color-accent)' : 'var(--color-bg-tertiary)',
+                      color: settings.indentType === 'tabs' ? '#000' : 'var(--color-text-primary)',
+                      borderColor: settings.indentType === 'tabs' ? 'var(--color-accent)' : 'var(--color-border)',
                     }}
                   >
                     Tabs
                   </button>
                   <button
-                    onClick={() => updateSettings({ indentType: "spaces" })}
+                    onClick={() => updateSettings({ indentType: 'spaces' })}
                     className="flex-1 rounded-lg border px-4 py-3 font-medium transition-all"
                     style={{
                       backgroundColor:
-                        settings.indentType === "spaces"
-                          ? "var(--color-accent)"
-                          : "var(--color-bg-tertiary)",
-                      color:
-                        settings.indentType === "spaces"
-                          ? "#000"
-                          : "var(--color-text-primary)",
-                      borderColor:
-                        settings.indentType === "spaces"
-                          ? "var(--color-accent)"
-                          : "var(--color-border)",
+                        settings.indentType === 'spaces' ? 'var(--color-accent)' : 'var(--color-bg-tertiary)',
+                      color: settings.indentType === 'spaces' ? '#000' : 'var(--color-text-primary)',
+                      borderColor: settings.indentType === 'spaces' ? 'var(--color-accent)' : 'var(--color-border)',
                     }}
                   >
                     Spaces
@@ -105,16 +89,16 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
 
               {/* Indent Size (only for spaces) */}
               <AnimatePresence>
-                {settings.indentType === "spaces" && (
+                {settings.indentType === 'spaces' && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
+                    animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.2 }}
                   >
                     <label
                       className="mb-3 block font-mono text-sm font-semibold tracking-[0.08em] uppercase"
-                      style={{ color: "var(--color-text-secondary)" }}
+                      style={{ color: 'var(--color-text-secondary)' }}
                     >
                       Indent Size
                     </label>
@@ -126,17 +110,9 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                           className="flex-1 rounded-lg border px-4 py-3 font-mono font-medium transition-all"
                           style={{
                             backgroundColor:
-                              settings.indentSize === size
-                                ? "var(--color-accent)"
-                                : "var(--color-bg-tertiary)",
-                            color:
-                              settings.indentSize === size
-                                ? "#000"
-                                : "var(--color-text-primary)",
-                            borderColor:
-                              settings.indentSize === size
-                                ? "var(--color-accent)"
-                                : "var(--color-border)",
+                              settings.indentSize === size ? 'var(--color-accent)' : 'var(--color-bg-tertiary)',
+                            color: settings.indentSize === size ? '#000' : 'var(--color-text-primary)',
+                            borderColor: settings.indentSize === size ? 'var(--color-accent)' : 'var(--color-border)',
                           }}
                         >
                           {size} spaces
@@ -151,16 +127,16 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
               <div>
                 <label
                   className="mb-3 block font-mono text-sm font-semibold tracking-[0.08em] uppercase"
-                  style={{ color: "var(--color-text-secondary)" }}
+                  style={{ color: 'var(--color-text-secondary)' }}
                 >
                   Preview
                 </label>
                 <pre
                   className="overflow-x-auto rounded-lg border p-4 font-mono text-xs"
                   style={{
-                    backgroundColor: "var(--color-bg-tertiary)",
-                    color: "var(--color-text-primary)",
-                    borderColor: "var(--color-border)",
+                    backgroundColor: 'var(--color-bg-tertiary)',
+                    color: 'var(--color-text-primary)',
+                    borderColor: 'var(--color-border)',
                   }}
                 >
                   {generatePreview(settings.indentType, settings.indentSize)}
@@ -173,11 +149,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.25 }}
               >
-                <Button
-                  onClick={onClose}
-                  variant="primary"
-                  className="flex-1 !rounded-lg"
-                >
+                <Button onClick={onClose} variant="primary" className="flex-1 !rounded-lg">
                   Done
                 </Button>
               </motion.div>
@@ -190,7 +162,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
 }
 
 function generatePreview(indentType: IndentType, indentSize: number): string {
-  const showChar = indentType === "tabs" ? "→   " : "·".repeat(indentSize);
+  const showChar = indentType === 'tabs' ? '→   ' : '·'.repeat(indentSize);
 
   return `<xliff version="1.2">
 ${showChar}<file>
