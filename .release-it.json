@@ -22,7 +22,7 @@
   },
   "hooks": {
     "before:init": ["bun run lint", "bun run type-check"],
-    "after:bump": "bun run build"
+    "after:bump": ["node scripts/update-version.js ${version}", "bun run build"]
   },
   "plugins": {
     "@release-it/conventional-changelog": {
