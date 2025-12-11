@@ -1,6 +1,6 @@
 [package]
 name = "t3lang"
-version = "0.3.0"
+version = "0.4.0"
 description = "TYPO3 Translation File Manager"
 authors = ["you"]
 edition = "2021"

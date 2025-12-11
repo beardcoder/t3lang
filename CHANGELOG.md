@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0](///compare/v0.3.0...v0.4.0) (2025-12-11)
+
+### Features
+
+* update version to 0.3.0 and add version update script 244c2e8
+
 ## [0.3.0](///compare/v0.2.0...v0.3.0) (2025-12-11)
 
 ### Features

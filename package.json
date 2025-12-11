@@ -1,7 +1,7 @@
 {
   "name": "t3lang",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A modern desktop application for managing TYPO3 translation files (XLIFF format)",
   "author": "Markus Sommer",
   "license": "MIT",
