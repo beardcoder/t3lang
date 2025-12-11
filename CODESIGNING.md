@@ -79,7 +79,7 @@ security find-identity -v -p codesigning
 3. Build the signed app:
 
 ```bash
-npm run tauri build
+bun run tauri build
 ```
 
 ### GitHub Actions Code Signing

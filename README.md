@@ -24,13 +24,13 @@ A modern desktop application for managing TYPO3 translation files (XLIFF format)
 
 ```bash
 # Install dependencies
-npm install
+bun install
 
 # Run in development mode
-npm run tauri dev
+bun run tauri dev
 
 # Build for production
-npm run tauri build
+bun run tauri build
 ```
 
 ## 💝 Sponsor
