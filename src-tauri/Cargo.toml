@@ -2,8 +2,8 @@
 name = "t3lang"
 version = "0.4.0"
 description = "TYPO3 Translation File Manager"
-authors = ["you"]
-edition = "2021"
+authors = ["Markus Sommer"]
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
