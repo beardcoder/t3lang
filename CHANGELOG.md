@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0](///compare/v0.4.0...v0.5.0) (2026-01-16)
+
+### Bug Fixes
+
+* update authors and edition in Cargo.toml 6b0c712
+
 ## [0.4.0](///compare/v0.3.0...v0.4.0) (2025-12-11)
 
 ### Features
