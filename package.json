@@ -44,7 +44,7 @@
     "@tauri-apps/plugin-notification": "^2.3.3",
     "@tauri-apps/plugin-opener": "^2.5.3",
     "lucide-react": "^0.562.0",
-    "motion": "^12.26.2",
+    "motion": "^12.27.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-select": "^5.10.2",
