@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0](https://github-private.com/beardcoder/t3lang/compare/v0.5.0...v0.6.0) (2026-01-19)
+
 ## [0.5.0](///compare/v0.4.0...v0.5.0) (2026-01-16)
 
 ### Bug Fixes
