@@ -1,3 +1,14 @@
-build/bin
+# macOS
+.DS_Store
+
+# Node
 node_modules
+
+# Wails
+build/bin
+
+# Frontend build
 frontend/dist
+
+# Worktrees
+.worktrees
