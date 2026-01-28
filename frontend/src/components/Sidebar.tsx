@@ -45,7 +45,7 @@ export function Sidebar({
       initial={{ x: -20, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.15, ease: "easeOut" }}
-      className="flex h-full w-80 flex-col gap-5 p-6 border-r"
+      className="flex h-full w-[22rem] flex-col gap-6 p-6 border-r"
       style={{
         backgroundColor: "var(--color-bg-primary)",
         borderColor: "var(--color-border-subtle)",
@@ -71,21 +71,11 @@ export function Sidebar({
       <div className="flex flex-col gap-2">
         <motion.button
           onClick={handleOpenFolder}
-          className="group flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all"
+          className="group flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors hover:bg-[var(--color-bg-tertiary)] hover:border-[var(--color-border)]"
           style={{
             backgroundColor: "var(--color-bg-secondary)",
             color: "var(--color-text-primary)",
             border: "1px solid var(--color-border-subtle)",
-          }}
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.98 }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "var(--color-bg-tertiary)";
-            e.currentTarget.style.borderColor = "var(--color-border)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "var(--color-bg-secondary)";
-            e.currentTarget.style.borderColor = "var(--color-border-subtle)";
           }}
         >
           <Folder
@@ -98,27 +88,17 @@ export function Sidebar({
 
         <motion.button
           onClick={handleOpenFile}
-          className="group flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all"
+          className="group flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors hover:bg-[var(--color-bg-tertiary)] hover:border-[var(--color-border)]"
           style={{
             backgroundColor: "var(--color-bg-secondary)",
             color: "var(--color-text-primary)",
             border: "1px solid var(--color-border-subtle)",
           }}
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.98 }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "var(--color-bg-tertiary)";
-            e.currentTarget.style.borderColor = "var(--color-border)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "var(--color-bg-secondary)";
-            e.currentTarget.style.borderColor = "var(--color-border-subtle)";
-          }}
         >
           <FileText
             size={18}
             className="transition-colors"
-            style={{ color: "var(--color-purple)" }}
+            style={{ color: "var(--color-success)" }}
           />
           <span>Open File</span>
         </motion.button>
@@ -141,7 +121,7 @@ export function Sidebar({
             <div
               className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 backdrop-blur-sm"
               style={{
-                backgroundColor: "rgba(26, 26, 36, 0.95)",
+                backgroundColor: "var(--color-bg-secondary)",
                 borderBottom: "1px solid var(--color-border-subtle)",
               }}
             >

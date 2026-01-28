@@ -48,22 +48,10 @@ export function FileGroup({
     <div className="mb-2">
       <motion.button
         onClick={onToggle}
-        className="group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-all"
+        className="group flex w-full items-center gap-3 rounded-lg px-3.5 py-3 text-left transition-colors hover:bg-[var(--color-bg-tertiary)]"
         style={{
           backgroundColor: isExpanded ? 'var(--color-bg-tertiary)' : 'transparent',
           border: `1px solid ${isExpanded ? 'var(--color-border)' : 'transparent'}`,
-        }}
-        whileHover={{ scale: 1.01 }}
-        whileTap={{ scale: 0.99 }}
-        onMouseEnter={(e) => {
-          if (!isExpanded) {
-            e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (!isExpanded) {
-            e.currentTarget.style.backgroundColor = 'transparent';
-          }
         }}
       >
         <motion.div
@@ -83,7 +71,7 @@ export function FileGroup({
         />
 
         <span
-          className="flex-1 truncate font-mono text-sm font-semibold"
+          className="flex-1 truncate font-mono text-sm font-semibold leading-snug"
           style={{ color: 'var(--color-text-primary)' }}
         >
           {baseName}
@@ -91,7 +79,7 @@ export function FileGroup({
 
         {translationFiles.length > 0 && (
           <div className="flex items-center gap-2">
-            <span className="badge" style={{ fontSize: '10px' }}>
+            <span className="badge" style={{ fontSize: '11px' }}>
               {totalProgress}%
             </span>
             <span className="badge">
@@ -116,7 +104,7 @@ export function FileGroup({
             transition={{ duration: 0.15, ease: "easeOut" }}
             className="overflow-hidden"
           >
-            <div className="mt-2 ml-6 space-y-1.5 border-l-2 pl-2" style={{ borderColor: 'var(--color-border-subtle)' }}>
+            <div className="mt-2 ml-6 space-y-2.5 border-l-2 pl-3" style={{ borderColor: 'var(--color-border-subtle)' }}>
               {defaultFile && (
                 <FileItem
                   name={defaultFile.name}
@@ -143,20 +131,10 @@ export function FileGroup({
 
               <motion.button
                 onClick={onAddLanguage}
-                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition-all"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition-colors hover:bg-[var(--color-bg-tertiary)]"
                 style={{
                   color: 'var(--color-text-tertiary)',
                   backgroundColor: 'transparent',
-                }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)';
-                  e.currentTarget.style.color = 'var(--color-accent)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = 'var(--color-text-tertiary)';
                 }}
               >
                 <Plus size={14} />

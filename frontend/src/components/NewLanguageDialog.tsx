@@ -91,7 +91,7 @@ export function NewLanguageDialog({ isOpen, onClose, onConfirm }: NewLanguageDia
                   autoFocus
                   whileFocus={{
                     borderColor: 'var(--color-accent)',
-                    boxShadow: '0 0 0 3px rgba(103, 232, 249, 0.12)',
+                    boxShadow: '0 0 0 3px var(--color-accent-light)',
                   }}
                 />
                 <motion.p

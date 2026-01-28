@@ -34,17 +34,17 @@ export function Select({ value, onChange, options, placeholder = 'Select...', cl
   const customStyles: StylesConfig<Option> = {
     control: (base, state) => ({
       ...base,
-      backgroundColor: 'rgba(255, 255, 255, 0.03)',
-      borderColor: state.isFocused ? 'var(--color-accent)' : 'transparent',
+      backgroundColor: 'var(--color-bg-tertiary)',
+      borderColor: state.isFocused ? 'var(--color-accent)' : 'var(--color-border-subtle)',
       borderWidth: '1px',
       borderRadius: '8px',
       padding: '1px 4px',
-      boxShadow: state.isFocused ? '0 0 0 3px rgba(47, 129, 247, 0.12)' : 'none',
+      boxShadow: state.isFocused ? '0 0 0 3px var(--color-accent-light)' : 'none',
       cursor: 'pointer',
       transition: 'all 0.15s ease',
       minHeight: '32px',
       '&:hover': {
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        backgroundColor: 'var(--color-bg-hover)',
       },
     }),
     singleValue: (base) => ({
@@ -62,8 +62,8 @@ export function Select({ value, onChange, options, placeholder = 'Select...', cl
       ...base,
       backgroundColor: 'var(--color-bg-secondary)',
       borderRadius: '8px',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)',
+      border: '1px solid var(--color-border-subtle)',
+      boxShadow: 'var(--shadow-lg)',
       overflow: 'hidden',
       marginTop: '4px',
       zIndex: 100,
@@ -78,7 +78,7 @@ export function Select({ value, onChange, options, placeholder = 'Select...', cl
       backgroundColor: state.isSelected
         ? 'var(--color-accent)'
         : state.isFocused
-          ? 'rgba(255, 255, 255, 0.05)'
+          ? 'var(--color-bg-hover)'
           : 'transparent',
       color: state.isSelected ? 'white' : 'var(--color-text-primary)',
       cursor: 'pointer',

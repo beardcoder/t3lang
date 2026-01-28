@@ -4,9 +4,11 @@ import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { SettingsProvider } from "./contexts/SettingsContext";
 import { Sidebar } from "./components/Sidebar";
+import { Dashboard } from "./components/Dashboard";
 import { TranslationTable } from "./components/TranslationTable";
 import { EmptyState } from "./components/EmptyState";
-import { SearchBar } from "./components/SearchBar";
+import { TopBar } from "./components/TopBar";
+import { ConversionPanel } from "./components/ConversionPanel";
 import { NewLanguageDialog } from "./components/NewLanguageDialog";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { SyncPanel } from "./components/SyncPanel";
@@ -23,6 +25,7 @@ const cloneXliffData = (data: XliffDocument): XliffDocument =>
   JSON.parse(JSON.stringify(data));
 
 function AppContent() {
+  const [viewMode, setViewMode] = useState<"dashboard" | "editor">("dashboard");
   const [currentFile, setCurrentFile] = useState<string | null>(null);
   const [fileDataMap, setFileDataMap] = useState<Map<string, FileData>>(
     new Map(),
@@ -30,8 +33,10 @@ function AppContent() {
   const [fileGroups, setFileGroups] = useState<T3FileGroup[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [folderPath, setFolderPath] = useState<string | null>(null);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
   const [showNewLanguageDialog, setShowNewLanguageDialog] = useState(false);
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
+  const [showConversionPanel, setShowConversionPanel] = useState(false);
   const [selectedBaseName, setSelectedBaseName] = useState<string>("");
 
   const { showMessage, confirmDialog, openFileDialog, openFolderDialog } = useDialogs();
@@ -83,6 +88,7 @@ function AppContent() {
     newMap.set(filePath, fileData);
     setFileDataMap(newMap);
     setCurrentFile(filePath);
+    setViewMode("editor");
   };
 
   const handleFolderOpen = async (folderPathValue: string) => {
@@ -153,6 +159,7 @@ function AppContent() {
       setFileDataMap(newMap);
       setFileGroups(groupArray);
       setFolderPath(folderPathValue);
+      setViewMode("dashboard");
 
       if (t3Files.length > 0) {
         setCurrentFile(t3Files[0].path);
@@ -523,6 +530,11 @@ function AppContent() {
     notify("File deleted", "Language file removed");
   };
 
+  const handleOpenGroupFile = (filePath: string) => {
+    setCurrentFile(filePath);
+    setViewMode("editor");
+  };
+
   const currentFileData = currentFile ? fileDataMap.get(currentFile) : null;
   const parsedMeta = useMemo(() => {
     if (!currentFile) return null;
@@ -632,29 +644,56 @@ function AppContent() {
       style={{ backgroundColor: "var(--color-bg-primary)" }}
     >
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar
-          onFileOpen={handleFileOpen}
-          onFolderOpen={handleFolderOpen}
-          onAddLanguage={(baseName) => {
-            setSelectedBaseName(baseName);
-            setShowNewLanguageDialog(true);
-          }}
-          onDeleteFile={handleDeleteFile}
-          currentFile={currentFile}
-          fileGroups={fileGroups}
-          fileDataMap={fileDataMap}
-        />
+        {isSidebarVisible && (
+          <Sidebar
+            onFileOpen={handleFileOpen}
+            onFolderOpen={handleFolderOpen}
+            onAddLanguage={(baseName) => {
+              setSelectedBaseName(baseName);
+              setShowNewLanguageDialog(true);
+            }}
+            onDeleteFile={handleDeleteFile}
+            currentFile={currentFile}
+            fileGroups={fileGroups}
+            fileDataMap={fileDataMap}
+          />
+        )}
 
         <div className="flex flex-1 flex-col overflow-hidden">
-          <AnimatePresence>
-            {currentFileData && (
-              <SearchBar value={searchQuery} onChange={setSearchQuery} />
-            )}
-          </AnimatePresence>
+          {viewMode === "editor" && currentFileData && (
+            <TopBar
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              onOpenConvert={() => setShowConversionPanel(true)}
+              onOpenSettings={() => setShowSettingsDialog(true)}
+              onToggleSidebar={() => setIsSidebarVisible((prev) => !prev)}
+              isSidebarVisible={isSidebarVisible}
+              syncState={syncState}
+              pendingOperations={pendingOperations}
+            />
+          )}
 
           <div className="flex-1 overflow-hidden">
             <AnimatePresence mode="wait">
-              {currentFileData ? (
+              {viewMode === "dashboard" ? (
+                <Dashboard
+                  fileGroups={fileGroups}
+                  fileDataMap={fileDataMap}
+                  onOpenFile={async () => {
+                    const selected = await openFileDialog();
+                    if (selected) {
+                      await handleFileOpen(selected);
+                    }
+                  }}
+                  onOpenFolder={async () => {
+                    const selected = await openFolderDialog();
+                    if (selected) {
+                      await handleFolderOpen(selected);
+                    }
+                  }}
+                  onOpenGroupFile={handleOpenGroupFile}
+                />
+              ) : currentFileData ? (
                 <motion.div
                   key={currentFile}
                   initial={{ opacity: 0, y: 6, scale: 0.995 }}
@@ -698,6 +737,16 @@ function AppContent() {
       <SettingsDialog
         isOpen={showSettingsDialog}
         onClose={() => setShowSettingsDialog(false)}
+      />
+
+      <ConversionPanel
+        isOpen={showConversionPanel}
+        currentVersion={currentFileData?.version ?? "1.2"}
+        onClose={() => setShowConversionPanel(false)}
+        onConfirm={(version) => {
+          setShowConversionPanel(false);
+          handleVersionChange(version);
+        }}
       />
 
       {/* Sync Panel */}

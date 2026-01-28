@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Plus, Trash2, Save, Globe, Eraser, GripVertical } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowDownAZ, Plus, Trash2, Save, Globe, Eraser, GripVertical } from 'lucide-react';
 import { Select } from './Select';
+import { sortUnits, SortMode } from '../utils/sort';
 import {
   DndContext,
   closestCenter,
@@ -59,21 +60,24 @@ function SortableRow({
   onDelete,
   onClearTranslation,
 }: SortableRowProps) {
+  const [isHovered, setIsHovered] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: unit.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+    backgroundColor: isModified ? 'var(--color-accent-light)' : 'transparent',
+    borderLeft: isModified ? '2px solid var(--color-accent)' : '2px solid transparent',
   };
 
   return (
     <tr
       ref={setNodeRef}
       style={style}
-      className={`group transition-colors duration-150 ${
-        isModified ? 'bg-accent/5 border-l-accent border-l-2' : 'border-l-2 border-l-transparent hover:bg-white/2'
-      }`}
+      className="group transition-colors duration-150"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Drag Handle Cell */}
       <td className="w-8 px-3 py-3 align-top">
@@ -93,10 +97,12 @@ function SortableRow({
           type="text"
           value={modifiedValues.id}
           onChange={(e) => onValueChange(unit.id, 'id', e.target.value)}
-          className={`w-full rounded-lg border px-3 py-2.5 font-mono text-sm transition-all ${
-            isModified ? 'border-accent bg-accent/5' : 'border-transparent bg-white/3 hover:bg-white/5'
-          }`}
-          style={{ color: 'var(--color-text-primary)' }}
+          className="w-full rounded-lg border px-3 py-2.5 font-mono text-sm transition-all"
+          style={{
+            color: 'var(--color-text-primary)',
+            backgroundColor: isModified ? 'var(--color-accent-light)' : 'var(--color-bg-tertiary)',
+            borderColor: isModified ? 'var(--color-accent)' : 'var(--color-border-subtle)',
+          }}
         />
       </td>
 
@@ -105,25 +111,29 @@ function SortableRow({
         <textarea
           value={modifiedValues.source}
           onChange={(e) => onValueChange(unit.id, 'source', e.target.value)}
-          className={`min-h-[70px] w-full resize-none rounded-lg border px-3 py-2.5 text-sm leading-relaxed transition-all ${
-            isModified ? 'border-accent bg-accent/5' : 'border-transparent bg-white/3 hover:bg-white/5'
-          }`}
-          style={{ color: 'var(--color-text-primary)' }}
+          className="min-h-[70px] w-full resize-none rounded-lg border px-3 py-2.5 text-sm leading-relaxed transition-all"
+          style={{
+            color: 'var(--color-text-primary)',
+            backgroundColor: isModified ? 'var(--color-accent-light)' : 'var(--color-bg-tertiary)',
+            borderColor: isModified ? 'var(--color-accent)' : 'var(--color-border-subtle)',
+          }}
         />
       </td>
 
       {/* Target Cell */}
       {!isSourceOnly && (
         <td className="px-3 py-3 align-top text-sm">
-          <textarea
-            value={modifiedValues.target}
-            onChange={(e) => onValueChange(unit.id, 'target', e.target.value)}
-            placeholder="Enter translation..."
-            className={`min-h-[70px] w-full resize-none rounded-lg border px-3 py-2.5 text-sm leading-relaxed transition-all placeholder:text-white/30 ${
-              isModified ? 'border-accent bg-accent/5' : 'border-transparent bg-white/3 hover:bg-white/5'
-            }`}
-            style={{ color: 'var(--color-text-primary)' }}
-          />
+        <textarea
+          value={modifiedValues.target}
+          onChange={(e) => onValueChange(unit.id, 'target', e.target.value)}
+          placeholder="Enter translation..."
+          className="min-h-[70px] w-full resize-none rounded-lg border px-3 py-2.5 text-sm leading-relaxed transition-all"
+          style={{
+            color: 'var(--color-text-primary)',
+            backgroundColor: isModified ? 'var(--color-accent-light)' : 'var(--color-bg-tertiary)',
+            borderColor: isModified ? 'var(--color-accent)' : 'var(--color-border-subtle)',
+          }}
+        />
         </td>
       )}
 
@@ -142,7 +152,7 @@ function SortableRow({
           )}
           <button
             onClick={() => onDelete(unit.id)}
-            className="hover:bg-danger/10 rounded-lg p-2 opacity-0 transition-all group-hover:opacity-100"
+            className="rounded-lg p-2 transition-colors hover:bg-danger/10"
             style={{ color: 'var(--color-danger)' }}
             title="Delete"
           >
@@ -176,10 +186,12 @@ export function TranslationTable({
   );
 
   const [modifiedUnits, setModifiedUnits] = useState<Map<string, TranslationUnit>>(new Map());
+  const modifiedUnitsRef = useRef<Map<string, TranslationUnit>>(new Map());
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newKeyId, setNewKeyId] = useState('');
   const [newKeySource, setNewKeySource] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [sortMode, setSortMode] = useState<SortMode>('manual');
 
   const filteredUnits = units.filter((unit) => {
     if (!searchQuery) return true;
@@ -209,7 +221,7 @@ export function TranslationTable({
 
     if (!originalUnit) return;
 
-    const currentModified = modifiedUnits.get(unitId) || { ...originalUnit };
+    const currentModified = modifiedUnitsRef.current.get(unitId) || { ...originalUnit };
     const updated = { ...currentModified, [field]: value };
 
     if (
@@ -217,18 +229,18 @@ export function TranslationTable({
       updated.source === originalUnit.source &&
       updated.target === originalUnit.target
     ) {
-      const newMap = new Map(modifiedUnits);
-
+      const newMap = modifiedUnitsRef.current;
       newMap.delete(unitId);
-      setModifiedUnits(newMap);
+      modifiedUnitsRef.current = newMap;
+      setModifiedUnits(new Map(newMap));
 
       return;
     }
 
-    const newMap = new Map(modifiedUnits);
-
+    const newMap = modifiedUnitsRef.current;
     newMap.set(unitId, updated);
-    setModifiedUnits(newMap);
+    modifiedUnitsRef.current = newMap;
+    setModifiedUnits(new Map(newMap));
   };
 
   const handleSaveAll = async () => {
@@ -236,9 +248,10 @@ export function TranslationTable({
 
     setIsSaving(true);
     try {
-      for (const [originalId, modifiedUnit] of modifiedUnits.entries()) {
+      for (const [originalId, modifiedUnit] of modifiedUnitsRef.current.entries()) {
         await onSave(originalId, modifiedUnit.id, modifiedUnit.source, isSourceOnly ? '' : modifiedUnit.target);
       }
+      modifiedUnitsRef.current = new Map();
       setModifiedUnits(new Map());
     } finally {
       setIsSaving(false);
@@ -281,8 +294,14 @@ export function TranslationTable({
         });
 
         onReorder(reorderedFullUnits);
+        setSortMode('manual');
       }
     }
+  };
+
+  const handleApplySort = () => {
+    if (sortMode === 'manual') return;
+    onReorder(sortUnits(units, sortMode));
   };
 
   useEffect(() => {
@@ -307,9 +326,13 @@ export function TranslationTable({
     return (
       <div className="bg-primary flex h-full items-center justify-center">
         <div className="text-center">
-          <Globe className="mx-auto mb-6 text-white/20" size={80} />
-          <h2 className="mb-3 text-2xl font-semibold text-white">No Translations</h2>
-          <p className="text-base text-white/60">Open a file or folder to get started</p>
+          <Globe className="mx-auto mb-6" size={80} style={{ color: 'var(--color-text-muted)' }} />
+          <h2 className="mb-3 text-2xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+            No Translations
+          </h2>
+          <p className="text-base" style={{ color: 'var(--color-text-tertiary)' }}>
+            Open a file or folder to get started
+          </p>
         </div>
       </div>
     );
@@ -321,7 +344,7 @@ export function TranslationTable({
         {/* Header */}
         <div
           className="flex items-center justify-between border-b px-6 py-4"
-          style={{ borderColor: 'rgba(255, 255, 255, 0.06)' }}
+          style={{ borderColor: 'var(--color-border-subtle)' }}
         >
           <div className="space-y-2">
             <div className="flex items-center gap-2">
@@ -361,6 +384,48 @@ export function TranslationTable({
               className="w-32"
             />
 
+            <div
+              className="flex items-center gap-2 rounded-lg px-2 py-1"
+              style={{
+                backgroundColor: 'var(--color-bg-tertiary)',
+                border: '1px solid var(--color-border-subtle)',
+              }}
+            >
+              <label htmlFor="sort-order" className="sr-only">
+                Sort order
+              </label>
+              <div className="flex items-center gap-1 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                <ArrowDownAZ size={14} />
+                <span>Sort</span>
+              </div>
+              <select
+                id="sort-order"
+                value={sortMode}
+                onChange={(e) => setSortMode(e.target.value as SortMode)}
+                className="rounded-md border px-2 py-1 text-xs"
+                style={{
+                  backgroundColor: 'var(--color-bg-secondary)',
+                  color: 'var(--color-text-primary)',
+                  borderColor: 'var(--color-border-subtle)',
+                }}
+              >
+                <option value="manual">Manual</option>
+                <option value="key-asc">Key A–Z</option>
+                <option value="source-asc">Source A–Z</option>
+              </select>
+              <button
+                onClick={handleApplySort}
+                disabled={sortMode === 'manual'}
+                className="rounded-md px-2 py-1 text-xs font-medium transition-all disabled:opacity-40"
+                style={{
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                  color: 'var(--color-text-primary)',
+                }}
+              >
+                Apply sort
+              </button>
+            </div>
+
             {hasChanges && (
               <button
                 onClick={handleSaveAll}
@@ -395,42 +460,42 @@ export function TranslationTable({
 
         {/* Table */}
         <div className="flex-1 overflow-auto px-6 py-4">
-          <table className="w-full table-fixed" style={{ borderCollapse: 'separate', borderSpacing: '0 4px' }}>
-            <thead className="sticky top-0 z-5">
-              <tr className="backdrop-blur-sm" style={{ backgroundColor: 'rgba(26, 26, 26, 0.95)' }}>
-                <th
-                  className="w-8 px-3 py-3 text-left text-xs font-medium"
-                  style={{ color: 'var(--color-text-secondary)' }}
-                />
-                <th
-                  className="w-[20%] px-3 py-3 text-left text-xs font-medium"
-                  style={{ color: 'var(--color-text-secondary)' }}
-                >
-                  ID
-                </th>
-                <th
-                  className="w-[35%] px-3 py-3 text-left text-xs font-medium"
-                  style={{ color: 'var(--color-text-secondary)' }}
-                >
-                  Source
-                </th>
-                {!isSourceOnly && (
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <table className="w-full table-fixed" style={{ borderCollapse: 'separate', borderSpacing: '0 4px' }}>
+              <thead className="sticky top-0 z-5">
+                <tr className="backdrop-blur-sm" style={{ backgroundColor: 'var(--color-bg-secondary)' }}>
+                  <th
+                    className="w-8 px-3 py-3 text-left text-xs font-medium"
+                    style={{ color: 'var(--color-text-secondary)' }}
+                  />
+                  <th
+                    className="w-[20%] px-3 py-3 text-left text-xs font-medium"
+                    style={{ color: 'var(--color-text-secondary)' }}
+                  >
+                    ID
+                  </th>
                   <th
                     className="w-[35%] px-3 py-3 text-left text-xs font-medium"
                     style={{ color: 'var(--color-text-secondary)' }}
                   >
-                    Translation
+                    Source
                   </th>
-                )}
-                <th
-                  className="w-[10%] px-3 py-3 text-left text-xs font-medium"
-                  style={{ color: 'var(--color-text-secondary)' }}
-                >
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  {!isSourceOnly && (
+                    <th
+                      className="w-[35%] px-3 py-3 text-left text-xs font-medium"
+                      style={{ color: 'var(--color-text-secondary)' }}
+                    >
+                      Translation
+                    </th>
+                  )}
+                  <th
+                    className="w-[10%] px-3 py-3 text-left text-xs font-medium"
+                    style={{ color: 'var(--color-text-secondary)' }}
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
               <SortableContext items={filteredUnits.map((u) => u.id)} strategy={verticalListSortingStrategy}>
                 <tbody>
                   {filteredUnits.map((unit) => {
@@ -453,8 +518,8 @@ export function TranslationTable({
                   })}
                 </tbody>
               </SortableContext>
-            </DndContext>
-          </table>
+            </table>
+          </DndContext>
         </div>
       </div>
 
@@ -465,7 +530,7 @@ export function TranslationTable({
             className="w-full max-w-lg rounded-xl p-6"
             style={{
               backgroundColor: 'var(--color-bg-secondary)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: '1px solid var(--color-border-subtle)',
             }}
           >
             <div className="mb-5">
@@ -486,9 +551,9 @@ export function TranslationTable({
                   placeholder="e.g., button.submit"
                   className="w-full rounded-lg border px-3 py-2.5 font-mono text-sm transition-all"
                   style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                    backgroundColor: 'var(--color-bg-tertiary)',
                     color: 'var(--color-text-primary)',
-                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderColor: 'var(--color-border-subtle)',
                   }}
                   autoFocus
                 />
@@ -504,9 +569,9 @@ export function TranslationTable({
                   placeholder="Enter source text..."
                   className="min-h-[100px] w-full resize-none rounded-lg border px-3 py-2.5 text-sm transition-all"
                   style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                    backgroundColor: 'var(--color-bg-tertiary)',
                     color: 'var(--color-text-primary)',
-                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderColor: 'var(--color-border-subtle)',
                   }}
                 />
               </div>

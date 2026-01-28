@@ -5,59 +5,57 @@
 @layer base {
   :root {
     /* Typography */
-    --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-    --font-family-mono: "SF Mono", "Cascadia Code", "Fira Code", "Roboto Mono", monospace;
+    --font-family-sans: "IBM Plex Sans", "Space Grotesk", "Manrope", "Segoe UI", sans-serif;
+    --font-family-mono: "JetBrains Mono", "SF Mono", "Fira Code", "Roboto Mono", monospace;
 
-    /* Modern Color Palette */
-    --color-bg-app: #0a0a0f;
-    --color-bg-primary: #13131a;
-    --color-bg-secondary: #1a1a24;
-    --color-bg-tertiary: #22222e;
-    --color-bg-elevated: #2a2a38;
-    --color-bg-hover: #32323f;
+    /* Light theme */
+    --color-bg-app: #f5f1eb;
+    --color-bg-primary: #fbf8f3;
+    --color-bg-secondary: #ffffff;
+    --color-bg-tertiary: #f0e9e1;
+    --color-bg-elevated: #ffffff;
+    --color-bg-hover: #e8dfd6;
+    --color-glass: rgba(255, 255, 255, 0.65);
+    --app-gradient: radial-gradient(1200px circle at 0% 0%, rgba(37, 99, 235, 0.08), transparent 45%),
+      radial-gradient(900px circle at 100% 0%, rgba(15, 118, 110, 0.08), transparent 40%);
 
     /* Borders & Dividers */
-    --color-border-subtle: #2a2a38;
-    --color-border: #3a3a48;
-    --color-border-strong: #4a4a58;
+    --color-border-subtle: #e4dbd1;
+    --color-border: #d4c8bd;
+    --color-border-strong: #c5b6a9;
 
     /* Text Colors */
-    --color-text-primary: #f0f0f3;
-    --color-text-secondary: #b4b4c4;
-    --color-text-tertiary: #858599;
-    --color-text-muted: #656575;
+    --color-text-primary: #1f1c18;
+    --color-text-secondary: #4c463f;
+    --color-text-tertiary: #756a60;
+    --color-text-muted: #9a8d80;
 
-    /* Accent Colors - Vibrant Blue */
-    --color-accent: #3b82f6;
-    --color-accent-hover: #2563eb;
-    --color-accent-light: rgba(59, 130, 246, 0.15);
-    --color-accent-glow: rgba(59, 130, 246, 0.3);
+    /* Accent Colors */
+    --color-accent: #2563eb;
+    --color-accent-hover: #1d4ed8;
+    --color-accent-light: rgba(37, 99, 235, 0.14);
+    --color-accent-glow: rgba(37, 99, 235, 0.22);
 
     /* Success Green */
-    --color-success: #10b981;
-    --color-success-hover: #059669;
-    --color-success-light: rgba(16, 185, 129, 0.15);
+    --color-success: #0f766e;
+    --color-success-hover: #0d5f59;
+    --color-success-light: rgba(15, 118, 110, 0.18);
 
     /* Warning Orange */
-    --color-warning: #f59e0b;
-    --color-warning-hover: #d97706;
-    --color-warning-light: rgba(245, 158, 11, 0.15);
+    --color-warning: #d97706;
+    --color-warning-hover: #b45309;
+    --color-warning-light: rgba(217, 119, 6, 0.18);
 
     /* Danger Red */
-    --color-danger: #ef4444;
-    --color-danger-hover: #dc2626;
-    --color-danger-light: rgba(239, 68, 68, 0.15);
-
-    /* Purple Accent */
-    --color-purple: #a855f7;
-    --color-purple-hover: #9333ea;
-    --color-purple-light: rgba(168, 85, 247, 0.15);
+    --color-danger: #dc2626;
+    --color-danger-hover: #b91c1c;
+    --color-danger-light: rgba(220, 38, 38, 0.18);
 
     /* Shadows */
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 1px 2px 0 rgba(24, 20, 16, 0.08);
+    --shadow-md: 0 6px 16px -8px rgba(24, 20, 16, 0.25);
+    --shadow-lg: 0 18px 30px -16px rgba(24, 20, 16, 0.35);
+    --shadow-xl: 0 24px 50px -24px rgba(24, 20, 16, 0.45);
     --shadow-glow: 0 0 20px -5px var(--color-accent-glow);
 
     /* Border Radius */
@@ -71,8 +69,54 @@
     --transition-base: 150ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: 200ms cubic-bezier(0.4, 0, 0.2, 1);
 
-    color-scheme: dark;
+    color-scheme: light;
     background-color: var(--color-bg-app);
+  }
+
+  .dark {
+    --color-bg-app: #0f1116;
+    --color-bg-primary: #161a24;
+    --color-bg-secondary: #1c2230;
+    --color-bg-tertiary: #242b3d;
+    --color-bg-elevated: #252d3f;
+    --color-bg-hover: #2b3347;
+    --color-glass: rgba(20, 24, 34, 0.7);
+    --app-gradient: radial-gradient(900px circle at 0% 0%, rgba(79, 140, 255, 0.15), transparent 45%),
+      radial-gradient(900px circle at 100% 0%, rgba(15, 118, 110, 0.18), transparent 40%);
+
+    --color-border-subtle: #2b3346;
+    --color-border: #37415a;
+    --color-border-strong: #465071;
+
+    --color-text-primary: #f2f4f8;
+    --color-text-secondary: #b5bcc9;
+    --color-text-tertiary: #8993a3;
+    --color-text-muted: #636c7c;
+
+    --color-accent: #4f8cff;
+    --color-accent-hover: #3a74e3;
+    --color-accent-light: rgba(79, 140, 255, 0.2);
+    --color-accent-glow: rgba(79, 140, 255, 0.3);
+
+    --color-success: #2dd4bf;
+    --color-success-hover: #14b8a6;
+    --color-success-light: rgba(45, 212, 191, 0.18);
+
+    --color-warning: #f59e0b;
+    --color-warning-hover: #d97706;
+    --color-warning-light: rgba(245, 158, 11, 0.2);
+
+    --color-danger: #f87171;
+    --color-danger-hover: #ef4444;
+    --color-danger-light: rgba(248, 113, 113, 0.2);
+
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 6px 18px -10px rgba(0, 0, 0, 0.55);
+    --shadow-lg: 0 20px 40px -24px rgba(0, 0, 0, 0.6);
+    --shadow-xl: 0 30px 60px -28px rgba(0, 0, 0, 0.7);
+    --shadow-glow: 0 0 20px -5px var(--color-accent-glow);
+
+    color-scheme: dark;
   }
 }
 
@@ -93,7 +137,7 @@ body {
   font-family: var(--font-family-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--color-bg-app);
+  background: var(--app-gradient), var(--color-bg-app);
   color: var(--color-text-primary);
   font-size: 14px;
   line-height: 1.6;
@@ -223,7 +267,7 @@ select:focus {
 
 /* Glass Effect */
 .glass {
-  background: rgba(42, 42, 56, 0.6);
+  background: var(--color-glass);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--color-border-subtle);
@@ -231,7 +275,7 @@ select:focus {
 
 /* Gradient Text */
 .gradient-text {
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-purple) 100%);
+  background: linear-gradient(120deg, var(--color-accent) 0%, var(--color-success) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -258,6 +302,11 @@ input,
 textarea,
 select {
   cursor: text;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-muted);
 }
 
 /* Remove browser defaults */

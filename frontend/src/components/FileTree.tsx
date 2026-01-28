@@ -57,7 +57,7 @@ export function FileTree({
   }
 
   return (
-    <div className="px-2 pb-3">
+    <div className="px-3 pb-4">
       {fileGroups.map((group) => (
         <FileGroup
           key={group.baseName}
