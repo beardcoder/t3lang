@@ -1,5 +1,6 @@
 import * as xliff from 'xliff-simple';
 import type { TranslationFile, TranslationUnit as XliffUnit, XliffDocument, XliffVersion } from 'xliff-simple';
+import { ReadTextFile, WriteTextFile, ReadDir, Exists, Remove } from '../../wailsjs/go/main/App';
 
 type UiTranslationUnit = XliffUnit & { target: string };
 
@@ -49,8 +50,7 @@ export function useFileOperations() {
     showError: (message: string, title: string, kind: 'error') => Promise<void>,
   ): Promise<FileData | null> => {
     try {
-      const { readTextFile } = await import('@tauri-apps/plugin-fs');
-      const content = await readTextFile(filePath);
+      const content = await ReadTextFile(filePath);
 
       const fileName = filePath.split(/[\\/]/).pop() || filePath;
       const { baseName, language } = parseT3FileName(fileName);
@@ -74,7 +74,7 @@ export function useFileOperations() {
           extractedUnits.push({
             id: unit.id,
             source: unit.source,
-            target: isSourceOnly ? '' : unit.target || '',
+            target: isSourceOnly ? '' : (unit.target ? String(unit.target) : ''),
             note: unit.note,
             state: unit.state,
           });
@@ -110,9 +110,8 @@ export function useFileOperations() {
         format: true,
         indent: indent ?? '\t',
       });
-      const { writeTextFile } = await import('@tauri-apps/plugin-fs');
 
-      await writeTextFile(filePath, xliffContent);
+      await WriteTextFile(filePath, xliffContent);
     } catch (error) {
       await showError(`Failed to save: ${error}`, 'Save error', 'error');
     }
@@ -120,24 +119,12 @@ export function useFileOperations() {
 
   const scanForXliffFiles = async (dirPath: string): Promise<Array<{ name: string; path: string }>> => {
     try {
-      const { readDir } = await import('@tauri-apps/plugin-fs');
-      const entries = await readDir(dirPath);
-      const xliffFiles: Array<{ name: string; path: string }> = [];
+      const entries = await ReadDir(dirPath);
 
-      for (const entry of entries) {
-        if (!entry.name) continue;
-        const fullPath = `${dirPath}/${entry.name}`;
-
-        if (entry.isDirectory) {
-          const subFiles = await scanForXliffFiles(fullPath);
-
-          xliffFiles.push(...subFiles);
-        } else if (entry.name.endsWith('.xlf')) {
-          xliffFiles.push({ name: entry.name, path: fullPath });
-        }
-      }
-
-      return xliffFiles;
+      return entries.map(entry => ({
+        name: entry.name,
+        path: entry.path
+      }));
     } catch {
       return [];
     }
@@ -145,9 +132,7 @@ export function useFileOperations() {
 
   const checkFileExists = async (filePath: string): Promise<boolean> => {
     try {
-      const { exists } = await import('@tauri-apps/plugin-fs');
-
-      return await exists(filePath);
+      return await Exists(filePath);
     } catch {
       return false;
     }
@@ -158,9 +143,7 @@ export function useFileOperations() {
     showError: (message: string, title: string, kind: 'error') => Promise<void>,
   ): Promise<boolean> => {
     try {
-      const { remove } = await import('@tauri-apps/plugin-fs');
-
-      await remove(filePath);
+      await Remove(filePath);
 
       return true;
     } catch (error) {

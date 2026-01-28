@@ -1,9 +1,9 @@
+import { ShowMessage, ConfirmDialog as WailsConfirmDialog, OpenFileDialog as WailsOpenFileDialog, OpenFolderDialog as WailsOpenFolderDialog } from '../../wailsjs/go/main/App';
+
 export function useDialogs() {
   const showMessage = async (content: string, title = 'T3Lang', kind: 'info' | 'warning' | 'error' = 'info') => {
     try {
-      const { message } = await import('@tauri-apps/plugin-dialog');
-
-      await message(content, { title, kind });
+      await ShowMessage(content, title, kind);
     } catch {
       alert(content);
     }
@@ -11,9 +11,7 @@ export function useDialogs() {
 
   const confirmDialog = async (content: string, title = 'Confirm') => {
     try {
-      const { ask } = await import('@tauri-apps/plugin-dialog');
-
-      return await ask(content, { title, kind: 'warning' });
+      return await WailsConfirmDialog(content, title);
     } catch {
       return confirm(content);
     }
@@ -21,23 +19,13 @@ export function useDialogs() {
 
   const openFileDialog = async () => {
     try {
-      const { open: openDialog } = await import('@tauri-apps/plugin-dialog');
-      const selected = await openDialog({
-        multiple: false,
-        filters: [
-          {
-            name: 'XLIFF',
-            extensions: ['xlf', 'xliff'],
-          },
-        ],
-      });
+      const selected = await WailsOpenFileDialog();
 
-      if (selected && typeof selected === 'string') {
+      if (selected) {
         return selected;
       }
 
       return null;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return null;
     }
@@ -45,18 +33,13 @@ export function useDialogs() {
 
   const openFolderDialog = async () => {
     try {
-      const { open: openDialog } = await import('@tauri-apps/plugin-dialog');
-      const selected = await openDialog({
-        directory: true,
-        multiple: false,
-      });
+      const selected = await WailsOpenFolderDialog();
 
-      if (selected && typeof selected === 'string') {
+      if (selected) {
         return selected;
       }
 
       return null;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return null;
     }

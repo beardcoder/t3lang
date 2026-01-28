@@ -184,7 +184,7 @@ export function TranslationTable({
   const filteredUnits = units.filter((unit) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
-    const targetHaystack = isSourceOnly ? [] : [unit.target.toLowerCase()];
+    const targetHaystack = isSourceOnly ? [] : [(unit.target && typeof unit.target === 'string' ? unit.target : '').toLowerCase()];
 
     return (
       unit.id.toLowerCase().includes(query) ||
@@ -195,7 +195,9 @@ export function TranslationTable({
 
   const translationProgress = useMemo(() => {
     if (isSourceOnly || units.length === 0) return 0;
-    const translatedCount = units.filter((unit) => unit.target && unit.target.trim() !== '').length;
+    const translatedCount = units.filter((unit) =>
+      unit.target && typeof unit.target === 'string' && unit.target.trim() !== ''
+    ).length;
 
     return Math.round((translatedCount / units.length) * 100);
   }, [units, isSourceOnly]);

@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
-import { Folder, FileText } from "lucide-react";
+import { Folder, FileText, Sparkles } from "lucide-react";
 import { FileTree, T3FileGroup, FileDataMap } from "./FileTree";
 import { useDialogs } from "../hooks/useDialogs";
 
@@ -41,119 +41,135 @@ export function Sidebar({
   };
 
   return (
-    <div
-      className="flex h-full w-72 flex-col gap-4 p-5"
+    <motion.div
+      initial={{ x: -20, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.15, ease: "easeOut" }}
+      className="flex h-full w-80 flex-col gap-5 p-6 border-r"
       style={{
-        backgroundColor: "var(--color-bg-secondary)",
-        borderRight: "1px solid rgba(255, 255, 255, 0.06)",
+        backgroundColor: "var(--color-bg-primary)",
+        borderColor: "var(--color-border-subtle)",
       }}
     >
-      <div className="px-1 pt-8">
-        <div className="flex items-start justify-between">
-          <div>
-            <h1
-              className="mb-1 text-xl font-semibold"
-              style={{ color: "var(--color-text-primary)" }}
-            >
-              t3lang
-            </h1>
-            <p
-              className="text-sm leading-relaxed"
-              style={{ color: "var(--color-text-secondary)" }}
-            >
-              Translation workspace
-            </p>
-          </div>
+      {/* Header */}
+      <div className="pt-6 pb-2">
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles size={20} style={{ color: "var(--color-accent)" }} />
+          <h1 className="text-2xl font-bold gradient-text">
+            T3Lang
+          </h1>
         </div>
+        <p
+          className="text-sm"
+          style={{ color: "var(--color-text-tertiary)" }}
+        >
+          TYPO3 Translation Manager
+        </p>
       </div>
 
+      {/* Quick Actions */}
       <div className="flex flex-col gap-2">
-        <button
+        <motion.button
           onClick={handleOpenFolder}
-          className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm transition-colors"
+          className="group flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all"
           style={{
-            backgroundColor: "transparent",
+            backgroundColor: "var(--color-bg-secondary)",
             color: "var(--color-text-primary)",
+            border: "1px solid var(--color-border-subtle)",
           }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
+            e.currentTarget.style.backgroundColor = "var(--color-bg-tertiary)";
+            e.currentTarget.style.borderColor = "var(--color-border)";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "transparent";
+            e.currentTarget.style.backgroundColor = "var(--color-bg-secondary)";
+            e.currentTarget.style.borderColor = "var(--color-border-subtle)";
           }}
         >
-          <Folder size={18} style={{ color: "var(--color-text-secondary)" }} />
-          <span className="font-medium">Open workspace</span>
-        </button>
+          <Folder
+            size={18}
+            className="transition-colors"
+            style={{ color: "var(--color-accent)" }}
+          />
+          <span>Open Workspace</span>
+        </motion.button>
 
-        <button
+        <motion.button
           onClick={handleOpenFile}
-          className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm transition-colors"
+          className="group flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all"
           style={{
-            backgroundColor: "transparent",
+            backgroundColor: "var(--color-bg-secondary)",
             color: "var(--color-text-primary)",
+            border: "1px solid var(--color-border-subtle)",
           }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
+            e.currentTarget.style.backgroundColor = "var(--color-bg-tertiary)";
+            e.currentTarget.style.borderColor = "var(--color-border)";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "transparent";
+            e.currentTarget.style.backgroundColor = "var(--color-bg-secondary)";
+            e.currentTarget.style.borderColor = "var(--color-border-subtle)";
           }}
         >
           <FileText
             size={18}
-            style={{ color: "var(--color-text-secondary)" }}
+            className="transition-colors"
+            style={{ color: "var(--color-purple)" }}
           />
-          <span className="font-medium">Open file</span>
-        </button>
+          <span>Open File</span>
+        </motion.button>
       </div>
 
+      {/* File Tree */}
       <AnimatePresence>
         {fileGroups.length > 0 && (
           <motion.div
-            className="flex-1 overflow-y-auto rounded-lg"
+            className="flex-1 overflow-hidden rounded-lg"
             style={{
-              backgroundColor: "transparent",
+              backgroundColor: "var(--color-bg-secondary)",
+              border: "1px solid var(--color-border-subtle)",
             }}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
           >
             <div
-              className="sticky top-0 z-10 mb-1 flex items-center justify-between px-2 py-2"
+              className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 backdrop-blur-sm"
               style={{
-                backgroundColor: "rgba(31, 31, 31, 0.95)",
-                backdropFilter: "blur(8px)",
+                backgroundColor: "rgba(26, 26, 36, 0.95)",
+                borderBottom: "1px solid var(--color-border-subtle)",
               }}
             >
               <h2
-                className="text-xs font-medium"
+                className="text-xs font-semibold uppercase tracking-wider"
                 style={{ color: "var(--color-text-secondary)" }}
               >
-                Files
+                Workspace Files
               </h2>
               <span
-                className="rounded px-2 py-0.5 text-xs font-medium"
-                style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.06)",
-                  color: "var(--color-text-secondary)",
-                }}
+                className="badge badge-accent"
               >
                 {fileGroups.length}
               </span>
             </div>
-            <FileTree
-              fileGroups={fileGroups}
-              selectedFile={currentFile}
-              onFileSelect={onFileOpen}
-              onAddLanguage={onAddLanguage}
-              onDeleteFile={onDeleteFile}
-              fileDataMap={fileDataMap}
-            />
+            <div className="overflow-y-auto" style={{ maxHeight: "calc(100% - 3rem)" }}>
+              <FileTree
+                fileGroups={fileGroups}
+                selectedFile={currentFile}
+                onFileSelect={onFileOpen}
+                onAddLanguage={onAddLanguage}
+                onDeleteFile={onDeleteFile}
+                fileDataMap={fileDataMap}
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }

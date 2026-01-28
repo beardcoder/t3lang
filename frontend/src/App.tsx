@@ -9,11 +9,15 @@ import { EmptyState } from "./components/EmptyState";
 import { SearchBar } from "./components/SearchBar";
 import { NewLanguageDialog } from "./components/NewLanguageDialog";
 import { SettingsDialog } from "./components/SettingsDialog";
+import { SyncPanel } from "./components/SyncPanel";
 import { T3FileGroup } from "./components/FileTree";
 import { useDialogs } from "./hooks/useDialogs";
 import { useNotifications } from "./hooks/useNotifications";
 import { useFileOperations, FileData } from "./hooks/useFileOperations";
 import { useSettings } from "./contexts/SettingsContext";
+import { useSync, detectChanges, needsSync } from "./hooks/useSync";
+import { EventsOn } from "../wailsjs/runtime/runtime";
+import { Stat, InstallCLI, UninstallCLI } from "../wailsjs/go/main/App";
 
 const cloneXliffData = (data: XliffDocument): XliffDocument =>
   JSON.parse(JSON.stringify(data));
@@ -30,7 +34,7 @@ function AppContent() {
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [selectedBaseName, setSelectedBaseName] = useState<string>("");
 
-  const { showMessage, confirmDialog } = useDialogs();
+  const { showMessage, confirmDialog, openFileDialog, openFolderDialog } = useDialogs();
   const { notify } = useNotifications();
   const { getIndentString } = useSettings();
   const {
@@ -41,6 +45,32 @@ function AppContent() {
     deleteFile,
     parseT3FileName,
   } = useFileOperations();
+
+  // Sync system
+  const {
+    syncState,
+    pendingOperations,
+    autoSyncEnabled,
+    queueOperation,
+    triggerSync,
+    toggleAutoSync,
+    updateProgress,
+  } = useSync({
+    autoSync: true,
+    syncDelay: 1000,
+    onSyncStart: () => {
+      notify("Syncing files...", "File synchronization started");
+    },
+    onSyncComplete: (operations) => {
+      notify(
+        "Sync complete",
+        `Synchronized ${operations.reduce((acc, op) => acc + op.filesAffected.length, 0)} files`
+      );
+    },
+    onSyncError: (error) => {
+      showMessage(error.message, "Sync Error", "error");
+    },
+  });
 
   const handleFileOpen = async (filePath: string) => {
     const fileData = await loadFile(filePath, showMessage);
@@ -348,10 +378,20 @@ function AppContent() {
       ([, data]) => data.baseName === currentBaseName,
     );
 
+    // Queue sync operation
+    queueOperation({
+      id: `reorder-${Date.now()}`,
+      type: 'reorder',
+      baseName: currentBaseName,
+      timestamp: new Date(),
+      filesAffected: relatedFiles.map(([path]) => path),
+    });
+
     // Create order map from new order
     const orderMap = new Map(newOrder.map((unit, index) => [unit.id, index]));
 
     const newMap = new Map(fileDataMap);
+    let progress = 0;
 
     // Update all related files with the same order
     for (const [filePath, relatedFileData] of relatedFiles) {
@@ -376,13 +416,15 @@ function AppContent() {
         xliffData: updatedData,
         units: updatedData.files[0].units.map((unit) => ({
           ...unit,
-          target: unit.target || "",
+          target: unit.target ? String(unit.target) : "",
         })),
       });
+
+      progress += (100 / relatedFiles.length);
+      updateProgress(Math.round(progress));
     }
 
     setFileDataMap(newMap);
-    notify("Order synchronized", `Updated ${relatedFiles.length} files`);
   };
 
   const handleNewLanguage = async (languageCode: string) => {
@@ -495,139 +537,92 @@ function AppContent() {
     currentFileData?.targetLanguage ?? parsedMeta?.language ?? "";
 
   useEffect(() => {
-    let unlisten: (() => void) | undefined;
-
-    const setupCliListener = async () => {
+    const unsubscribe = EventsOn("open-path", async (path: string) => {
       try {
-        const { listen } = await import("@tauri-apps/api/event");
-        const { stat } = await import("@tauri-apps/plugin-fs");
+        const fileInfo = await Stat(path);
 
-        unlisten = await listen<string>("open-path", async (event) => {
-          const path = event.payload;
-
-          try {
-            const fileInfo = await stat(path);
-
-            if (fileInfo.isDirectory) {
-              await handleFolderOpen(path);
-            } else if (fileInfo.isFile) {
-              await handleFileOpen(path);
-            }
-          } catch (error) {
-            await showMessage(`Failed to open: ${error}`, "Error", "error");
-          }
-        });
-      } catch {
-        // Event listener not available
+        if (fileInfo.isDirectory) {
+          await handleFolderOpen(path);
+        } else if (fileInfo.isFile) {
+          await handleFileOpen(path);
+        }
+      } catch (error) {
+        await showMessage(`Failed to open: ${error}`, "Error", "error");
       }
-    };
+    });
 
-    setupCliListener();
-
-    return () => unlisten?.();
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
-    let unlistenFile: (() => void) | undefined;
-    let unlistenFolder: (() => void) | undefined;
-    let unlistenInstallCli: (() => void) | undefined;
-    let unlistenUninstallCli: (() => void) | undefined;
-    let unlistenSettings: (() => void) | undefined;
-
-    const setupListeners = async () => {
+    const unsubscribeFile = EventsOn("menu-open-file", async () => {
       try {
-        const { listen } = await import("@tauri-apps/api/event");
-        const { invoke } = await import("@tauri-apps/api/core");
+        const selected = await openFileDialog();
 
-        unlistenFile = await listen("menu-open-file", async () => {
-          try {
-            const { open: openDialog } =
-              await import("@tauri-apps/plugin-dialog");
-            const selected = await openDialog({
-              multiple: false,
-              filters: [
-                {
-                  name: "XLIFF",
-                  extensions: ["xlf", "xliff"],
-                },
-              ],
-            });
-
-            if (selected && typeof selected === "string") {
-              await handleFileOpen(selected);
-            }
-          } catch (error) {
-            await showMessage(
-              `Failed to open file: ${error}`,
-              "File error",
-              "error",
-            );
-          }
-        });
-
-        unlistenFolder = await listen("menu-open-folder", async () => {
-          try {
-            const { open: openDialog } =
-              await import("@tauri-apps/plugin-dialog");
-            const selected = await openDialog({
-              directory: true,
-              multiple: false,
-            });
-
-            if (selected && typeof selected === "string") {
-              await handleFolderOpen(selected);
-            }
-          } catch (error) {
-            await showMessage(
-              `Failed to open folder: ${error}`,
-              "Folder error",
-              "error",
-            );
-          }
-        });
-
-        unlistenInstallCli = await listen("menu-install-cli", async () => {
-          try {
-            const result = await invoke<string>("install_cli");
-
-            await showMessage(result, "CLI Installation", "info");
-            notify("CLI Installed", 'You can now use "t3lang" in the terminal');
-          } catch (error) {
-            if (error !== "Installation cancelled.") {
-              await showMessage(`${error}`, "Installation Error", "error");
-            }
-          }
-        });
-
-        unlistenUninstallCli = await listen("menu-uninstall-cli", async () => {
-          try {
-            const result = await invoke<string>("uninstall_cli");
-
-            await showMessage(result, "CLI Uninstallation", "info");
-            notify("CLI Uninstalled", '"t3lang" command removed');
-          } catch (error) {
-            if (error !== "Uninstallation cancelled.") {
-              await showMessage(`${error}`, "Uninstallation Error", "error");
-            }
-          }
-        });
-
-        unlistenSettings = await listen("menu-settings", () => {
-          setShowSettingsDialog(true);
-        });
-      } catch {
-        // Menu listeners are unavailable (e.g., non-Tauri environment)
+        if (selected) {
+          await handleFileOpen(selected);
+        }
+      } catch (error) {
+        await showMessage(
+          `Failed to open file: ${error}`,
+          "File error",
+          "error",
+        );
       }
-    };
+    });
 
-    setupListeners();
+    const unsubscribeFolder = EventsOn("menu-open-folder", async () => {
+      try {
+        const selected = await openFolderDialog();
+
+        if (selected) {
+          await handleFolderOpen(selected);
+        }
+      } catch (error) {
+        await showMessage(
+          `Failed to open folder: ${error}`,
+          "Folder error",
+          "error",
+        );
+      }
+    });
+
+    const unsubscribeInstallCli = EventsOn("menu-install-cli", async () => {
+      try {
+        const result = await InstallCLI();
+
+        await showMessage(result, "CLI Installation", "info");
+        notify("CLI Installed", 'You can now use "t3lang" in the terminal');
+      } catch (error) {
+        if (error !== "Installation cancelled.") {
+          await showMessage(`${error}`, "Installation Error", "error");
+        }
+      }
+    });
+
+    const unsubscribeUninstallCli = EventsOn("menu-uninstall-cli", async () => {
+      try {
+        const result = await UninstallCLI();
+
+        await showMessage(result, "CLI Uninstallation", "info");
+        notify("CLI Uninstalled", '"t3lang" command removed');
+      } catch (error) {
+        if (error !== "Uninstallation cancelled.") {
+          await showMessage(`${error}`, "Uninstallation Error", "error");
+        }
+      }
+    });
+
+    const unsubscribeSettings = EventsOn("menu-settings", () => {
+      setShowSettingsDialog(true);
+    });
 
     return () => {
-      unlistenFile?.();
-      unlistenFolder?.();
-      unlistenInstallCli?.();
-      unlistenUninstallCli?.();
-      unlistenSettings?.();
+      unsubscribeFile();
+      unsubscribeFolder();
+      unsubscribeInstallCli();
+      unsubscribeUninstallCli();
+      unsubscribeSettings();
     };
   }, []);
 
@@ -636,8 +631,6 @@ function AppContent() {
       className="flex h-screen flex-col"
       style={{ backgroundColor: "var(--color-bg-primary)" }}
     >
-      <div data-tauri-drag-region className="fixed z-50 h-8 w-full shrink-0" />
-
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
           onFileOpen={handleFileOpen}
@@ -667,7 +660,7 @@ function AppContent() {
                   initial={{ opacity: 0, y: 6, scale: 0.995 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -6, scale: 0.995 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  transition={{ duration: 0.12, ease: "easeOut" }}
                   className="h-full"
                 >
                   <TranslationTable
@@ -705,6 +698,15 @@ function AppContent() {
       <SettingsDialog
         isOpen={showSettingsDialog}
         onClose={() => setShowSettingsDialog(false)}
+      />
+
+      {/* Sync Panel */}
+      <SyncPanel
+        syncState={syncState}
+        pendingOperations={pendingOperations}
+        autoSyncEnabled={autoSyncEnabled}
+        onToggleAutoSync={toggleAutoSync}
+        onManualSync={triggerSync}
       />
     </div>
   );

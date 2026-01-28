@@ -1,4 +1,5 @@
-import { ChevronRight, Plus } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ChevronRight, Plus, FolderOpen } from 'lucide-react';
 import { FileItem } from './FileItem';
 import { T3File, FileDataMap } from './FileTree';
 
@@ -32,63 +33,139 @@ export function FileGroup({
     const fileData = fileDataMap.get(filePath);
 
     if (!fileData || fileData.isSourceOnly || fileData.units.length === 0) return 0;
-    const translatedCount = fileData.units.filter((unit) => unit.target && unit.target.trim() !== '').length;
+    const translatedCount = fileData.units.filter((unit) =>
+      unit.target && typeof unit.target === 'string' && unit.target.trim() !== ''
+    ).length;
 
     return Math.round((translatedCount / fileData.units.length) * 100);
   };
 
+  const totalProgress = translationFiles.length > 0
+    ? Math.round(translationFiles.reduce((sum, file) => sum + calculateProgress(file.path), 0) / translationFiles.length)
+    : 0;
+
   return (
-    <div className="mb-3">
-      <button
+    <div className="mb-2">
+      <motion.button
         onClick={onToggle}
-        className={`flex w-full items-center gap-2.5 rounded-md border px-3 py-2 text-left transition-all ${
-          isExpanded
-            ? 'border-border bg-white/5'
-            : 'hover:border-border border-transparent bg-transparent hover:bg-white/5'
-        }`}
+        className="group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-all"
+        style={{
+          backgroundColor: isExpanded ? 'var(--color-bg-tertiary)' : 'transparent',
+          border: `1px solid ${isExpanded ? 'var(--color-border)' : 'transparent'}`,
+        }}
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
+        onMouseEnter={(e) => {
+          if (!isExpanded) {
+            e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isExpanded) {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }
+        }}
       >
-        <ChevronRight size={16} className={`text-secondary transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
-        <span className="flex-1 truncate font-mono text-sm font-semibold text-white/90">{baseName}</span>
-        <span className="border-border rounded-md border bg-white/5 px-2 py-0.5 font-mono text-[11px] font-medium text-white/70">
-          {files.length} files
+        <motion.div
+          animate={{ rotate: isExpanded ? 90 : 0 }}
+          transition={{ duration: 0.12 }}
+        >
+          <ChevronRight
+            size={16}
+            style={{ color: 'var(--color-text-tertiary)' }}
+          />
+        </motion.div>
+
+        <FolderOpen
+          size={16}
+          style={{ color: isExpanded ? 'var(--color-warning)' : 'var(--color-text-tertiary)' }}
+          className="transition-colors"
+        />
+
+        <span
+          className="flex-1 truncate font-mono text-sm font-semibold"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          {baseName}
         </span>
-      </button>
 
-      {isExpanded && (
-        <div className="mt-1.5 space-y-1">
-          {defaultFile && (
-            <FileItem
-              name={defaultFile.name}
-              path={defaultFile.path}
-              language={defaultFile.language}
-              isSelected={selectedFile === defaultFile.path}
-              isSource
-              onSelect={() => onFileSelect(defaultFile.path)}
-            />
-          )}
+        {translationFiles.length > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="badge" style={{ fontSize: '10px' }}>
+              {totalProgress}%
+            </span>
+            <span className="badge">
+              {files.length}
+            </span>
+          </div>
+        )}
 
-          {translationFiles.map((file) => (
-            <FileItem
-              key={file.path}
-              name={file.name}
-              path={file.path}
-              language={file.language}
-              isSelected={selectedFile === file.path}
-              onSelect={() => onFileSelect(file.path)}
-              onDelete={() => onDeleteFile(file.path)}
-              translationProgress={calculateProgress(file.path)}
-            />
-          ))}
+        {translationFiles.length === 0 && (
+          <span className="badge">
+            {files.length}
+          </span>
+        )}
+      </motion.button>
 
-          <button
-            onClick={onAddLanguage}
-            className="hover:text-accent ml-0 flex w-full items-center gap-2 rounded-md px-3 py-2 font-mono text-xs text-white/70 transition-all hover:bg-white/5"
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="overflow-hidden"
           >
-            <Plus size={14} />
-            <span>Add language</span>
-          </button>
-        </div>
-      )}
+            <div className="mt-2 ml-6 space-y-1.5 border-l-2 pl-2" style={{ borderColor: 'var(--color-border-subtle)' }}>
+              {defaultFile && (
+                <FileItem
+                  name={defaultFile.name}
+                  path={defaultFile.path}
+                  language={defaultFile.language}
+                  isSelected={selectedFile === defaultFile.path}
+                  isSource
+                  onSelect={() => onFileSelect(defaultFile.path)}
+                />
+              )}
+
+              {translationFiles.map((file) => (
+                <FileItem
+                  key={file.path}
+                  name={file.name}
+                  path={file.path}
+                  language={file.language}
+                  isSelected={selectedFile === file.path}
+                  onSelect={() => onFileSelect(file.path)}
+                  onDelete={() => onDeleteFile(file.path)}
+                  translationProgress={calculateProgress(file.path)}
+                />
+              ))}
+
+              <motion.button
+                onClick={onAddLanguage}
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition-all"
+                style={{
+                  color: 'var(--color-text-tertiary)',
+                  backgroundColor: 'transparent',
+                }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)';
+                  e.currentTarget.style.color = 'var(--color-accent)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = 'var(--color-text-tertiary)';
+                }}
+              >
+                <Plus size={14} />
+                <span>Add language</span>
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
