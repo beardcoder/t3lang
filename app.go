@@ -11,11 +11,13 @@ import (
 	"strings"
 
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
+	"t3lang/services"
 )
 
 // App struct
 type App struct {
-	ctx context.Context
+	ctx     context.Context
+	watcher *services.WorkspaceWatcher
 }
 
 // NewApp creates a new App application struct
@@ -395,4 +397,51 @@ func (a *App) showNotificationWindows(title, body string) error {
 
 	cmd := exec.Command("powershell", "-Command", script)
 	return cmd.Run()
+}
+
+// ScanWorkspace scans a directory for XLIFF files and returns grouped results
+func (a *App) ScanWorkspace(path string) (*services.WorkspaceScan, error) {
+	return services.ScanWorkspace(path)
+}
+
+// WriteFileAtomic writes content to a file atomically
+func (a *App) WriteFileAtomic(path, content string) error {
+	return services.WriteFileAtomic(path, content)
+}
+
+// CreateLanguageFile creates a new language file from a template
+func (a *App) CreateLanguageFile(templatePath, newPath, languageCode string) error {
+	return services.CreateLanguageFile(templatePath, newPath, languageCode)
+}
+
+// StartWatching starts watching a workspace for file changes
+func (a *App) StartWatching(path string) error {
+	// Stop existing watcher if any
+	if a.watcher != nil {
+		a.watcher.Stop()
+	}
+
+	watcher, err := services.NewWorkspaceWatcher(path, func(event services.FileWatchEvent) {
+		// Emit event to frontend
+		wailsRuntime.EventsEmit(a.ctx, "file-changed", event)
+	})
+	if err != nil {
+		return err
+	}
+
+	a.watcher = watcher
+	return watcher.Start()
+}
+
+// StopWatching stops the file watcher
+func (a *App) StopWatching() {
+	if a.watcher != nil {
+		a.watcher.Stop()
+		a.watcher = nil
+	}
+}
+
+// GetFileModTime returns the modification time of a file
+func (a *App) GetFileModTime(path string) (int64, error) {
+	return services.GetFileModTime(path)
 }

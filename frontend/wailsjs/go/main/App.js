@@ -6,8 +6,16 @@ export function ConfirmDialog(arg1, arg2) {
   return window['go']['main']['App']['ConfirmDialog'](arg1, arg2);
 }
 
+export function CreateLanguageFile(arg1, arg2, arg3) {
+  return window['go']['main']['App']['CreateLanguageFile'](arg1, arg2, arg3);
+}
+
 export function Exists(arg1) {
   return window['go']['main']['App']['Exists'](arg1);
+}
+
+export function GetFileModTime(arg1) {
+  return window['go']['main']['App']['GetFileModTime'](arg1);
 }
 
 export function InstallCLI() {
@@ -38,6 +46,10 @@ export function Remove(arg1) {
   return window['go']['main']['App']['Remove'](arg1);
 }
 
+export function ScanWorkspace(arg1) {
+  return window['go']['main']['App']['ScanWorkspace'](arg1);
+}
+
 export function ShowMessage(arg1, arg2, arg3) {
   return window['go']['main']['App']['ShowMessage'](arg1, arg2, arg3);
 }
@@ -46,12 +58,24 @@ export function ShowNotification(arg1, arg2) {
   return window['go']['main']['App']['ShowNotification'](arg1, arg2);
 }
 
+export function StartWatching(arg1) {
+  return window['go']['main']['App']['StartWatching'](arg1);
+}
+
 export function Stat(arg1) {
   return window['go']['main']['App']['Stat'](arg1);
 }
 
+export function StopWatching() {
+  return window['go']['main']['App']['StopWatching']();
+}
+
 export function UninstallCLI() {
   return window['go']['main']['App']['UninstallCLI']();
+}
+
+export function WriteFileAtomic(arg1, arg2) {
+  return window['go']['main']['App']['WriteFileAtomic'](arg1, arg2);
 }
 
 export function WriteTextFile(arg1, arg2) {

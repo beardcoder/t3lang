@@ -6,6 +6,7 @@ node_modules
 
 # Wails
 build/bin
+/t3lang
 
 # Frontend build
 frontend/dist
