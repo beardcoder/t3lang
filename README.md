@@ -1,52 +1,19 @@
-# T3Lang - TYPO3 Translation Manager
+# README
 
-A modern desktop application for managing TYPO3 translation files (XLIFF format).
+## About
 
-## ✨ Features
+This is the official Wails React-TS template.
 
-- Modern UI with dark/light mode
-- Open folders with TYPO3 translation files
-- Edit translations inline
-- Drag & drop to reorder translation keys
-- Create new language files
-- Switch between XLIFF v1.2 and v2.0
-- Search across translations
+You can configure the project by editing `wails.json`. More information about the project settings can be found
+here: https://wails.io/docs/reference/project-config
 
-## 🎯 Tech Stack
+## Live Development
 
-- Tauri v2.9 - Desktop application framework
-- React 19 - UI framework
-- TypeScript - Type safety
-- Tailwind CSS v4 - Styling
-- Vite 7 - Build tool
+To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
+server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
+and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
+to this in your browser, and you can call your Go code from devtools.
 
-## 🚀 Getting Started
+## Building
 
-```bash
-# Install dependencies
-bun install
-
-# Run in development mode
-bun run tauri dev
-
-# Build for production
-bun run tauri build
-```
-
-## 💝 Sponsor
-
-<p align="center">
-  <a href="https://www.fullhaus.de/" target="_blank">
-    <img src=".github/assets/fullhaus.svg" alt="FULLHAUS" width="200">
-  </a>
-</p>
-
-This project is sponsored by [**FULLHAUS**](https://www.fullhaus.de/) - Digital agency for web development and online marketing.
-
-## 📝 License
-
-MIT
-
----
-
-Made with 🧘🏼 for TYPO3 translators
+To build a redistributable, production mode package, use `wails build`.
