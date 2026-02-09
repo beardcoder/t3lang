@@ -2,7 +2,7 @@
 
 A modern, cross-platform desktop application for managing XLIFF translation files. Built with Wails v2, T3Lang provides a fast, developer-friendly interface for editing, organizing, and converting translation files in your projects.
 
-![T3Lang Screenshot](docs/screenshot.png)
+<!-- ![T3Lang Screenshot](docs/screenshot.png) -->
 
 ## Features
 
