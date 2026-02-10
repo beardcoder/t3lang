@@ -56,10 +56,7 @@ export interface WorkspaceScan {
 }
 
 // View modes
-export type ViewMode = 'dashboard' | 'editor' | 'group-detail';
-
-// Editor view modes
-export type EditorMode = 'focused' | 'multi-column';
+export type ViewMode = 'dashboard' | 'editor';
 
 // Sort modes for units
 export type SortMode = 'manual' | 'key-asc' | 'key-desc' | 'source-asc' | 'source-desc';
@@ -111,21 +108,6 @@ export interface FileWatchEvent {
   path: string;
   oldPath?: string;  // For rename events
 }
-
-// Sync operation types
-export type SyncOperationType = 'reorder' | 'add-unit' | 'delete-unit' | 'source-change';
-
-export interface SyncOperation {
-  id: string;
-  type: SyncOperationType;
-  baseName: string;
-  unitId?: string;
-  data?: unknown;
-  filesAffected: string[];
-  timestamp: Date;
-}
-
-export type SyncStatus = 'idle' | 'pending' | 'syncing' | 'synced' | 'error';
 
 // Dialog types
 export type DialogType = 'add-language' | 'add-unit' | 'conversion' | 'settings' | 'confirm' | 'conflict';

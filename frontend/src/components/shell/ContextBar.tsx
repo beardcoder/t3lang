@@ -1,4 +1,5 @@
-import { Search, ChevronRight, Settings, RefreshCw } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Search, ChevronRight, Settings } from 'lucide-react';
 import { useWorkspaceStore, useEditorStore, useUIStore } from '../../stores';
 
 export function ContextBar() {
@@ -13,9 +14,29 @@ export function ContextBar() {
 
   const openDialog = useUIStore((state) => state.openDialog);
 
+  // Debounced search: local state for instant input, debounce store update
+  const [localSearch, setLocalSearch] = useState(searchQuery);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+
+  // Sync local state when store changes externally (e.g., Escape clears)
+  useEffect(() => {
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setLocalSearch(value);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => setSearchQuery(value), 120);
+  }, [setSearchQuery]);
+
+  const handleClearSearch = useCallback(() => {
+    setLocalSearch('');
+    clearTimeout(debounceRef.current);
+    setSearchQuery('');
+  }, [setSearchQuery]);
+
   const activeGroup = activeGroupId ? groups.get(activeGroupId) : null;
 
-  // Build breadcrumb parts
   const breadcrumbs: { label: string; onClick?: () => void }[] = [];
 
   if (projectRoot) {
@@ -34,7 +55,6 @@ export function ContextBar() {
 
   return (
     <div className="flex h-12 items-center justify-between border-b border-border bg-bg-secondary px-4">
-      {/* Breadcrumb */}
       <nav className="flex items-center gap-1 text-sm">
         {breadcrumbs.length === 0 ? (
           <span className="text-text-tertiary">No project open</span>
@@ -44,39 +64,36 @@ export function ContextBar() {
               {index > 0 && (
                 <ChevronRight className="h-4 w-4 text-text-tertiary" />
               )}
-              <button
-                onClick={crumb.onClick}
-                className={`rounded px-1 py-0.5 transition-colors ${
+              <span
+                className={`rounded px-1 py-0.5 ${
                   crumb.onClick
-                    ? 'hover:bg-bg-tertiary text-text-primary'
-                    : 'text-text-secondary cursor-default'
+                    ? 'hover:bg-bg-tertiary text-text-primary cursor-pointer'
+                    : 'text-text-secondary'
                 }`}
-                disabled={!crumb.onClick}
+                onClick={crumb.onClick}
               >
                 {crumb.label}
-              </button>
+              </span>
             </span>
           ))
         )}
       </nav>
 
-      {/* Actions */}
       <div className="flex items-center gap-2">
-        {/* Search input */}
         {viewMode === 'editor' && (
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-tertiary" />
             <input
               type="text"
-              placeholder="Search translations..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-8 w-64 rounded-md border border-border bg-bg-primary pl-8 pr-3 text-sm placeholder:text-text-tertiary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+              placeholder="Search..."
+              value={localSearch}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="h-8 w-56 rounded-md border border-border bg-bg-primary pl-8 pr-8 text-sm placeholder:text-text-tertiary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
-            {searchQuery && (
+            {localSearch && (
               <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-text-tertiary hover:bg-bg-tertiary hover:text-text-primary"
+                onClick={handleClearSearch}
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-text-tertiary hover:text-text-primary"
               >
                 <span className="text-xs">×</span>
               </button>
@@ -84,17 +101,6 @@ export function ContextBar() {
           </div>
         )}
 
-        {/* Refresh button */}
-        {projectRoot && (
-          <button
-            className="rounded p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
-            title="Refresh workspace"
-          >
-            <RefreshCw className="h-4 w-4" />
-          </button>
-        )}
-
-        {/* Settings button */}
         <button
           onClick={() => openDialog('settings')}
           className="rounded p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"

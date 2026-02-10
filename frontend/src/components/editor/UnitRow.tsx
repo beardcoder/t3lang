@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { memo, useState, useCallback, useEffect, useRef } from 'react';
 import { Circle, Trash2, Copy, ClipboardPaste } from 'lucide-react';
 import { useEditorStore, selectIsUnitDirty } from '../../stores';
 import { ContextMenu, type ContextMenuItem } from '../common/ContextMenu';
@@ -13,7 +13,7 @@ interface UnitRowProps {
   onDelete: (unitId: string) => void;
 }
 
-export function UnitRow({ unit, filePath, isSourceOnly, isFocused, onFocus, onDelete }: UnitRowProps) {
+export const UnitRow = memo(function UnitRow({ unit, filePath, isSourceOnly, isFocused, onFocus, onDelete }: UnitRowProps) {
   const isDirty = useEditorStore((state) => selectIsUnitDirty(state, filePath, unit.id));
   const trackChange = useEditorStore((state) => state.trackChange);
   const editingUnitId = useEditorStore((state) => state.editingUnitId);
@@ -37,7 +37,9 @@ export function UnitRow({ unit, filePath, isSourceOnly, isFocused, onFocus, onDe
   useEffect(() => {
     if (isEditing && editingField === 'target' && inputRef.current) {
       inputRef.current.focus();
-      inputRef.current.select();
+      // Place cursor at end instead of selecting all text
+      const len = inputRef.current.value.length;
+      inputRef.current.setSelectionRange(len, len);
     }
   }, [isEditing, editingField]);
 
@@ -59,14 +61,22 @@ export function UnitRow({ unit, filePath, isSourceOnly, isFocused, onFocus, onDe
     } else if (e.key === 'Escape') {
       setLocalTarget(unit.target);
       stopEditing();
+    } else if (e.key === 'Tab') {
+      // Tab/Shift+Tab to move to next/previous row
+      e.preventDefault();
+      stopEditing();
+      const direction = e.shiftKey ? 'up' : 'down';
+      window.dispatchEvent(new CustomEvent('unit-tab-navigate', { detail: { direction, fromUnitId: unit.id } }));
     }
-  }, [unit.target, stopEditing]);
+  }, [unit.target, unit.id, stopEditing]);
 
-  const handleDoubleClick = useCallback(() => {
-    if (!isSourceOnly) {
+  // Single click on target to start editing
+  const handleTargetClick = useCallback(() => {
+    if (!isSourceOnly && !isEditing) {
+      onFocus();
       startEditing(unit.id, 'target');
     }
-  }, [isSourceOnly, unit.id, startEditing]);
+  }, [isSourceOnly, isEditing, unit.id, startEditing, onFocus]);
 
   const handleBlur = useCallback(() => {
     stopEditing();
@@ -111,7 +121,7 @@ export function UnitRow({ unit, filePath, isSourceOnly, isFocused, onFocus, onDe
 
   return (
     <div
-      className={`flex h-full border-b border-border-subtle transition-colors ${
+      className={`flex h-full border-b border-border-subtle ${
         isFocused ? 'bg-accent-light' : 'hover:bg-bg-tertiary'
       }`}
       onClick={onFocus}
@@ -134,7 +144,7 @@ export function UnitRow({ unit, filePath, isSourceOnly, isFocused, onFocus, onDe
 
       {/* Target column */}
       {!isSourceOnly && (
-        <div className="flex-1 overflow-hidden p-3" onDoubleClick={handleDoubleClick}>
+        <div className="flex-1 overflow-hidden p-3 cursor-text" onClick={handleTargetClick}>
           {isEditing && editingField === 'target' ? (
             <textarea
               ref={inputRef}
@@ -147,13 +157,13 @@ export function UnitRow({ unit, filePath, isSourceOnly, isFocused, onFocus, onDe
             />
           ) : (
             <p
-              className={`cursor-text whitespace-pre-wrap text-sm ${
+              className={`whitespace-pre-wrap text-sm ${
                 isMissing
                   ? 'italic text-text-muted'
                   : 'text-text-primary'
               }`}
             >
-              {isMissing ? 'Click to add translation...' : localTarget}
+              {isMissing ? 'Click to translate...' : localTarget}
             </p>
           )}
         </div>
@@ -170,4 +180,4 @@ export function UnitRow({ unit, filePath, isSourceOnly, isFocused, onFocus, onDe
       )}
     </div>
   );
-}
+});

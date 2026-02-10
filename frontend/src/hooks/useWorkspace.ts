@@ -107,14 +107,13 @@ export function useWorkspace() {
     }
   }, [fileCache, cacheFileData]);
 
-  // Load all files for a group
+  // Load all files for a group in parallel
   const loadGroup = useCallback(async (group: TranslationGroup) => {
     setLoading(true, `Loading ${group.baseName}...`);
 
     try {
-      for (const fileMeta of group.files.values()) {
-        await loadFile(fileMeta.path);
-      }
+      const filePaths = Array.from(group.files.values()).map(f => f.path);
+      await Promise.all(filePaths.map(path => loadFile(path)));
       markGroupLoaded(group.id);
       evictOldGroups();
     } finally {
@@ -273,12 +272,10 @@ export function useWorkspace() {
     }
   }, [fileCache, cacheFileData, addNotification]);
 
-  // Save all dirty files
+  // Save all dirty files in parallel
   const saveAllFiles = useCallback(async () => {
     const dirtyPaths = useEditorStore.getState().getDirtyPaths();
-    for (const path of dirtyPaths) {
-      await saveFile(path);
-    }
+    await Promise.all(dirtyPaths.map(path => saveFile(path)));
   }, [saveFile]);
 
   // Listen for custom open-workspace event
@@ -292,6 +289,13 @@ export function useWorkspace() {
       window.removeEventListener('open-workspace', handleOpenWorkspace as EventListener);
     };
   }, [openWorkspace]);
+
+  // Listen for save-all event (from footer button / command palette)
+  useEffect(() => {
+    const handleSaveAll = () => { saveAllFiles(); };
+    window.addEventListener('save-all', handleSaveAll);
+    return () => window.removeEventListener('save-all', handleSaveAll);
+  }, [saveAllFiles]);
 
   const openDialog = useUIStore((state) => state.openDialog);
 

@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useWorkspaceStore, useEditorStore, useUIStore, selectActiveFile, selectFilteredUnits } from '../../stores';
 import { EditorHeader } from './EditorHeader';
 import { VirtualUnitList } from './VirtualUnitList';
@@ -67,23 +67,26 @@ export function EditorView() {
     return <EmptyEditor />;
   }
 
-  // Get filtered units
-  const filteredUnits = selectFilteredUnits(
-    activeFile.units,
-    searchQuery,
-    showOnlyMissing
+  // Memoize filtered units to avoid recomputing on every render
+  const filteredUnits = useMemo(
+    () => selectFilteredUnits(activeFile.units, searchQuery, showOnlyMissing),
+    [activeFile.units, searchQuery, showOnlyMissing]
+  );
+
+  // Memoize missing count to avoid inline .filter() on every render
+  const missingCount = useMemo(
+    () => activeFile.units.filter(u => !u.target || u.target.trim() === '').length,
+    [activeFile.units]
   );
 
   return (
     <div className="flex h-full flex-col">
-      {/* Editor header with language tabs and actions */}
       <EditorHeader
         group={activeGroup}
         activeLanguage={activeLanguage}
         fileData={activeFile}
       />
 
-      {/* Main content - virtualized unit list */}
       <div className="flex-1 overflow-hidden">
         <VirtualUnitList
           units={filteredUnits}
@@ -93,11 +96,10 @@ export function EditorView() {
         />
       </div>
 
-      {/* Footer with stats and quick actions */}
       <EditorFooter
         totalUnits={activeFile.units.length}
         filteredUnits={filteredUnits.length}
-        missingCount={activeFile.units.filter(u => !u.target || u.target.trim() === '').length}
+        missingCount={missingCount}
       />
     </div>
   );

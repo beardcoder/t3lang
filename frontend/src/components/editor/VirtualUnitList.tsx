@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useEditorStore } from '../../stores';
 import { UnitRow } from './UnitRow';
@@ -11,20 +11,51 @@ interface VirtualUnitListProps {
   onDeleteUnit: (unitId: string) => void;
 }
 
-const ROW_HEIGHT = 72; // Estimated row height in pixels
+const ROW_HEIGHT = 72;
 
 export function VirtualUnitList({ units, filePath, isSourceOnly, onDeleteUnit }: VirtualUnitListProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
   const focusedUnitId = useEditorStore((state) => state.focusedUnitId);
   const setFocusedUnit = useEditorStore((state) => state.setFocusedUnit);
+  const startEditing = useEditorStore((state) => state.startEditing);
 
   const virtualizer = useVirtualizer({
     count: units.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => ROW_HEIGHT,
-    overscan: 5,
+    overscan: 8,
   });
+
+  // Navigate focus to adjacent row helper
+  const moveFocus = useCallback((fromUnitId: string, direction: 'up' | 'down') => {
+    const currentIndex = units.findIndex(u => u.id === fromUnitId);
+    if (currentIndex === -1) return;
+
+    const newIndex = direction === 'up'
+      ? Math.max(0, currentIndex - 1)
+      : Math.min(units.length - 1, currentIndex + 1);
+
+    if (newIndex !== currentIndex) {
+      const nextUnit = units[newIndex];
+      setFocusedUnit(nextUnit.id, 'target');
+      virtualizer.scrollToIndex(newIndex, { align: 'auto' });
+      // Auto-start editing in the next row for Tab navigation
+      if (!isSourceOnly) {
+        requestAnimationFrame(() => startEditing(nextUnit.id, 'target'));
+      }
+    }
+  }, [units, setFocusedUnit, virtualizer, isSourceOnly, startEditing]);
+
+  // Listen for Tab navigation events from UnitRow
+  useEffect(() => {
+    const handleTabNavigate = (e: Event) => {
+      const { direction, fromUnitId } = (e as CustomEvent).detail;
+      moveFocus(fromUnitId, direction);
+    };
+    window.addEventListener('unit-tab-navigate', handleTabNavigate);
+    return () => window.removeEventListener('unit-tab-navigate', handleTabNavigate);
+  }, [moveFocus]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (!focusedUnitId) return;
@@ -95,7 +126,7 @@ export function VirtualUnitList({ units, filePath, isSourceOnly, onDeleteUnit }:
                 filePath={filePath}
                 isSourceOnly={isSourceOnly}
                 isFocused={unit.id === focusedUnitId}
-                onFocus={() => setFocusedUnit(unit.id, 'target')}
+                onFocus={setFocusedUnit.bind(null, unit.id, 'target')}
                 onDelete={onDeleteUnit}
               />
             </div>

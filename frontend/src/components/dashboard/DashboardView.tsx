@@ -54,26 +54,24 @@ export function DashboardView() {
   // Show empty state when no project is open
   if (!projectRoot) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-6 p-8">
-        <FolderOpen className="h-20 w-20 text-text-tertiary" />
-
+      <div className="flex h-full flex-col items-center justify-center gap-5 p-8">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold text-text-primary">Welcome to T3Lang</h1>
-          <p className="mt-2 text-text-secondary">
-            Open a folder containing XLIFF translation files to get started
+          <h1 className="text-xl font-semibold text-text-primary">T3Lang</h1>
+          <p className="mt-1 text-sm text-text-secondary">
+            Open a folder containing XLIFF files
           </p>
         </div>
 
         <button
           onClick={handleOpenFolder}
-          className="mt-4 flex items-center gap-2 rounded-lg bg-accent px-6 py-3 font-medium text-white transition-colors hover:bg-accent-hover"
+          className="flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-white hover:bg-accent-hover"
         >
-          <FolderOpen className="h-5 w-5" />
+          <FolderOpen className="h-4 w-4" />
           Open Folder
         </button>
 
         {recentWorkspaces.length > 0 && (
-          <div className="mt-8 w-full max-w-md">
+          <div className="mt-4 w-full max-w-md">
             <RecentWorkspaces />
           </div>
         )}
@@ -132,7 +130,7 @@ export function DashboardView() {
                 <button
                   key={group.id}
                   onClick={() => handleOpenGroup(group.id)}
-                  className="flex w-full items-center justify-between rounded-md bg-bg-tertiary p-3 text-left transition-colors hover:bg-bg-hover"
+                  className="flex w-full items-center justify-between rounded-md bg-bg-tertiary p-3 text-left hover:bg-bg-hover"
                 >
                   <div className="flex items-center gap-3">
                     <FileText className="h-4 w-4 text-text-tertiary" />

@@ -27,7 +27,7 @@ export function EditorHeader({ group, activeLanguage, fileData }: EditorHeaderPr
           <button
             key={lang}
             onClick={() => setActiveLanguage(lang)}
-            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium ${
               activeLanguage === lang
                 ? 'bg-accent text-white'
                 : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
@@ -50,7 +50,7 @@ export function EditorHeader({ group, activeLanguage, fileData }: EditorHeaderPr
         {/* Filter: Show only missing */}
         <button
           onClick={() => setShowOnlyMissing(!showOnlyMissing)}
-          className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm transition-colors ${
+          className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm ${
             showOnlyMissing
               ? 'bg-warning-light text-warning'
               : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
@@ -70,7 +70,7 @@ export function EditorHeader({ group, activeLanguage, fileData }: EditorHeaderPr
         {/* Version conversion */}
         <button
           onClick={() => openDialog('conversion', { groupId: group.id })}
-          className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+          className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
           title="Convert XLIFF version"
         >
           <ArrowLeftRight className="h-4 w-4" />

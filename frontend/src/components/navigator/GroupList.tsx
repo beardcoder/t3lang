@@ -60,7 +60,7 @@ function GroupItem({ group, isActive, onSelect }: GroupItemProps) {
     <div>
       {/* Group header */}
       <div
-        className={`group flex items-center gap-1 px-2 py-1.5 cursor-pointer transition-colors ${
+        className={`group flex items-center gap-1 px-2 py-1.5 cursor-pointer ${
           isActive
             ? 'bg-accent/10 text-accent'
             : 'hover:bg-bg-tertiary text-text-primary'
@@ -148,7 +148,7 @@ function LanguageItem({ language, isActive, onSelect }: LanguageItemProps) {
   return (
     <button
       onClick={onSelect}
-      className={`flex w-full items-center gap-2 rounded px-2 py-1 text-left text-sm transition-colors ${
+      className={`flex w-full items-center gap-2 rounded px-2 py-1 text-left text-sm ${
         isActive
           ? 'bg-accent/10 text-accent'
           : 'hover:bg-bg-tertiary text-text-secondary'

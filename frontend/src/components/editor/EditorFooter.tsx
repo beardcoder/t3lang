@@ -1,5 +1,5 @@
-import { Plus, Save, AlertTriangle } from 'lucide-react';
-import { useEditorStore, useUIStore, selectDirtyCount } from '../../stores';
+import { Save, AlertTriangle } from 'lucide-react';
+import { useEditorStore, selectDirtyCount } from '../../stores';
 
 interface EditorFooterProps {
   totalUnits: number;
@@ -9,7 +9,6 @@ interface EditorFooterProps {
 
 export function EditorFooter({ totalUnits, filteredUnits, missingCount }: EditorFooterProps) {
   const dirtyCount = useEditorStore(selectDirtyCount);
-  const openDialog = useUIStore((state) => state.openDialog);
 
   const isFiltered = filteredUnits !== totalUnits;
   const completionPercent = totalUnits > 0
@@ -18,12 +17,11 @@ export function EditorFooter({ totalUnits, filteredUnits, missingCount }: Editor
 
   return (
     <div className="flex h-10 items-center justify-between border-t border-border bg-bg-secondary px-4 text-xs">
-      {/* Left: Stats */}
       <div className="flex items-center gap-4 text-text-tertiary">
         <span>
           {isFiltered ? (
             <>
-              Showing {filteredUnits} of {totalUnits} units
+              {filteredUnits} / {totalUnits} units
             </>
           ) : (
             <>{totalUnits} units</>
@@ -38,34 +36,19 @@ export function EditorFooter({ totalUnits, filteredUnits, missingCount }: Editor
         )}
 
         <span className={completionPercent === 100 ? 'text-success' : ''}>
-          {completionPercent}% complete
+          {completionPercent}%
         </span>
       </div>
 
-      {/* Right: Actions */}
       <div className="flex items-center gap-2">
         {dirtyCount > 0 && (
-          <span className="mr-2 text-amber-500">
-            {dirtyCount} unsaved
-          </span>
-        )}
-
-        <button
-          onClick={() => openDialog('add-unit')}
-          className="flex items-center gap-1 rounded px-2 py-1 text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
-          title="Add translation unit"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          <span>Add Unit</span>
-        </button>
-
-        {dirtyCount > 0 && (
           <button
-            className="flex items-center gap-1 rounded bg-accent px-2 py-1 text-white transition-colors hover:bg-accent-hover"
-            title="Save all changes (Cmd+S)"
+            onClick={() => window.dispatchEvent(new CustomEvent('save-all'))}
+            className="flex items-center gap-1 rounded bg-accent px-2.5 py-1 text-white hover:bg-accent-hover active:scale-[0.97]"
+            title="Save all changes"
           >
             <Save className="h-3.5 w-3.5" />
-            <span>Save</span>
+            <span>{dirtyCount} unsaved</span>
           </button>
         )}
       </div>
