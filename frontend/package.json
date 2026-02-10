@@ -21,6 +21,7 @@
     "react-dom": "^19.2.3",
     "react-select": "^5.10.2",
     "xliff-simple": "^0.1.2",
+    "yaml": "^2.8.2",
     "zustand": "^5.0.11"
   },
   "devDependencies": {
