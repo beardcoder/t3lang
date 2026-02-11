@@ -30,8 +30,10 @@ export function ConversionDialog() {
     if (!group) return '1.2';
     for (const fileMeta of group.files.values()) {
       const cached = fileCache.get(fileMeta.path);
+
       if (cached) return cached.version;
     }
+
     return '1.2';
   })();
 
@@ -44,9 +46,7 @@ export function ConversionDialog() {
 
     setIsConverting(true);
 
-    const indent = settings.indentType === 'tabs'
-      ? '\t'
-      : ' '.repeat(settings.indentSize);
+    const indent = settings.indentType === 'tabs' ? '\t' : ' '.repeat(settings.indentSize);
 
     let convertedCount = 0;
     let errorCount = 0;
@@ -66,10 +66,12 @@ export function ConversionDialog() {
             format: true,
             indent,
           });
+
           await WriteFileAtomic(fileMeta.path, newContent);
 
           // Update cache
           const cached = fileCache.get(fileMeta.path);
+
           if (cached) {
             cacheFileData(fileMeta.path, {
               ...cached,
@@ -130,7 +132,7 @@ export function ConversionDialog() {
           <button
             onClick={handleConvert}
             disabled={isConverting || currentVersion === targetVersion}
-            className="flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-sm text-white shadow-[var(--shadow-sm)] transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-sm text-white shadow-(--shadow-sm) transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
           >
             <RefreshCw className={`h-4 w-4 ${isConverting ? 'animate-spin' : ''}`} />
             {isConverting ? 'Converting...' : 'Convert'}
@@ -153,28 +155,34 @@ export function ConversionDialog() {
           <ArrowRight className="h-6 w-6 text-text-tertiary" />
 
           <div className="space-y-2">
-            {(['1.2', '2.0'] as const).map((version) => (
-              <button
-                key={version}
-                onClick={() => setTargetVersion(version)}
-                className={`block w-full rounded-xl border px-6 py-4 text-center transition-colors ${
-                  targetVersion === version
-                    ? 'border-accent/45 bg-accent-light text-accent'
-                    : version === currentVersion
-                    ? 'cursor-not-allowed border-border bg-bg-tertiary/70 opacity-50'
-                    : 'border-border-subtle bg-bg-tertiary/45 hover:bg-bg-tertiary'
-                }`}
-                disabled={version === currentVersion}
-              >
-                <span className="text-xs text-text-tertiary">Target</span>
-                <p className="text-2xl font-bold">{version}</p>
-              </button>
-            ))}
+            {(['1.2', '2.0'] as const).map((version) => {
+              let buttonClassName = 'block w-full rounded-xl border px-6 py-4 text-center transition-colors ';
+
+              if (targetVersion === version) {
+                buttonClassName += 'border-accent/45 bg-accent-light text-accent';
+              } else if (version === currentVersion) {
+                buttonClassName += 'cursor-not-allowed border-border bg-bg-tertiary/70 opacity-50';
+              } else {
+                buttonClassName += 'border-border-subtle bg-bg-tertiary/45 hover:bg-bg-tertiary';
+              }
+
+              return (
+                <button
+                  key={version}
+                  onClick={() => setTargetVersion(version)}
+                  className={buttonClassName}
+                  disabled={version === currentVersion}
+                >
+                  <span className="text-xs text-text-tertiary">Target</span>
+                  <p className="text-2xl font-bold">{version}</p>
+                </button>
+              );
+            })}
           </div>
         </div>
 
         <p className="text-center text-xs text-text-tertiary">
-          This will update {fileCount} file{fileCount !== 1 ? 's' : ''}
+          This will update {fileCount} file{fileCount === 1 ? '' : 's'}
         </p>
       </div>
     </DialogBase>

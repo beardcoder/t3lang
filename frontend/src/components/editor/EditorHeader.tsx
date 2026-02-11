@@ -3,12 +3,12 @@ import { useWorkspaceStore, useEditorStore, useUIStore } from '../../stores';
 import type { TranslationGroup, FileData } from '../../types';
 
 interface EditorHeaderProps {
-  group: TranslationGroup;
-  activeLanguage: string | null;
-  fileData: FileData;
+  readonly group: TranslationGroup;
+  readonly activeLanguage: string | null;
+  readonly fileData: FileData;
 }
 
-export function EditorHeader({ group, activeLanguage, fileData }: EditorHeaderProps) {
+export function EditorHeader({ group, activeLanguage, fileData }: Readonly<EditorHeaderProps>) {
   const setActiveLanguage = useWorkspaceStore((state) => state.setActiveLanguage);
   const showOnlyMissing = useEditorStore((state) => state.showOnlyMissing);
   const setShowOnlyMissing = useEditorStore((state) => state.setShowOnlyMissing);
@@ -16,11 +16,11 @@ export function EditorHeader({ group, activeLanguage, fileData }: EditorHeaderPr
 
   // Get available languages (excluding default/source)
   const languages = Array.from(group.files.keys())
-    .filter(l => l !== 'default')
+    .filter((l) => l !== 'default')
     .sort((a, b) => a.localeCompare(b));
 
   return (
-    <div className="surface-glass flex h-12 items-center justify-between border-b border-(--color-glass-border) px-3 sm:px-4">
+    <div className="flex h-12 items-center justify-between border-b border-(--color-glass-border) px-3 sm:px-4">
       <div className="flex items-center gap-1 overflow-x-auto">
         {languages.map((lang) => (
           <button
@@ -28,7 +28,7 @@ export function EditorHeader({ group, activeLanguage, fileData }: EditorHeaderPr
             onClick={() => setActiveLanguage(lang)}
             className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${
               activeLanguage === lang
-                ? 'border-accent/35 bg-accent-light text-accent shadow-[var(--shadow-sm)]'
+                ? 'border-accent/35 bg-accent-light text-accent shadow-(--shadow-sm)'
                 : 'border-transparent text-text-secondary hover:border-border-subtle hover:bg-bg-tertiary/70 hover:text-text-primary'
             }`}
           >
@@ -37,11 +37,7 @@ export function EditorHeader({ group, activeLanguage, fileData }: EditorHeaderPr
           </button>
         ))}
 
-        {languages.length === 0 && (
-          <span className="text-sm text-text-tertiary">
-            Source file (no translations)
-          </span>
-        )}
+        {languages.length === 0 && <span className="text-sm text-text-tertiary">Source file (no translations)</span>}
       </div>
 
       <div className="flex items-center gap-2">
@@ -54,14 +50,8 @@ export function EditorHeader({ group, activeLanguage, fileData }: EditorHeaderPr
           }`}
           title={showOnlyMissing ? 'Show all translations' : 'Show only missing translations'}
         >
-          {showOnlyMissing ? (
-            <FilterX className="h-4 w-4" />
-          ) : (
-            <Filter className="h-4 w-4" />
-          )}
-          <span className="hidden sm:inline">
-            {showOnlyMissing ? 'Missing only' : 'All'}
-          </span>
+          {showOnlyMissing ? <FilterX className="h-4 w-4" /> : <Filter className="h-4 w-4" />}
+          <span className="hidden sm:inline">{showOnlyMissing ? 'Missing only' : 'All'}</span>
         </button>
 
         <button
@@ -70,9 +60,7 @@ export function EditorHeader({ group, activeLanguage, fileData }: EditorHeaderPr
           title="Convert XLIFF version"
         >
           <ArrowLeftRight className="h-4 w-4" />
-          <span className="hidden sm:inline">
-            XLIFF {fileData.version}
-          </span>
+          <span className="hidden sm:inline">XLIFF {fileData.version}</span>
         </button>
       </div>
     </div>

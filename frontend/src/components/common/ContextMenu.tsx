@@ -36,6 +36,7 @@ export function ContextMenu({ x, y, items, onClose }: ContextMenuProps) {
     document.addEventListener('mousedown', handleClick);
     document.addEventListener('keydown', handleKey);
     document.addEventListener('scroll', handleScroll, true);
+
     return () => {
       document.removeEventListener('mousedown', handleClick);
       document.removeEventListener('keydown', handleKey);
@@ -47,8 +48,8 @@ export function ContextMenu({ x, y, items, onClose }: ContextMenuProps) {
   useEffect(() => {
     if (!menuRef.current) return;
     const rect = menuRef.current.getBoundingClientRect();
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
+    const vw = globalThis.innerWidth;
+    const vh = globalThis.innerHeight;
 
     if (rect.right > vw) {
       menuRef.current.style.left = `${x - rect.width}px`;
@@ -65,38 +66,41 @@ export function ContextMenu({ x, y, items, onClose }: ContextMenuProps) {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.08 }}
-      className="surface-glass fixed z-[70] min-w-[11.25rem] overflow-hidden rounded-xl py-1 shadow-lg"
+      className="fixed z-70 min-w-45 overflow-hidden rounded-xl py-1 shadow-lg"
       style={{ left: x, top: y }}
     >
-      {items.map((item, index) => (
-        <button
-          key={index}
-          onClick={() => {
-            if (!item.disabled) {
-              item.action();
-              onClose();
-            }
-          }}
-          disabled={item.disabled}
-          className={`flex w-full items-center gap-3 mx-1 rounded-md px-2 py-1.5 text-left text-sm transition-colors ${
-            item.disabled
-              ? 'cursor-not-allowed text-text-muted'
-              : item.danger
-                ? 'text-danger hover:bg-danger-light'
-                : 'text-text-primary hover:bg-bg-tertiary'
-          }`}
-          style={{ width: 'calc(100% - 8px)' }}
-        >
-          {item.icon && (
-            <span className="shrink-0">{item.icon}</span>
-          )}
-          <span className="flex-1">{item.label}</span>
-          {item.shortcut && (
-            <kbd className="shrink-0 text-[10px] text-text-tertiary">{item.shortcut}</kbd>
-          )}
-        </button>
-      ))}
+      {items.map((item, index) => {
+        let itemClassName =
+          'flex w-full items-center gap-3 mx-1 rounded-md px-2 py-1.5 text-left text-sm transition-colors ';
+
+        if (item.disabled) {
+          itemClassName += 'cursor-not-allowed text-text-muted';
+        } else if (item.danger) {
+          itemClassName += 'text-danger hover:bg-danger-light';
+        } else {
+          itemClassName += 'text-text-primary hover:bg-bg-tertiary';
+        }
+
+        return (
+          <button
+            key={`context-menu-item-${item.label}-${index}`}
+            onClick={() => {
+              if (!item.disabled) {
+                item.action();
+                onClose();
+              }
+            }}
+            disabled={item.disabled}
+            className={itemClassName}
+            style={{ width: 'calc(100% - 8px)' }}
+          >
+            {item.icon && <span className="shrink-0">{item.icon}</span>}
+            <span className="flex-1">{item.label}</span>
+            {item.shortcut && <kbd className="shrink-0 text-[10px] text-text-tertiary">{item.shortcut}</kbd>}
+          </button>
+        );
+      })}
     </motion.div>,
-    document.body
+    document.body,
   );
 }

@@ -2,13 +2,14 @@ import { FolderOpen } from 'lucide-react';
 import { OpenFolderDialog } from '../../../wailsjs/go/main/App';
 
 export function NavigatorFooter() {
-  const isMac = navigator.platform.includes('Mac');
+  const isMac = typeof navigator !== 'undefined' && /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent);
 
   const handleOpenFolder = async () => {
     try {
       const path = await OpenFolderDialog();
+
       if (path) {
-        window.dispatchEvent(new CustomEvent('open-workspace', { detail: path }));
+        globalThis.dispatchEvent(new CustomEvent('open-workspace', { detail: path }));
       }
     } catch (error) {
       console.error('Failed to open folder:', error);
@@ -23,7 +24,9 @@ export function NavigatorFooter() {
       >
         <FolderOpen className="h-4 w-4 text-accent" />
         <span>Open Folder</span>
-        <kbd className="ml-auto rounded bg-bg-secondary px-1.5 py-0.5 text-[10px] text-text-tertiary opacity-80">{isMac ? '⌘O' : 'Ctrl+O'}</kbd>
+        <kbd className="ml-auto rounded bg-bg-secondary px-1.5 py-0.5 text-[10px] text-text-tertiary opacity-80">
+          {isMac ? '⌘O' : 'Ctrl+O'}
+        </kbd>
       </button>
     </div>
   );

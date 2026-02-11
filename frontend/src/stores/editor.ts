@@ -63,63 +63,69 @@ export const useEditorStore = create<EditorState>()(
   immer((set, get) => ({
     ...initialState,
 
-    trackChange: (filePath, change) => set((state) => {
-      if (!state.dirtyUnits.has(filePath)) {
-        state.dirtyUnits.set(filePath, new Map());
-      }
-      const fileChanges = state.dirtyUnits.get(filePath)!;
-
-      if (!fileChanges.has(change.unitId)) {
-        fileChanges.set(change.unitId, []);
-      }
-
-      const unitChanges = fileChanges.get(change.unitId)!;
-
-      // Check if we already have a change for this field
-      const existingIdx = unitChanges.findIndex(c => c.field === change.field);
-      if (existingIdx !== -1) {
-        // Update existing change, but keep original oldValue
-        const existing = unitChanges[existingIdx];
-        unitChanges[existingIdx] = {
-          ...change,
-          oldValue: existing.oldValue,
-        };
-
-        // If new value equals original old value, remove the change
-        if (change.newValue === existing.oldValue) {
-          unitChanges.splice(existingIdx, 1);
-          if (unitChanges.length === 0) {
-            fileChanges.delete(change.unitId);
-          }
-          if (fileChanges.size === 0) {
-            state.dirtyUnits.delete(filePath);
-          }
+    trackChange: (filePath, change) =>
+      set((state) => {
+        if (!state.dirtyUnits.has(filePath)) {
+          state.dirtyUnits.set(filePath, new Map());
         }
-      } else {
-        // Don't track if nothing changed
-        if (change.oldValue !== change.newValue) {
-          unitChanges.push(change);
-        }
-      }
-    }),
+        const fileChanges = state.dirtyUnits.get(filePath)!;
 
-    clearChanges: (filePath, unitId) => set((state) => {
-      if (unitId) {
-        const fileChanges = state.dirtyUnits.get(filePath);
-        if (fileChanges) {
-          fileChanges.delete(unitId);
-          if (fileChanges.size === 0) {
-            state.dirtyUnits.delete(filePath);
+        if (!fileChanges.has(change.unitId)) {
+          fileChanges.set(change.unitId, []);
+        }
+
+        const unitChanges = fileChanges.get(change.unitId)!;
+
+        // Check if we already have a change for this field
+        const existingIdx = unitChanges.findIndex((c) => c.field === change.field);
+
+        if (existingIdx !== -1) {
+          // Update existing change, but keep original oldValue
+          const existing = unitChanges[existingIdx];
+
+          unitChanges[existingIdx] = {
+            ...change,
+            oldValue: existing.oldValue,
+          };
+
+          // If new value equals original old value, remove the change
+          if (change.newValue === existing.oldValue) {
+            unitChanges.splice(existingIdx, 1);
+            if (unitChanges.length === 0) {
+              fileChanges.delete(change.unitId);
+            }
+            if (fileChanges.size === 0) {
+              state.dirtyUnits.delete(filePath);
+            }
+          }
+        } else {
+          // Don't track if nothing changed
+          if (change.oldValue !== change.newValue) {
+            unitChanges.push(change);
           }
         }
-      } else {
-        state.dirtyUnits.delete(filePath);
-      }
-    }),
+      }),
 
-    clearAllChanges: () => set((state) => {
-      state.dirtyUnits = new Map();
-    }),
+    clearChanges: (filePath, unitId) =>
+      set((state) => {
+        if (unitId) {
+          const fileChanges = state.dirtyUnits.get(filePath);
+
+          if (fileChanges) {
+            fileChanges.delete(unitId);
+            if (fileChanges.size === 0) {
+              state.dirtyUnits.delete(filePath);
+            }
+          }
+        } else {
+          state.dirtyUnits.delete(filePath);
+        }
+      }),
+
+    clearAllChanges: () =>
+      set((state) => {
+        state.dirtyUnits = new Map();
+      }),
 
     getDirtyPaths: () => {
       return Array.from(get().dirtyUnits.keys());
@@ -131,100 +137,117 @@ export const useEditorStore = create<EditorState>()(
 
     hasUnsavedChanges: (filePath) => {
       const { dirtyUnits } = get();
+
       if (filePath) {
         const fileChanges = dirtyUnits.get(filePath);
+
         return fileChanges ? fileChanges.size > 0 : false;
       }
+
       return dirtyUnits.size > 0;
     },
 
-    setFocusedUnit: (unitId, field = null) => set((state) => {
-      state.focusedUnitId = unitId;
-      state.focusedField = field;
-    }),
+    setFocusedUnit: (unitId, field = null) =>
+      set((state) => {
+        state.focusedUnitId = unitId;
+        state.focusedField = field;
+      }),
 
-    moveFocus: (direction, units) => set((state) => {
-      if (!state.focusedUnitId || units.length === 0) {
-        // Focus first unit if nothing focused
-        if (units.length > 0) {
-          state.focusedUnitId = units[0].id;
-          state.focusedField = 'target';
+    moveFocus: (direction, units) =>
+      set((state) => {
+        if (!state.focusedUnitId || units.length === 0) {
+          // Focus first unit if nothing focused
+          if (units.length > 0) {
+            state.focusedUnitId = units[0].id;
+            state.focusedField = 'target';
+          }
+
+          return;
         }
-        return;
-      }
 
-      const currentIndex = units.findIndex(u => u.id === state.focusedUnitId);
-      if (currentIndex === -1) {
-        state.focusedUnitId = units[0].id;
-        return;
-      }
+        const currentIndex = units.findIndex((u) => u.id === state.focusedUnitId);
 
-      const newIndex = direction === 'up'
-        ? Math.max(0, currentIndex - 1)
-        : Math.min(units.length - 1, currentIndex + 1);
+        if (currentIndex === -1) {
+          state.focusedUnitId = units[0].id;
 
-      state.focusedUnitId = units[newIndex].id;
-    }),
+          return;
+        }
 
-    startEditing: (unitId, field) => set((state) => {
-      state.editingUnitId = unitId;
-      state.editingField = field;
-      state.focusedUnitId = unitId;
-      state.focusedField = field;
-    }),
+        const newIndex =
+          direction === 'up' ? Math.max(0, currentIndex - 1) : Math.min(units.length - 1, currentIndex + 1);
 
-    stopEditing: () => set((state) => {
-      state.editingUnitId = null;
-      state.editingField = null;
-    }),
+        state.focusedUnitId = units[newIndex].id;
+      }),
 
-    setSortMode: (mode) => set((state) => {
-      state.sortMode = mode;
-    }),
+    startEditing: (unitId, field) =>
+      set((state) => {
+        state.editingUnitId = unitId;
+        state.editingField = field;
+        state.focusedUnitId = unitId;
+        state.focusedField = field;
+      }),
 
-    setSearchQuery: (query) => set((state) => {
-      state.searchQuery = query;
-    }),
+    stopEditing: () =>
+      set((state) => {
+        state.editingUnitId = null;
+        state.editingField = null;
+      }),
 
-    setShowOnlyMissing: (show) => set((state) => {
-      state.showOnlyMissing = show;
-    }),
+    setSortMode: (mode) =>
+      set((state) => {
+        state.sortMode = mode;
+      }),
+
+    setSearchQuery: (query) =>
+      set((state) => {
+        state.searchQuery = query;
+      }),
+
+    setShowOnlyMissing: (show) =>
+      set((state) => {
+        state.showOnlyMissing = show;
+      }),
 
     reset: () => set(initialState),
-  }))
+  })),
 );
 
 // Selectors
 export const selectDirtyCount = (state: EditorState): number => {
   let count = 0;
+
   for (const fileChanges of state.dirtyUnits.values()) {
     count += fileChanges.size;
   }
+
   return count;
 };
 
 export const selectIsUnitDirty = (state: EditorState, filePath: string, unitId: string): boolean => {
   const fileChanges = state.dirtyUnits.get(filePath);
+
   return fileChanges ? fileChanges.has(unitId) : false;
 };
 
 export const selectFilteredUnits = (
   units: TranslationUnit[],
   searchQuery: string,
-  showOnlyMissing: boolean
+  showOnlyMissing: boolean,
 ): TranslationUnit[] => {
   let filtered = units;
 
   if (showOnlyMissing) {
-    filtered = filtered.filter(u => !u.target || u.target.trim() === '');
+    filtered = filtered.filter((u) => !u.target || u.target.trim() === '');
   }
 
   if (searchQuery.trim()) {
     const query = searchQuery.toLowerCase();
-    filtered = filtered.filter(u =>
-      u.id.toLowerCase().includes(query) ||
-      u.source.toLowerCase().includes(query) ||
-      (u.target && u.target.toLowerCase().includes(query))
+
+    filtered = filtered.filter(
+      (u) =>
+        u.id.toLowerCase().includes(query) ||
+        u.source.toLowerCase().includes(query) ||
+        (u.target && u.target.toLowerCase().includes(query)),
     );
   }
 

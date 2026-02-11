@@ -7,16 +7,14 @@ interface EditorFooterProps {
   missingCount: number;
 }
 
-export function EditorFooter({ totalUnits, filteredUnits, missingCount }: EditorFooterProps) {
+export function EditorFooter({ totalUnits, filteredUnits, missingCount }: Readonly<EditorFooterProps>) {
   const dirtyCount = useEditorStore(selectDirtyCount);
 
   const isFiltered = filteredUnits !== totalUnits;
-  const completionPercent = totalUnits > 0
-    ? Math.round(((totalUnits - missingCount) / totalUnits) * 100)
-    : 100;
+  const completionPercent = totalUnits > 0 ? Math.round(((totalUnits - missingCount) / totalUnits) * 100) : 100;
 
   return (
-    <div className="surface-glass flex h-10 items-center justify-between border-t border-(--color-glass-border) px-3 sm:px-4 text-xs">
+    <div className="flex h-10 items-center justify-between border-t border-(--color-glass-border) px-3 sm:px-4 text-xs">
       <div className="flex items-center gap-2 text-text-tertiary">
         <span className="rounded-full bg-bg-tertiary/75 px-2 py-0.5">
           {isFiltered ? (
@@ -35,7 +33,9 @@ export function EditorFooter({ totalUnits, filteredUnits, missingCount }: Editor
           </span>
         )}
 
-        <span className={`rounded-full px-2 py-0.5 ${completionPercent === 100 ? 'bg-success-light text-success' : 'bg-bg-tertiary/75 text-text-tertiary'}`}>
+        <span
+          className={`rounded-full px-2 py-0.5 ${completionPercent === 100 ? 'bg-success-light text-success' : 'bg-bg-tertiary/75 text-text-tertiary'}`}
+        >
           {completionPercent}%
         </span>
       </div>
@@ -52,8 +52,8 @@ export function EditorFooter({ totalUnits, filteredUnits, missingCount }: Editor
 
         {dirtyCount > 0 && (
           <button
-            onClick={() => window.dispatchEvent(new CustomEvent('save-all'))}
-            className="flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-white shadow-[var(--shadow-sm)] hover:bg-accent-hover active:scale-[0.97]"
+            onClick={() => globalThis.dispatchEvent(new CustomEvent('save-all'))}
+            className="flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-white shadow-(--shadow-sm) hover:bg-accent-hover active:scale-[0.97]"
             title="Save all changes"
           >
             <Save className="h-3.5 w-3.5" />

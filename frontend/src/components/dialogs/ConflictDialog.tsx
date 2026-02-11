@@ -73,7 +73,7 @@ export function ConflictDialog() {
           </button>
           <button
             onClick={handleReload}
-            className="flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-sm text-white shadow-[var(--shadow-sm)] transition-colors hover:bg-accent-hover"
+            className="flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-sm text-white shadow-(--shadow-sm) transition-colors hover:bg-accent-hover"
           >
             <RefreshCw className="h-4 w-4" />
             Reload
@@ -95,9 +95,15 @@ export function ConflictDialog() {
         <div className="text-sm text-text-secondary">
           <p className="mb-2">What would you like to do?</p>
           <ul className="ml-4 list-disc space-y-1 text-xs">
-            <li><strong>Reload</strong> - Load the external changes (your unsaved changes will be lost)</li>
-            <li><strong>Keep Local</strong> - Ignore external changes and keep your version</li>
-            <li><strong>Dismiss</strong> - Decide later</li>
+            <li>
+              <strong>Reload</strong> - Load the external changes (your unsaved changes will be lost)
+            </li>
+            <li>
+              <strong>Keep Local</strong> - Ignore external changes and keep your version
+            </li>
+            <li>
+              <strong>Dismiss</strong> - Decide later
+            </li>
           </ul>
         </div>
       </div>

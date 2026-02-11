@@ -81,85 +81,100 @@ export const useUIStore = create<UIState>()(
     immer((set, get) => ({
       ...initialState,
 
-      toggleSidebar: () => set((state) => {
-        state.sidebarCollapsed = !state.sidebarCollapsed;
-      }),
+      toggleSidebar: () =>
+        set((state) => {
+          state.sidebarCollapsed = !state.sidebarCollapsed;
+        }),
 
-      setSidebarCollapsed: (collapsed) => set((state) => {
-        state.sidebarCollapsed = collapsed;
-      }),
+      setSidebarCollapsed: (collapsed) =>
+        set((state) => {
+          state.sidebarCollapsed = collapsed;
+        }),
 
-      setSidebarWidth: (width) => set((state) => {
-        state.sidebarWidth = Math.max(200, Math.min(500, width));
-      }),
+      setSidebarWidth: (width) =>
+        set((state) => {
+          state.sidebarWidth = Math.max(200, Math.min(500, width));
+        }),
 
-      setTheme: (theme) => set((state) => {
-        state.theme = theme;
-        state.settings.theme = theme;
-      }),
+      setTheme: (theme) =>
+        set((state) => {
+          state.theme = theme;
+          state.settings.theme = theme;
+        }),
 
-      setResolvedTheme: (resolved) => set((state) => {
-        state.resolvedTheme = resolved;
-      }),
+      setResolvedTheme: (resolved) =>
+        set((state) => {
+          state.resolvedTheme = resolved;
+        }),
 
-      updateSettings: (updates) => set((state) => {
-        Object.assign(state.settings, updates);
-        if (updates.theme) {
-          state.theme = updates.theme;
-        }
-      }),
+      updateSettings: (updates) =>
+        set((state) => {
+          Object.assign(state.settings, updates);
+          if (updates.theme) {
+            state.theme = updates.theme;
+          }
+        }),
 
       getIndentString: () => {
         const { settings } = get();
-        return settings.indentType === 'tabs'
-          ? '\t'
-          : ' '.repeat(settings.indentSize);
+
+        return settings.indentType === 'tabs' ? '\t' : ' '.repeat(settings.indentSize);
       },
 
-      openDialog: (type, props) => set((state) => {
-        state.activeDialog = { type, props };
-      }),
+      openDialog: (type, props) =>
+        set((state) => {
+          state.activeDialog = { type, props };
+        }),
 
-      closeDialog: () => set((state) => {
-        state.activeDialog = { type: null };
-      }),
+      closeDialog: () =>
+        set((state) => {
+          state.activeDialog = { type: null };
+        }),
 
-      addNotification: (notification) => set((state) => {
-        const id = generateNotificationId();
-        state.notifications.push({ ...notification, id });
+      addNotification: (notification) =>
+        set((state) => {
+          const id = generateNotificationId();
 
-        // Auto-remove after duration
-        const duration = notification.duration ?? 5000;
-        if (duration > 0) {
-          setTimeout(() => {
-            get().removeNotification(id);
-          }, duration);
-        }
-      }),
+          state.notifications.push({ ...notification, id });
 
-      removeNotification: (id) => set((state) => {
-        const idx = state.notifications.findIndex(n => n.id === id);
-        if (idx !== -1) {
-          state.notifications.splice(idx, 1);
-        }
-      }),
+          // Auto-remove after duration
+          const duration = notification.duration ?? 5000;
 
-      clearNotifications: () => set((state) => {
-        state.notifications = [];
-      }),
+          if (duration > 0) {
+            setTimeout(() => {
+              get().removeNotification(id);
+            }, duration);
+          }
+        }),
 
-      setLoading: (loading, message = null) => set((state) => {
-        state.isLoading = loading;
-        state.loadingMessage = message;
-      }),
+      removeNotification: (id) =>
+        set((state) => {
+          const idx = state.notifications.findIndex((n) => n.id === id);
 
-      reset: () => set({
-        ...initialState,
-        // Preserve persisted settings
-        settings: get().settings,
-        theme: get().theme,
-        sidebarWidth: get().sidebarWidth,
-      }),
+          if (idx !== -1) {
+            state.notifications.splice(idx, 1);
+          }
+        }),
+
+      clearNotifications: () =>
+        set((state) => {
+          state.notifications = [];
+        }),
+
+      setLoading: (loading, message = null) =>
+        set((state) => {
+          state.isLoading = loading;
+          state.loadingMessage = message;
+        }),
+
+      reset: () =>
+        set({
+          ...initialState,
+          // Preserve persisted settings
+          settings: get().settings,
+          theme: get().theme,
+          sidebarWidth: get().sidebarWidth,
+        }),
     })),
     {
       name: 't3lang-ui',
@@ -169,8 +184,8 @@ export const useUIStore = create<UIState>()(
         theme: state.theme,
         settings: state.settings,
       }),
-    }
-  )
+    },
+  ),
 );
 
 // Theme effect hook helper
@@ -179,7 +194,8 @@ export const initializeTheme = () => {
 
   const updateResolvedTheme = () => {
     if (theme === 'system') {
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const isDark = globalThis.matchMedia('(prefers-color-scheme: dark)').matches;
+
       setResolvedTheme(isDark ? 'dark' : 'light');
     } else {
       setResolvedTheme(theme);
@@ -190,7 +206,8 @@ export const initializeTheme = () => {
   updateResolvedTheme();
 
   // Listen for system theme changes
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const mediaQuery = globalThis.matchMedia('(prefers-color-scheme: dark)');
+
   mediaQuery.addEventListener('change', updateResolvedTheme);
 
   // Subscribe to theme changes

@@ -2,9 +2,9 @@ import { AlertTriangle, ArrowRight, CheckCircle2 } from 'lucide-react';
 import type { TranslationGroup, FileData } from '../../types';
 
 interface MissingTranslationsProps {
-  groups: TranslationGroup[];
-  fileCache: Map<string, FileData>;
-  onOpenGroup: (groupId: string) => void;
+  readonly groups: TranslationGroup[];
+  readonly fileCache: Map<string, FileData>;
+  readonly onOpenGroup: (groupId: string) => void;
 }
 
 interface MissingItem {
@@ -14,7 +14,7 @@ interface MissingItem {
   missingCount: number;
 }
 
-export function MissingTranslations({ groups, fileCache, onOpenGroup }: MissingTranslationsProps) {
+export function MissingTranslations({ groups, fileCache, onOpenGroup }: Readonly<MissingTranslationsProps>) {
   // Collect missing translations by group and language
   const missingItems: MissingItem[] = [];
 
@@ -23,9 +23,11 @@ export function MissingTranslations({ groups, fileCache, onOpenGroup }: MissingT
       if (lang === 'default') continue;
 
       const fileData = fileCache.get(fileMeta.path);
+
       if (!fileData) continue;
 
-      const missing = fileData.units.filter(u => !u.target || u.target.trim() === '').length;
+      const missing = fileData.units.filter((u) => !u.target || u.target.trim() === '').length;
+
       if (missing > 0) {
         missingItems.push({
           groupId: group.id,
@@ -42,17 +44,13 @@ export function MissingTranslations({ groups, fileCache, onOpenGroup }: MissingT
 
   if (missingItems.length === 0) {
     return (
-      <div className="surface-panel rounded-2xl p-4 sm:p-5">
-        <h2 className="mb-4 text-sm font-semibold text-text-primary">
-          Missing Translations
-        </h2>
+      <div className="rounded-2xl p-4 sm:p-5">
+        <h2 className="mb-4 text-sm font-semibold text-text-primary">Missing Translations</h2>
         <div className="flex flex-col items-center gap-2 py-8 text-center">
           <div className="rounded-full bg-success-light p-3">
             <CheckCircle2 className="h-6 w-6 text-success" />
           </div>
-          <p className="text-sm text-text-secondary">
-            All translations complete!
-          </p>
+          <p className="text-sm text-text-secondary">All translations complete!</p>
         </div>
       </div>
     );
@@ -61,11 +59,9 @@ export function MissingTranslations({ groups, fileCache, onOpenGroup }: MissingT
   const totalMissing = missingItems.reduce((sum, item) => sum + item.missingCount, 0);
 
   return (
-    <div className="surface-panel rounded-2xl p-4 sm:p-5">
+    <div className="rounded-2xl p-4 sm:p-5">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-text-primary">
-          Missing Translations
-        </h2>
+        <h2 className="text-sm font-semibold text-text-primary">Missing Translations</h2>
         <span className="rounded-full bg-warning-light px-2 py-0.5 text-xs font-medium text-warning">
           {totalMissing} total
         </span>
@@ -88,9 +84,7 @@ export function MissingTranslations({ groups, fileCache, onOpenGroup }: MissingT
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-warning">
-                {item.missingCount} missing
-              </span>
+              <span className="text-sm font-medium text-warning">{item.missingCount} missing</span>
               <ArrowRight className="h-4 w-4 text-text-tertiary" />
             </div>
           </button>

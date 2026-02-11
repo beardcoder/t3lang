@@ -12,8 +12,8 @@ export interface TranslationUnit extends XliffUnit {
 export interface FileMetadata {
   path: string;
   name: string;
-  language: string;      // 'default' for source-only files, 'de', 'fr', etc.
-  baseName: string;      // e.g., 'locallang' from 'de.locallang.xlf'
+  language: string; // 'default' for source-only files, 'de', 'fr', etc.
+  baseName: string; // e.g., 'locallang' from 'de.locallang.xlf'
   directory: string;
 }
 
@@ -32,11 +32,11 @@ export interface FileData {
 
 // Group of related translation files (same baseName, different languages)
 export interface TranslationGroup {
-  id: string;              // Unique identifier (directory/baseName)
-  baseName: string;        // Display name
-  directory: string;       // Absolute path to containing directory
-  files: Map<string, FileMetadata>;  // language -> file metadata
-  sourceFile: FileMetadata | null;   // Default/source file
+  id: string; // Unique identifier (directory/baseName)
+  baseName: string; // Display name
+  directory: string; // Absolute path to containing directory
+  files: Map<string, FileMetadata>; // language -> file metadata
+  sourceFile: FileMetadata | null; // Default/source file
   coverage: GroupCoverage;
 }
 
@@ -44,7 +44,7 @@ export interface TranslationGroup {
 export interface GroupCoverage {
   totalUnits: number;
   translatedByLanguage: Map<string, number>;
-  missingByLanguage: Map<string, string[]>;  // language -> unit IDs
+  missingByLanguage: Map<string, string[]>; // language -> unit IDs
 }
 
 // Workspace scan result
@@ -106,7 +106,7 @@ export interface AppSettings {
 export interface FileWatchEvent {
   type: 'create' | 'modify' | 'delete' | 'rename';
   path: string;
-  oldPath?: string;  // For rename events
+  oldPath?: string; // For rename events
 }
 
 // Dialog types

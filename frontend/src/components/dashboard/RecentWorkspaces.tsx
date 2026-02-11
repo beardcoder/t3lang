@@ -6,7 +6,7 @@ export function RecentWorkspaces() {
   const removeRecentWorkspace = usePersistenceStore((state) => state.removeRecentWorkspace);
 
   const handleOpenRecent = (path: string) => {
-    window.dispatchEvent(new CustomEvent('open-workspace', { detail: path }));
+    globalThis.dispatchEvent(new CustomEvent('open-workspace', { detail: path }));
   };
 
   if (recentWorkspaces.length === 0) {
@@ -14,7 +14,7 @@ export function RecentWorkspaces() {
   }
 
   return (
-    <div className="surface-panel rounded-2xl p-4">
+    <div className="rounded-2xl p-4">
       <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-text-primary">
         <div className="rounded-lg bg-accent-light p-1.5">
           <Clock className="h-3.5 w-3.5 text-accent" />

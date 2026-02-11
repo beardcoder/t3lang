@@ -32,14 +32,12 @@ export function ToastContainer() {
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              className={`surface-glass flex max-w-xs items-center gap-2.5 rounded-xl px-3.5 py-2 shadow-lg ${colors[notification.type]}`}
+              className={`flex max-w-xs items-center gap-2.5 rounded-xl px-3.5 py-2 shadow-lg ${colors[notification.type]}`}
             >
               <Icon className="h-4 w-4 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{notification.title}</p>
-                {notification.message && (
-                  <p className="text-xs opacity-80 truncate">{notification.message}</p>
-                )}
+                {notification.message && <p className="text-xs opacity-80 truncate">{notification.message}</p>}
               </div>
               <button
                 onClick={() => removeNotification(notification.id)}

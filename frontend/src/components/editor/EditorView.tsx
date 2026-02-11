@@ -1,15 +1,9 @@
-import { useCallback, useMemo } from "react";
-import {
-  useWorkspaceStore,
-  useEditorStore,
-  useUIStore,
-  selectActiveFile,
-  selectFilteredUnits,
-} from "../../stores";
-import { EditorHeader } from "./EditorHeader";
-import { VirtualUnitList } from "./VirtualUnitList";
-import { EditorFooter } from "./EditorFooter";
-import { EmptyEditor } from "./EmptyEditor";
+import { useCallback, useMemo } from 'react';
+import { useWorkspaceStore, useEditorStore, useUIStore, selectActiveFile, selectFilteredUnits } from '../../stores';
+import { EditorHeader } from './EditorHeader';
+import { VirtualUnitList } from './VirtualUnitList';
+import { EditorFooter } from './EditorFooter';
+import { EmptyEditor } from './EmptyEditor';
 
 export function EditorView() {
   const activeFile = useWorkspaceStore(selectActiveFile);
@@ -32,25 +26,25 @@ export function EditorView() {
     (unitId: string) => {
       if (!activeGroup) return;
 
-      openDialog("confirm", {
-        title: "Delete Translation Unit",
+      openDialog('confirm', {
+        title: 'Delete Translation Unit',
         message: `Remove "${unitId}" from all language files in this group?`,
-        confirmLabel: "Delete",
+        confirmLabel: 'Delete',
         danger: true,
         onConfirm: () => {
           // Remove from all files in the group
           for (const fileMeta of activeGroup.files.values()) {
             const fileData = fileCache.get(fileMeta.path);
+
             if (!fileData) continue;
 
             const updatedUnits = fileData.units.filter((u) => u.id !== unitId);
 
             // Also remove from xliffData
             const updatedXliff = JSON.parse(JSON.stringify(fileData.xliffData));
+
             for (const file of updatedXliff.files) {
-              file.units = file.units.filter(
-                (u: { id: string }) => u.id !== unitId,
-              );
+              file.units = file.units.filter((u: { id: string }) => u.id !== unitId);
             }
 
             cacheFileData(fileMeta.path, {
@@ -62,9 +56,9 @@ export function EditorView() {
             // Mark file as dirty so it gets saved
             useEditorStore.getState().trackChange(fileMeta.path, {
               unitId: `__deleted__${unitId}`,
-              field: "id",
+              field: 'id',
               oldValue: unitId,
-              newValue: "",
+              newValue: '',
               timestamp: Date.now(),
             });
           }
@@ -77,21 +71,14 @@ export function EditorView() {
   // Memoize filtered units to avoid recomputing on every render
   // Handle null activeFile case with empty array
   const filteredUnits = useMemo(
-    () =>
-      activeFile
-        ? selectFilteredUnits(activeFile.units, searchQuery, showOnlyMissing)
-        : [],
+    () => (activeFile ? selectFilteredUnits(activeFile.units, searchQuery, showOnlyMissing) : []),
     [activeFile, searchQuery, showOnlyMissing],
   );
 
   // Memoize missing count to avoid inline .filter() on every render
   // Handle null activeFile case with 0
   const missingCount = useMemo(
-    () =>
-      activeFile
-        ? activeFile.units.filter((u) => !u.target || u.target.trim() === "")
-            .length
-        : 0,
+    () => (activeFile ? activeFile.units.filter((u) => !u.target || u.target.trim() === '').length : 0),
     [activeFile],
   );
 
@@ -102,11 +89,7 @@ export function EditorView() {
 
   return (
     <div className="flex h-full flex-col /35">
-      <EditorHeader
-        group={activeGroup}
-        activeLanguage={activeLanguage}
-        fileData={activeFile}
-      />
+      <EditorHeader group={activeGroup} activeLanguage={activeLanguage} fileData={activeFile} />
 
       <div className="flex-1 overflow-hidden">
         <VirtualUnitList

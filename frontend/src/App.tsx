@@ -5,7 +5,13 @@ import { DashboardView } from './components/dashboard/DashboardView';
 import { EditorView } from './components/editor';
 import { ToastContainer } from './components/common';
 import { CommandPalette } from './components/common/CommandPalette';
-import { AddLanguageDialog, SettingsDialog, ConversionDialog, ConflictDialog, ConfirmDialog } from './components/dialogs';
+import {
+  AddLanguageDialog,
+  SettingsDialog,
+  ConversionDialog,
+  ConflictDialog,
+  ConfirmDialog,
+} from './components/dialogs';
 import { useWorkspaceStore, usePersistenceStore } from './stores';
 import { useWorkspace, useKeyboard, useHistory } from './hooks';
 import { EventsOn } from '../wailsjs/runtime/runtime';
@@ -25,9 +31,7 @@ function AppContent() {
 
   // Get active file path for undo/redo
   const activeGroup = activeGroupId ? groups.get(activeGroupId) : null;
-  const activeFilePath = activeGroup && activeLanguage
-    ? activeGroup.files.get(activeLanguage)?.path
-    : null;
+  const activeFilePath = activeGroup && activeLanguage ? activeGroup.files.get(activeLanguage)?.path : null;
 
   // Undo/Redo handlers
   const handleUndo = () => {
@@ -54,7 +58,9 @@ function AppContent() {
 
   // Load active group when it changes
   useEffect(() => {
-    if (activeGroup && !fileCache.has(activeGroup.files.values().next().value?.path)) {
+    const firstFilePath = activeGroup?.files.values().next().value?.path;
+
+    if (activeGroup && firstFilePath && !fileCache.has(firstFilePath)) {
       loadGroup(activeGroup);
     }
   }, [activeGroupId, activeGroup, fileCache, loadGroup]);
@@ -71,6 +77,7 @@ function AppContent() {
     const unsubscribeOpenPath = EventsOn('open-path', async (path: string) => {
       try {
         const fileInfo = await Stat(path);
+
         if (fileInfo.isDirectory) {
           await openWorkspace(path);
         }
@@ -109,10 +116,7 @@ function AppContent() {
 
 export default function App() {
   return (
-    <MotionConfig
-      transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
-      reducedMotion="user"
-    >
+    <MotionConfig transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }} reducedMotion="user">
       <AppContent />
     </MotionConfig>
   );

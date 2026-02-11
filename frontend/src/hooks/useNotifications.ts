@@ -4,7 +4,7 @@ export function useNotifications() {
   const notify = async (title: string, body: string) => {
     try {
       await ShowNotification(title, body);
-    } catch (error) {
+    } catch {
       // do nothing if notifications are not available
     }
   };

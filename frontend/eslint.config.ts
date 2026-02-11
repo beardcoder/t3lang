@@ -2,16 +2,11 @@ import js from '@eslint/js';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import { defineConfig } from 'eslint/config';
-import { includeIgnoreFile } from '@eslint/compat';
-import { fileURLToPath } from 'node:url';
 import prettierPlugin from 'eslint-plugin-prettier';
 import prettierConfig from 'eslint-config-prettier';
 import stylistic from '@stylistic/eslint-plugin';
 
-const gitignorePath = fileURLToPath(new URL('.gitignore', import.meta.url));
-
 export default defineConfig([
-  includeIgnoreFile(gitignorePath, 'Imported .gitignore patterns'),
   stylistic.configs.recommended,
   {
     files: ['**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],

@@ -13,7 +13,14 @@ interface UnitRowProps {
   onDelete: (unitId: string) => void;
 }
 
-export const UnitRow = memo(function UnitRow({ unit, filePath, isSourceOnly, isFocused, onFocus, onDelete }: UnitRowProps) {
+export const UnitRow = memo(function UnitRow({
+  unit,
+  filePath,
+  isSourceOnly,
+  isFocused,
+  onFocus,
+  onDelete,
+}: UnitRowProps) {
   const isDirty = useEditorStore((state) => selectIsUnitDirty(state, filePath, unit.id));
   const trackChange = useEditorStore((state) => state.trackChange);
   const editingUnitId = useEditorStore((state) => state.editingUnitId);
@@ -23,7 +30,10 @@ export const UnitRow = memo(function UnitRow({ unit, filePath, isSourceOnly, isF
 
   const isEditing = editingUnitId === unit.id;
   const [localTarget, setLocalTarget] = useState(unit.target);
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // Sync local state with unit when it changes externally
@@ -39,36 +49,48 @@ export const UnitRow = memo(function UnitRow({ unit, filePath, isSourceOnly, isF
       inputRef.current.focus();
       // Place cursor at end instead of selecting all text
       const len = inputRef.current.value.length;
+
       inputRef.current.setSelectionRange(len, len);
     }
   }, [isEditing, editingField]);
 
-  const handleTargetChange = useCallback((value: string) => {
-    setLocalTarget(value);
-    trackChange(filePath, {
-      unitId: unit.id,
-      field: 'target',
-      oldValue: unit.target,
-      newValue: value,
-      timestamp: Date.now(),
-    });
-  }, [filePath, unit.id, unit.target, trackChange]);
+  const handleTargetChange = useCallback(
+    (value: string) => {
+      setLocalTarget(value);
+      trackChange(filePath, {
+        unitId: unit.id,
+        field: 'target',
+        oldValue: unit.target,
+        newValue: value,
+        timestamp: Date.now(),
+      });
+    },
+    [filePath, unit.id, unit.target, trackChange],
+  );
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      stopEditing();
-    } else if (e.key === 'Escape') {
-      setLocalTarget(unit.target);
-      stopEditing();
-    } else if (e.key === 'Tab') {
-      // Tab/Shift+Tab to move to next/previous row
-      e.preventDefault();
-      stopEditing();
-      const direction = e.shiftKey ? 'up' : 'down';
-      window.dispatchEvent(new CustomEvent('unit-tab-navigate', { detail: { direction, fromUnitId: unit.id } }));
-    }
-  }, [unit.target, unit.id, stopEditing]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        stopEditing();
+      } else if (e.key === 'Escape') {
+        setLocalTarget(unit.target);
+        stopEditing();
+      } else if (e.key === 'Tab') {
+        // Tab/Shift+Tab to move to next/previous row
+        e.preventDefault();
+        stopEditing();
+        const direction = e.shiftKey ? 'up' : 'down';
+
+        globalThis.dispatchEvent(
+          new CustomEvent('unit-tab-navigate', {
+            detail: { direction, fromUnitId: unit.id },
+          }),
+        );
+      }
+    },
+    [unit.target, unit.id, stopEditing],
+  );
 
   // Single click on target to start editing
   const handleTargetClick = useCallback(() => {
@@ -82,32 +104,50 @@ export const UnitRow = memo(function UnitRow({ unit, filePath, isSourceOnly, isF
     stopEditing();
   }, [stopEditing]);
 
-  const handleContextMenu = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    onFocus();
-    setContextMenu({ x: e.clientX, y: e.clientY });
-  }, [onFocus]);
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      onFocus();
+      setContextMenu({ x: e.clientX, y: e.clientY });
+    },
+    [onFocus],
+  );
 
   const contextMenuItems: ContextMenuItem[] = [
     {
       label: 'Copy Key',
       icon: <Copy className="h-3.5 w-3.5" />,
-      action: () => navigator.clipboard.writeText(unit.id),
+      action: () => {
+        void navigator.clipboard.writeText(unit.id);
+      },
     },
     {
       label: 'Copy Source',
       icon: <Copy className="h-3.5 w-3.5" />,
-      action: () => navigator.clipboard.writeText(unit.source),
-    },
-    ...(!isSourceOnly ? [{
-      label: 'Paste as Translation',
-      icon: <ClipboardPaste className="h-3.5 w-3.5" />,
       action: () => {
-        navigator.clipboard.readText().then((text) => {
-          handleTargetChange(text);
-        });
+        void navigator.clipboard.writeText(unit.source);
       },
-    }] : []),
+    },
+    ...(isSourceOnly
+      ? []
+      : [
+          {
+            label: 'Copy Translation',
+            icon: <Copy className="h-3.5 w-3.5" />,
+            action: () => {
+              void navigator.clipboard.writeText(unit.target);
+            },
+          },
+          {
+            label: 'Paste as Translation',
+            icon: <ClipboardPaste className="h-3.5 w-3.5" />,
+            action: () => {
+              void navigator.clipboard.readText().then((text) => {
+                handleTargetChange(text);
+              });
+            },
+          },
+        ]),
     {
       label: 'Delete Unit',
       icon: <Trash2 className="h-3.5 w-3.5" />,
@@ -121,29 +161,35 @@ export const UnitRow = memo(function UnitRow({ unit, filePath, isSourceOnly, isF
 
   return (
     <div
+      role="row"
+      tabIndex={0}
       className={`relative flex h-full border-b border-border-subtle/45 transition-colors ${
         isFocused
           ? 'bg-accent-light/75 shadow-[inset_0_0_0_1px_rgba(47,123,106,0.25)]'
           : 'bg-bg-secondary/20 hover:bg-bg-tertiary/45'
       }`}
       onClick={onFocus}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onFocus();
+        }
+      }}
       onContextMenu={handleContextMenu}
     >
-      <div className="w-1/4 min-w-[150px] border-r border-border-subtle/45 bg-bg-tertiary/45 p-3">
+      <div className="w-1/4 min-w-37.5 border-r border-border-subtle/45 bg-bg-tertiary/45 p-3">
         <div className="flex items-start gap-2">
-          {isDirty && (
-            <Circle className="mt-1 h-2 w-2 shrink-0 fill-warning text-warning" />
-          )}
+          {isDirty && <Circle className="mt-1 h-2 w-2 shrink-0 fill-warning text-warning" />}
           <code className="break-all text-xs text-text-secondary">{unit.id}</code>
         </div>
       </div>
 
-      <div className={`flex-1 overflow-hidden p-3 ${!isSourceOnly ? 'border-r border-border-subtle/40' : ''}`}>
+      <div className={`flex-1 overflow-hidden p-3 ${isSourceOnly ? '' : 'border-r border-border-subtle/40'}`}>
         <p className="whitespace-pre-wrap text-sm text-text-primary">{unit.source}</p>
       </div>
 
-      {!isSourceOnly && (
-        <div className="flex-1 cursor-text overflow-hidden p-3" onClick={handleTargetClick}>
+      {isSourceOnly ? null : (
+        <button type="button" className="flex-1 cursor-text overflow-hidden p-3 text-left" onClick={handleTargetClick}>
           {isEditing && editingField === 'target' ? (
             <textarea
               ref={inputRef}
@@ -155,17 +201,11 @@ export const UnitRow = memo(function UnitRow({ unit, filePath, isSourceOnly, isF
               rows={2}
             />
           ) : (
-            <p
-              className={`whitespace-pre-wrap text-sm ${
-                isMissing
-                  ? 'italic text-text-muted'
-                  : 'text-text-primary'
-              }`}
-            >
+            <p className={`whitespace-pre-wrap text-sm ${isMissing ? 'italic text-text-muted' : 'text-text-primary'}`}>
               {isMissing ? 'Click to translate...' : localTarget}
             </p>
           )}
-        </div>
+        </button>
       )}
 
       {contextMenu && (

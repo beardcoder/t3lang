@@ -2,7 +2,7 @@
   "$schema": "https://wails.io/schemas/config.v2.json",
   "name": "t3lang",
   "outputfilename": "t3lang",
-  "frontend:install": "npm install",
+  "frontend:install": "npm install -f",
   "frontend:build": "npm run build",
   "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "auto",

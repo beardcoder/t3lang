@@ -36,69 +36,73 @@ export const usePersistenceStore = create<PersistenceState>()(
     immer((set) => ({
       ...initialState,
 
-      addRecentWorkspace: (path, name, groupCount) => set((state) => {
-        // Remove if already exists
-        const existingIdx = state.recentWorkspaces.findIndex(w => w.path === path);
-        if (existingIdx !== -1) {
-          state.recentWorkspaces.splice(existingIdx, 1);
-        }
+      addRecentWorkspace: (path, name, groupCount) =>
+        set((state) => {
+          // Remove if already exists
+          const existingIdx = state.recentWorkspaces.findIndex((w) => w.path === path);
 
-        // Add to beginning
-        state.recentWorkspaces.unshift({
-          path,
-          name,
-          lastOpened: Date.now(),
-          groupCount,
-        });
+          if (existingIdx !== -1) {
+            state.recentWorkspaces.splice(existingIdx, 1);
+          }
 
-        // Limit size
-        while (state.recentWorkspaces.length > MAX_RECENT_WORKSPACES) {
-          state.recentWorkspaces.pop();
-        }
-      }),
+          // Add to beginning
+          state.recentWorkspaces.unshift({
+            path,
+            name,
+            lastOpened: Date.now(),
+            groupCount,
+          });
 
-      removeRecentWorkspace: (path) => set((state) => {
-        const idx = state.recentWorkspaces.findIndex(w => w.path === path);
-        if (idx !== -1) {
-          state.recentWorkspaces.splice(idx, 1);
-        }
+          // Limit size
+          while (state.recentWorkspaces.length > MAX_RECENT_WORKSPACES) {
+            state.recentWorkspaces.pop();
+          }
+        }),
 
-        // Clear last session if it was this workspace
-        if (state.lastWorkspace === path) {
-          state.lastWorkspace = null;
-          state.lastGroupId = null;
-          state.lastLanguage = null;
-        }
-      }),
+      removeRecentWorkspace: (path) =>
+        set((state) => {
+          const idx = state.recentWorkspaces.findIndex((w) => w.path === path);
 
-      clearRecentWorkspaces: () => set((state) => {
-        state.recentWorkspaces = [];
-      }),
+          if (idx !== -1) {
+            state.recentWorkspaces.splice(idx, 1);
+          }
 
-      updateLastSession: (workspace, groupId, language) => set((state) => {
-        state.lastWorkspace = workspace;
-        if (groupId !== undefined) {
-          state.lastGroupId = groupId;
-        }
-        if (language !== undefined) {
-          state.lastLanguage = language;
-        }
-      }),
+          // Clear last session if it was this workspace
+          if (state.lastWorkspace === path) {
+            state.lastWorkspace = null;
+            state.lastGroupId = null;
+            state.lastLanguage = null;
+          }
+        }),
+
+      clearRecentWorkspaces: () =>
+        set((state) => {
+          state.recentWorkspaces = [];
+        }),
+
+      updateLastSession: (workspace, groupId, language) =>
+        set((state) => {
+          state.lastWorkspace = workspace;
+          if (groupId !== undefined) {
+            state.lastGroupId = groupId;
+          }
+          if (language !== undefined) {
+            state.lastLanguage = language;
+          }
+        }),
 
       reset: () => set(initialState),
     })),
     {
       name: 't3lang-persistence',
-    }
-  )
+    },
+  ),
 );
 
 // Selectors
-export const selectRecentWorkspaces = (state: PersistenceState) =>
-  state.recentWorkspaces;
+export const selectRecentWorkspaces = (state: PersistenceState) => state.recentWorkspaces;
 
-export const selectHasRecentWorkspaces = (state: PersistenceState) =>
-  state.recentWorkspaces.length > 0;
+export const selectHasRecentWorkspaces = (state: PersistenceState) => state.recentWorkspaces.length > 0;
 
 export const selectLastSession = (state: PersistenceState) => ({
   workspace: state.lastWorkspace,

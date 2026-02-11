@@ -36,8 +36,9 @@ export function DashboardView() {
   const handleOpenFolder = async () => {
     try {
       const path = await OpenFolderDialog();
+
       if (path) {
-        window.dispatchEvent(new CustomEvent('open-workspace', { detail: path }));
+        globalThis.dispatchEvent(new CustomEvent('open-workspace', { detail: path }));
       }
     } catch (error) {
       console.error('Failed to open folder:', error);
@@ -55,30 +56,27 @@ export function DashboardView() {
         <div className="mx-auto flex min-h-full w-full max-w-4xl flex-col items-center justify-center gap-7">
           <div className="relative">
             <div className="absolute inset-0 rounded-[28px] bg-accent-light/70 blur-xl" />
-            <div className="surface-panel relative flex items-center gap-4 rounded-[28px] px-6 py-5">
+            <div className="relative flex items-center gap-4 rounded-[28px] px-6 py-5">
               <div className="rounded-2xl bg-accent-light p-3">
                 <Sparkles className="h-7 w-7 text-accent" />
               </div>
               <div>
                 <h1 className="text-2xl font-semibold tracking-tight text-text-primary">T3Lang</h1>
-                <p className="mt-1 text-sm text-text-secondary">
-                  Calm workspace for fast, precise translation work.
-                </p>
+                <p className="mt-1 text-sm text-text-secondary">Calm workspace for fast, precise translation work.</p>
               </div>
             </div>
           </div>
 
           <button
             onClick={handleOpenFolder}
-            className="flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white shadow-[var(--shadow-md)] hover:bg-accent-hover"
+            className="flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white shadow-(--shadow-md) hover:bg-accent-hover"
           >
             <FolderOpen className="h-4 w-4" />
             Open Workspace Folder
           </button>
 
           <p className="max-w-md text-center text-xs leading-relaxed text-text-tertiary">
-            Pick the folder that holds your XLIFF files. T3Lang keeps your flow simple:
-            scan, focus, translate, save.
+            Pick the folder that holds your XLIFF files. T3Lang keeps your flow simple: scan, focus, translate, save.
           </p>
 
           {recentWorkspaces.length > 0 && (
@@ -94,32 +92,15 @@ export function DashboardView() {
   return (
     <div className="soft-scroll h-full overflow-auto p-4 sm:p-6">
       <div className="mx-auto max-w-6xl space-y-6">
-        <div className="surface-panel rounded-2xl px-5 py-4 sm:px-6">
-          <h1 className="text-xl font-semibold tracking-tight text-text-primary">
-            {projectRoot.split('/').pop()}
-          </h1>
+        <div className="rounded-2xl px-5 py-4 sm:px-6">
+          <h1 className="text-xl font-semibold tracking-tight text-text-primary">{projectRoot.split('/').pop()}</h1>
           <p className="mt-1 text-sm text-text-secondary">{projectRoot}</p>
         </div>
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <StatsCard
-            icon={FileText}
-            label="Groups"
-            value={groups.length}
-            color="accent"
-          />
-          <StatsCard
-            icon={Globe}
-            label="Languages"
-            value={languagesSet.size}
-            color="success"
-          />
-          <StatsCard
-            icon={FileText}
-            label="Units"
-            value={totalUnits}
-            color="accent"
-          />
+          <StatsCard icon={FileText} label="Groups" value={groups.length} color="accent" />
+          <StatsCard icon={Globe} label="Languages" value={languagesSet.size} color="success" />
+          <StatsCard icon={FileText} label="Units" value={totalUnits} color="accent" />
           <StatsCard
             icon={AlertTriangle}
             label="Missing"
@@ -129,18 +110,14 @@ export function DashboardView() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="surface-panel rounded-2xl p-4 sm:p-5">
+          <div className="rounded-2xl p-4 sm:p-5">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-text-primary">
-                Translation Groups
-              </h2>
+              <h2 className="text-sm font-semibold text-text-primary">Translation Groups</h2>
               <span className="rounded-full bg-bg-tertiary px-2 py-0.5 text-xs text-text-tertiary">
                 {groups.length}
               </span>
             </div>
-            <p className="mb-3 text-xs text-text-tertiary">
-              {totalFiles} files detected across all groups.
-            </p>
+            <p className="mb-3 text-xs text-text-tertiary">{totalFiles} files detected across all groups.</p>
             <div className="space-y-2">
               {groups.slice(0, 10).map((group) => (
                 <button
@@ -160,9 +137,7 @@ export function DashboardView() {
                 </button>
               ))}
               {groups.length > 10 && (
-                <p className="pt-2 text-center text-xs text-text-tertiary">
-                  +{groups.length - 10} more groups
-                </p>
+                <p className="pt-2 text-center text-xs text-text-tertiary">+{groups.length - 10} more groups</p>
               )}
             </div>
           </div>

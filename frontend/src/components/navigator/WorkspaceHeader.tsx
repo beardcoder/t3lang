@@ -5,9 +5,7 @@ export function WorkspaceHeader() {
   const projectRoot = useWorkspaceStore((state) => state.projectRoot);
   const toggleSidebar = useUIStore((state) => state.toggleSidebar);
 
-  const projectName = projectRoot
-    ? projectRoot.split('/').pop() || projectRoot
-    : 'T3Lang';
+  const projectName = projectRoot ? projectRoot.split('/').pop() || projectRoot : 'T3Lang';
 
   return (
     <div className="flex h-12 items-center justify-between border-b border-(--color-glass-border) px-3">

@@ -74,7 +74,7 @@ export function useFileOperations() {
           extractedUnits.push({
             id: unit.id,
             source: unit.source,
-            target: isSourceOnly ? '' : (unit.target ? String(unit.target) : ''),
+            target: isSourceOnly ? '' : unit.target ? String(unit.target) : '',
             note: unit.note,
             state: unit.state,
           });
@@ -121,9 +121,9 @@ export function useFileOperations() {
     try {
       const entries = await ReadDir(dirPath);
 
-      return entries.map(entry => ({
+      return entries.map((entry) => ({
         name: entry.name,
-        path: entry.path
+        path: entry.path,
       }));
     } catch {
       return [];

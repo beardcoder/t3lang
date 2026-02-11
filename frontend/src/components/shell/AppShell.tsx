@@ -1,8 +1,8 @@
-import { ReactNode, useEffect } from "react";
-import { useUIStore, initializeTheme } from "../../stores";
-import { Navigator } from "../navigator/Navigator";
-import { ContextBar } from "./ContextBar";
-import { StatusBar } from "./StatusBar";
+import { ReactNode, useEffect } from 'react';
+import { useUIStore, initializeTheme } from '../../stores';
+import { Navigator } from '../navigator/Navigator';
+import { ContextBar } from './ContextBar';
+import { StatusBar } from './StatusBar';
 
 interface AppShellProps {
   children: ReactNode;
@@ -16,12 +16,13 @@ export function AppShell({ children }: AppShellProps) {
   // Initialize theme system
   useEffect(() => {
     const cleanup = initializeTheme();
+
     return cleanup;
   }, []);
 
   // Apply theme class to document
   useEffect(() => {
-    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.remove('light', 'dark');
     document.documentElement.classList.add(resolvedTheme);
   }, [resolvedTheme]);
 

@@ -37,10 +37,8 @@ export function ConfirmDialog() {
           </button>
           <button
             onClick={handleConfirm}
-            className={`rounded-full px-4 py-2 text-sm text-white shadow-[var(--shadow-sm)] transition-colors ${
-              props?.danger
-                ? 'bg-danger hover:brightness-95'
-                : 'bg-accent hover:bg-accent-hover'
+            className={`rounded-full px-4 py-2 text-sm text-white shadow-(--shadow-sm) transition-colors ${
+              props?.danger ? 'bg-danger hover:brightness-95' : 'bg-accent hover:bg-accent-hover'
             }`}
           >
             {props?.confirmLabel || 'Confirm'}
@@ -49,9 +47,7 @@ export function ConfirmDialog() {
       }
     >
       <div className="flex items-start gap-3">
-        {props?.danger && (
-          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-danger" />
-        )}
+        {props?.danger && <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-danger" />}
         <p className="text-sm">{props?.message || 'Are you sure?'}</p>
       </div>
     </DialogBase>
