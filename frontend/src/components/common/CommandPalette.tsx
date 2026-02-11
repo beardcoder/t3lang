@@ -266,19 +266,17 @@ export function CommandPalette() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-60 bg-black/25 backdrop-blur-xs"
+            className="fixed inset-0 z-[60] bg-black/35 backdrop-blur-sm"
             onClick={close}
           />
 
-          {/* Palette */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.1 }}
-            className="fixed left-1/2 top-[15%] z-60 w-full max-w-lg -translate-x-1/2 overflow-hidden rounded-xl border border-(--color-glass-border) bg-(--color-glass) backdrop-blur-xl shadow-2xl"
+            className="surface-glass fixed left-1/2 top-[14%] z-[60] w-[min(92vw,42rem)] -translate-x-1/2 overflow-hidden rounded-2xl shadow-2xl"
           >
-            {/* Search input */}
             <div className="flex items-center gap-2 border-b border-(--color-glass-border) px-4 py-3">
               <Search className="h-4 w-4 text-text-tertiary" />
               <input
@@ -295,7 +293,6 @@ export function CommandPalette() {
               </kbd>
             </div>
 
-            {/* Results */}
             <div ref={listRef} className="max-h-80 overflow-y-auto py-1">
               {filtered.length === 0 ? (
                 <div className="px-4 py-8 text-center text-sm text-text-tertiary">
@@ -310,7 +307,7 @@ export function CommandPalette() {
                     className={`flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors ${
                       index === selectedIndex
                         ? 'bg-accent text-white'
-                        : 'text-text-primary hover:bg-black/4 dark:hover:bg-white/6'
+                        : 'text-text-primary hover:bg-bg-tertiary/70'
                     }`}
                   >
                     <span className={index === selectedIndex ? 'text-white/80' : 'text-text-tertiary'}>

@@ -65,7 +65,7 @@ export function ContextMenu({ x, y, items, onClose }: ContextMenuProps) {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.08 }}
-      className="fixed z-70 min-w-45 overflow-hidden rounded-lg border border-(--color-glass-border) bg-(--color-glass) backdrop-blur-xl py-1 shadow-lg"
+      className="surface-glass fixed z-[70] min-w-[11.25rem] overflow-hidden rounded-xl py-1 shadow-lg"
       style={{ left: x, top: y }}
     >
       {items.map((item, index) => (
@@ -82,8 +82,8 @@ export function ContextMenu({ x, y, items, onClose }: ContextMenuProps) {
             item.disabled
               ? 'cursor-not-allowed text-text-muted'
               : item.danger
-                ? 'text-red-500 hover:bg-red-500/10'
-                : 'text-text-primary hover:bg-accent hover:text-white'
+                ? 'text-danger hover:bg-danger-light'
+                : 'text-text-primary hover:bg-bg-tertiary'
           }`}
           style={{ width: 'calc(100% - 8px)' }}
         >

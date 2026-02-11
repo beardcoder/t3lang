@@ -16,9 +16,9 @@ export function EditorFooter({ totalUnits, filteredUnits, missingCount }: Editor
     : 100;
 
   return (
-    <div className="flex h-10 items-center justify-between border-t border-border bg-bg-secondary px-4 text-xs">
-      <div className="flex items-center gap-4 text-text-tertiary">
-        <span>
+    <div className="surface-glass flex h-10 items-center justify-between border-t border-(--color-glass-border) px-3 sm:px-4 text-xs">
+      <div className="flex items-center gap-2 text-text-tertiary">
+        <span className="rounded-full bg-bg-tertiary/75 px-2 py-0.5">
           {isFiltered ? (
             <>
               {filteredUnits} / {totalUnits} units
@@ -29,22 +29,31 @@ export function EditorFooter({ totalUnits, filteredUnits, missingCount }: Editor
         </span>
 
         {missingCount > 0 && (
-          <span className="flex items-center gap-1 text-warning">
+          <span className="flex items-center gap-1 rounded-full bg-warning-light px-2 py-0.5 text-warning">
             <AlertTriangle className="h-3 w-3" />
             {missingCount} missing
           </span>
         )}
 
-        <span className={completionPercent === 100 ? 'text-success' : ''}>
+        <span className={`rounded-full px-2 py-0.5 ${completionPercent === 100 ? 'bg-success-light text-success' : 'bg-bg-tertiary/75 text-text-tertiary'}`}>
           {completionPercent}%
         </span>
       </div>
 
       <div className="flex items-center gap-2">
+        <div className="hidden items-center gap-2 md:flex">
+          <div className="h-1.5 w-28 overflow-hidden rounded-full bg-bg-tertiary">
+            <div
+              className={`h-full rounded-full ${completionPercent === 100 ? 'bg-success' : 'bg-accent'}`}
+              style={{ width: `${completionPercent}%` }}
+            />
+          </div>
+        </div>
+
         {dirtyCount > 0 && (
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('save-all'))}
-            className="flex items-center gap-1 rounded bg-accent px-2.5 py-1 text-white hover:bg-accent-hover active:scale-[0.97]"
+            className="flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-white shadow-[var(--shadow-sm)] hover:bg-accent-hover active:scale-[0.97]"
             title="Save all changes"
           >
             <Save className="h-3.5 w-3.5" />

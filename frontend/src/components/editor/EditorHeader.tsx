@@ -20,17 +20,16 @@ export function EditorHeader({ group, activeLanguage, fileData }: EditorHeaderPr
     .sort((a, b) => a.localeCompare(b));
 
   return (
-    <div className="flex h-10 items-center justify-between border-b border-border-subtle/50 bg-bg-secondary px-4">
-      {/* Left: Language tabs */}
-      <div className="flex items-center gap-1">
+    <div className="surface-glass flex h-12 items-center justify-between border-b border-(--color-glass-border) px-3 sm:px-4">
+      <div className="flex items-center gap-1 overflow-x-auto">
         {languages.map((lang) => (
           <button
             key={lang}
             onClick={() => setActiveLanguage(lang)}
-            className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+            className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${
               activeLanguage === lang
-                ? 'bg-accent/12 text-accent shadow-sm'
-                : 'text-text-secondary hover:bg-black/4 dark:hover:bg-white/6 hover:text-text-primary'
+                ? 'border-accent/35 bg-accent-light text-accent shadow-[var(--shadow-sm)]'
+                : 'border-transparent text-text-secondary hover:border-border-subtle hover:bg-bg-tertiary/70 hover:text-text-primary'
             }`}
           >
             <Globe className="h-3.5 w-3.5" />
@@ -45,15 +44,13 @@ export function EditorHeader({ group, activeLanguage, fileData }: EditorHeaderPr
         )}
       </div>
 
-      {/* Right: Actions */}
       <div className="flex items-center gap-2">
-        {/* Filter: Show only missing */}
         <button
           onClick={() => setShowOnlyMissing(!showOnlyMissing)}
-          className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm ${
+          className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm ${
             showOnlyMissing
-              ? 'bg-warning-light text-warning'
-              : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
+              ? 'border-warning/35 bg-warning-light text-warning'
+              : 'border-border-subtle/70 bg-bg-tertiary/70 text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
           }`}
           title={showOnlyMissing ? 'Show all translations' : 'Show only missing translations'}
         >
@@ -67,10 +64,9 @@ export function EditorHeader({ group, activeLanguage, fileData }: EditorHeaderPr
           </span>
         </button>
 
-        {/* Version conversion */}
         <button
           onClick={() => openDialog('conversion', { groupId: group.id })}
-          className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
+          className="flex items-center gap-1.5 rounded-full border border-border-subtle/70 bg-bg-tertiary/70 px-3 py-1.5 text-sm text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
           title="Convert XLIFF version"
         >
           <ArrowLeftRight className="h-4 w-4" />

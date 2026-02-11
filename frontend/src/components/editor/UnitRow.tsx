@@ -121,30 +121,29 @@ export const UnitRow = memo(function UnitRow({ unit, filePath, isSourceOnly, isF
 
   return (
     <div
-      className={`flex h-full border-b border-border-subtle/40 transition-colors ${
-        isFocused ? 'bg-accent-light' : 'hover:bg-black/2 dark:hover:bg-white/3'
+      className={`relative flex h-full border-b border-border-subtle/45 transition-colors ${
+        isFocused
+          ? 'bg-accent-light/75 shadow-[inset_0_0_0_1px_rgba(47,123,106,0.25)]'
+          : 'bg-bg-secondary/20 hover:bg-bg-tertiary/45'
       }`}
       onClick={onFocus}
       onContextMenu={handleContextMenu}
     >
-      {/* Key column */}
-      <div className="w-1/4 min-w-[150px] p-3">
+      <div className="w-1/4 min-w-[150px] border-r border-border-subtle/45 bg-bg-tertiary/45 p-3">
         <div className="flex items-start gap-2">
           {isDirty && (
-            <Circle className="mt-1 h-2 w-2 shrink-0 fill-amber-500 text-amber-500" />
+            <Circle className="mt-1 h-2 w-2 shrink-0 fill-warning text-warning" />
           )}
           <code className="break-all text-xs text-text-secondary">{unit.id}</code>
         </div>
       </div>
 
-      {/* Source column */}
-      <div className="flex-1 overflow-hidden p-3">
+      <div className={`flex-1 overflow-hidden p-3 ${!isSourceOnly ? 'border-r border-border-subtle/40' : ''}`}>
         <p className="whitespace-pre-wrap text-sm text-text-primary">{unit.source}</p>
       </div>
 
-      {/* Target column */}
       {!isSourceOnly && (
-        <div className="flex-1 overflow-hidden p-3 cursor-text" onClick={handleTargetClick}>
+        <div className="flex-1 cursor-text overflow-hidden p-3" onClick={handleTargetClick}>
           {isEditing && editingField === 'target' ? (
             <textarea
               ref={inputRef}
@@ -152,7 +151,7 @@ export const UnitRow = memo(function UnitRow({ unit, filePath, isSourceOnly, isF
               onChange={(e) => handleTargetChange(e.target.value)}
               onKeyDown={handleKeyDown}
               onBlur={handleBlur}
-              className="h-full w-full resize-none rounded-lg border border-accent bg-bg-primary p-2 text-sm shadow-sm focus:outline-hidden focus:ring-1 focus:ring-accent"
+              className="h-full w-full resize-none rounded-xl border border-accent bg-bg-elevated p-2.5 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] focus:outline-hidden focus:ring-1 focus:ring-accent"
               rows={2}
             />
           ) : (
@@ -169,7 +168,6 @@ export const UnitRow = memo(function UnitRow({ unit, filePath, isSourceOnly, isF
         </div>
       )}
 
-      {/* Context menu (rendered via portal) */}
       {contextMenu && (
         <ContextMenu
           x={contextMenu.x}

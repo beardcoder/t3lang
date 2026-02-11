@@ -16,10 +16,10 @@ export function Navigator({ collapsed, width }: NavigatorProps) {
 
   if (collapsed) {
     return (
-      <div className="flex w-10 flex-col items-center border-r border-(--color-glass-border) bg-(--color-glass) backdrop-blur-xl py-2">
+      <div className="sidebar-frosted flex w-11 flex-col items-center border-r border-(--color-glass-border) py-2">
         <button
           onClick={toggleSidebar}
-          className="rounded p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
+          className="rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
           title="Expand sidebar"
         >
           <ChevronRight className="h-4 w-4" />
@@ -30,7 +30,7 @@ export function Navigator({ collapsed, width }: NavigatorProps) {
 
   return (
     <aside
-      className="flex flex-col border-r border-(--color-glass-border) bg-(--color-glass) backdrop-blur-xl overflow-hidden transition-[width] duration-150 ease-out"
+      className="sidebar-frosted flex flex-col overflow-hidden border-r border-(--color-glass-border) transition-[width] duration-150 ease-out"
       style={{ width, minWidth: width }}
     >
       <WorkspaceHeader />
@@ -51,10 +51,12 @@ export function Navigator({ collapsed, width }: NavigatorProps) {
 function EmptyNavigator({ recentCount }: { recentCount: number }) {
   return (
     <div className="flex flex-col items-center justify-center gap-4 p-6 text-center">
-      <FolderOpen className="h-12 w-12 text-text-tertiary" />
+      <div className="rounded-full bg-accent-light p-4">
+        <FolderOpen className="h-8 w-8 text-accent" />
+      </div>
       <div>
-        <p className="text-sm font-medium text-text-secondary">No project open</p>
-        <p className="mt-1 text-xs text-text-tertiary">
+        <p className="text-sm font-semibold text-text-secondary">No project open</p>
+        <p className="mt-1 text-xs leading-relaxed text-text-tertiary">
           {recentCount > 0
             ? 'Open a recent project or select a folder'
             : 'Open a folder containing XLIFF files'}

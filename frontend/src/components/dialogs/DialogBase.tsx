@@ -48,39 +48,34 @@ export function DialogBase({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-black/45 backdrop-blur-sm"
             onClick={onClose}
           />
 
-          {/* Centering container */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-          {/* Dialog */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ type: 'spring', duration: 0.3, bounce: 0.15 }}
-            className={`w-full pointer-events-auto rounded-xl border border-(--color-glass-border) bg-(--color-glass) backdrop-blur-xl p-6 shadow-xl ${sizeClasses[size]}`}
-          >
-            {/* Header */}
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
-              <button
-                onClick={onClose}
-                className="rounded p-1 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ type: 'spring', duration: 0.3, bounce: 0.15 }}
+              className={`surface-glass w-full pointer-events-auto rounded-2xl p-6 shadow-xl ${sizeClasses[size]}`}
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
+                <button
+                  onClick={onClose}
+                  className="rounded-lg p-1 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
 
-            {/* Content */}
-            <div className="text-text-secondary">{children}</div>
+              <div className="text-text-secondary">{children}</div>
 
-            {/* Footer */}
-            {footer && (
-              <div className="mt-6 flex justify-end gap-2">{footer}</div>
-            )}
-          </motion.div>
+              {footer && (
+                <div className="mt-6 flex justify-end gap-2">{footer}</div>
+              )}
+            </motion.div>
           </div>
         </>
       )}

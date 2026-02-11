@@ -110,7 +110,7 @@ function AppContent() {
 export default function App() {
   return (
     <MotionConfig
-      transition={{ duration: 0.1, ease: 'easeOut' }}
+      transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
       reducedMotion="user"
     >
       <AppContent />

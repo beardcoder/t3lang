@@ -123,14 +123,14 @@ export function ConversionDialog() {
         <>
           <button
             onClick={handleClose}
-            className="rounded-md px-4 py-2 text-sm text-text-secondary transition-colors hover:bg-bg-tertiary"
+            className="rounded-full px-4 py-2 text-sm text-text-secondary transition-colors hover:bg-bg-tertiary"
           >
             Cancel
           </button>
           <button
             onClick={handleConvert}
             disabled={isConverting || currentVersion === targetVersion}
-            className="flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm text-white transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-sm text-white shadow-[var(--shadow-sm)] transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
           >
             <RefreshCw className={`h-4 w-4 ${isConverting ? 'animate-spin' : ''}`} />
             {isConverting ? 'Converting...' : 'Convert'}
@@ -145,7 +145,7 @@ export function ConversionDialog() {
 
         {/* Version selector */}
         <div className="flex items-center justify-center gap-4 py-4">
-          <div className="rounded-lg border border-border bg-bg-tertiary px-6 py-4 text-center">
+          <div className="rounded-xl border border-border-subtle bg-bg-tertiary/65 px-6 py-4 text-center">
             <span className="text-xs text-text-tertiary">Current</span>
             <p className="text-2xl font-bold text-text-primary">{currentVersion}</p>
           </div>
@@ -157,12 +157,12 @@ export function ConversionDialog() {
               <button
                 key={version}
                 onClick={() => setTargetVersion(version)}
-                className={`block w-full rounded-lg border px-6 py-4 text-center transition-colors ${
+                className={`block w-full rounded-xl border px-6 py-4 text-center transition-colors ${
                   targetVersion === version
-                    ? 'border-accent bg-accent-light text-accent'
+                    ? 'border-accent/45 bg-accent-light text-accent'
                     : version === currentVersion
-                    ? 'cursor-not-allowed border-border bg-bg-tertiary opacity-50'
-                    : 'border-border hover:bg-bg-tertiary'
+                    ? 'cursor-not-allowed border-border bg-bg-tertiary/70 opacity-50'
+                    : 'border-border-subtle bg-bg-tertiary/45 hover:bg-bg-tertiary'
                 }`}
                 disabled={version === currentVersion}
               >

@@ -1,8 +1,8 @@
-import { ReactNode, useEffect } from 'react';
-import { useUIStore, initializeTheme } from '../../stores';
-import { Navigator } from '../navigator/Navigator';
-import { ContextBar } from './ContextBar';
-import { StatusBar } from './StatusBar';
+import { ReactNode, useEffect } from "react";
+import { useUIStore, initializeTheme } from "../../stores";
+import { Navigator } from "../navigator/Navigator";
+import { ContextBar } from "./ContextBar";
+import { StatusBar } from "./StatusBar";
 
 interface AppShellProps {
   children: ReactNode;
@@ -21,33 +21,22 @@ export function AppShell({ children }: AppShellProps) {
 
   // Apply theme class to document
   useEffect(() => {
-    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.remove("light", "dark");
     document.documentElement.classList.add(resolvedTheme);
   }, [resolvedTheme]);
 
   return (
-    <div className="flex h-screen flex-col bg-bg-primary text-text-primary">
-      {/* Main content area */}
+    <div className="flex h-screen flex-col  text-text-primary">
       <div className="flex flex-1 overflow-hidden">
-        {/* Navigator sidebar */}
-        <Navigator
-          collapsed={sidebarCollapsed}
-          width={sidebarWidth}
-        />
+        <Navigator collapsed={sidebarCollapsed} width={sidebarWidth} />
 
-        {/* Main panel */}
-        <div className="flex flex-1 flex-col overflow-hidden">
-          {/* Context bar */}
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
           <ContextBar />
 
-          {/* Main content */}
-          <main className="flex-1 overflow-hidden">
-            {children}
-          </main>
+          <main className="flex-1 overflow-hidden">{children}</main>
         </div>
       </div>
 
-      {/* Status bar */}
       <StatusBar />
     </div>
   );

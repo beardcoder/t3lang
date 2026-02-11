@@ -13,6 +13,9 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/menu/keys"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	linuxoptions "github.com/wailsapp/wails/v2/pkg/options/linux"
+	macoptions "github.com/wailsapp/wails/v2/pkg/options/mac"
+	windowsoptions "github.com/wailsapp/wails/v2/pkg/options/windows"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -84,13 +87,29 @@ func main() {
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:  "T3Lang",
-		Width:  1024,
-		Height: 768,
+		Title:     "T3Lang",
+		Width:     1180,
+		Height:    820,
+		MinWidth:  980,
+		MinHeight: 640,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
+		BackgroundColour: &options.RGBA{R: 245, G: 245, B: 247, A: 1},
+		Mac: &macoptions.Options{
+			TitleBar:   macoptions.TitleBarDefault(),
+			Appearance: macoptions.DefaultAppearance,
+			WindowIsTranslucent: true,
+			WebviewIsTransparent: true,
+		},
+		Windows: &windowsoptions.Options{
+			Theme:        windowsoptions.SystemDefault,
+			BackdropType: windowsoptions.Auto,
+		},
+		Linux: &linuxoptions.Options{
+			ProgramName:      "t3lang",
+			WebviewGpuPolicy: linuxoptions.WebviewGpuPolicyOnDemand,
+		},
 		OnStartup: func(ctx context.Context) {
 			app.startup(ctx)
 

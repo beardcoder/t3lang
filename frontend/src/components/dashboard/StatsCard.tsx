@@ -16,14 +16,14 @@ const colorClasses = {
 
 export function StatsCard({ icon: Icon, label, value, color }: StatsCardProps) {
   return (
-    <div className="rounded-lg border border-border bg-bg-secondary p-4">
+    <div className="surface-panel rounded-xl p-4">
       <div className="flex items-center gap-3">
-        <div className={`rounded-lg p-2 ${colorClasses[color]}`}>
+        <div className={`rounded-xl p-2.5 ${colorClasses[color]}`}>
           <Icon className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-2xl font-semibold text-text-primary">{value}</p>
-          <p className="text-xs text-text-tertiary">{label}</p>
+          <p className="text-2xl font-semibold tracking-tight text-text-primary">{value}</p>
+          <p className="text-xs uppercase tracking-wide text-text-tertiary">{label}</p>
         </div>
       </div>
     </div>

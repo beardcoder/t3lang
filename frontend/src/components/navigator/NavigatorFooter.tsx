@@ -19,11 +19,11 @@ export function NavigatorFooter() {
     <div className="border-t border-(--color-glass-border) p-2">
       <button
         onClick={handleOpenFolder}
-        className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
+        className="flex w-full items-center gap-2 rounded-lg border border-border-subtle/70 bg-bg-tertiary/75 px-2.5 py-2 text-sm text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
       >
-        <FolderOpen className="h-4 w-4" />
+        <FolderOpen className="h-4 w-4 text-accent" />
         <span>Open Folder</span>
-        <kbd className="ml-auto text-[10px] text-text-tertiary opacity-60">{isMac ? '⌘O' : 'Ctrl+O'}</kbd>
+        <kbd className="ml-auto rounded bg-bg-secondary px-1.5 py-0.5 text-[10px] text-text-tertiary opacity-80">{isMac ? '⌘O' : 'Ctrl+O'}</kbd>
       </button>
     </div>
   );

@@ -12,6 +12,7 @@ interface VirtualUnitListProps {
 }
 
 const ROW_HEIGHT = 72;
+const HEADER_HEIGHT = 42;
 
 export function VirtualUnitList({ units, filePath, isSourceOnly, onDeleteUnit }: VirtualUnitListProps) {
   const parentRef = useRef<HTMLDivElement>(null);
@@ -86,7 +87,9 @@ export function VirtualUnitList({ units, filePath, isSourceOnly, onDeleteUnit }:
   if (units.length === 0) {
     return (
       <div className="flex h-full items-center justify-center">
-        <p className="text-text-tertiary">No translation units found</p>
+        <p className="rounded-full bg-bg-tertiary px-3 py-1.5 text-sm text-text-tertiary">
+          No translation units found
+        </p>
       </div>
     );
   }
@@ -94,22 +97,20 @@ export function VirtualUnitList({ units, filePath, isSourceOnly, onDeleteUnit }:
   return (
     <div
       ref={parentRef}
-      className="h-full overflow-auto"
+      className="soft-scroll h-full overflow-auto"
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
       <div
         className="relative w-full"
-        style={{ height: `${virtualizer.getTotalSize()}px` }}
+        style={{ height: `${virtualizer.getTotalSize() + HEADER_HEIGHT}px` }}
       >
-        {/* Table header */}
-        <div className="sticky top-0 z-10 flex bg-bg-secondary text-[11px] font-medium text-text-tertiary shadow-[0_1px_0_var(--color-border-subtle)]">
-          <div className="w-1/4 min-w-[150px] p-3">Key</div>
-          <div className="flex-1 p-3">Source</div>
-          {!isSourceOnly && <div className="flex-1 p-3">Translation</div>}
+        <div className="surface-glass sticky top-0 z-20 flex text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
+          <div className="w-1/4 min-w-[150px] px-3 py-3">Key</div>
+          <div className="flex-1 px-3 py-3">Source</div>
+          {!isSourceOnly && <div className="flex-1 px-3 py-3">Translation</div>}
         </div>
 
-        {/* Virtual rows */}
         {virtualizer.getVirtualItems().map((virtualRow) => {
           const unit = units[virtualRow.index];
           return (
@@ -118,7 +119,7 @@ export function VirtualUnitList({ units, filePath, isSourceOnly, onDeleteUnit }:
               className="absolute left-0 top-0 w-full"
               style={{
                 height: `${virtualRow.size}px`,
-                transform: `translateY(${virtualRow.start + 40}px)`, // +40 for header
+                transform: `translateY(${virtualRow.start + HEADER_HEIGHT}px)`,
               }}
             >
               <UnitRow

@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import { AlertTriangle, RefreshCw, X } from 'lucide-react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { DialogBase } from './DialogBase';
-import { useUIStore, useWorkspaceStore, selectDialogProps } from '../../stores';
+import { useUIStore, selectDialogProps } from '../../stores';
 
 interface ConflictDialogProps extends Record<string, unknown> {
   filePath: string;
@@ -62,19 +61,19 @@ export function ConflictDialog() {
         <>
           <button
             onClick={handleDismiss}
-            className="rounded-md px-4 py-2 text-sm text-text-secondary transition-colors hover:bg-bg-tertiary"
+            className="rounded-full px-4 py-2 text-sm text-text-secondary transition-colors hover:bg-bg-tertiary"
           >
             Dismiss
           </button>
           <button
             onClick={handleKeepLocal}
-            className="rounded-md border border-border px-4 py-2 text-sm text-text-primary transition-colors hover:bg-bg-tertiary"
+            className="rounded-full border border-border px-4 py-2 text-sm text-text-primary transition-colors hover:bg-bg-tertiary"
           >
             Keep Local
           </button>
           <button
             onClick={handleReload}
-            className="flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm text-white transition-colors hover:bg-accent-hover"
+            className="flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-sm text-white shadow-[var(--shadow-sm)] transition-colors hover:bg-accent-hover"
           >
             <RefreshCw className="h-4 w-4" />
             Reload
