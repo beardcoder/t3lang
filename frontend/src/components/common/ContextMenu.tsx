@@ -65,7 +65,7 @@ export function ContextMenu({ x, y, items, onClose }: ContextMenuProps) {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.08 }}
-      className="fixed z-[70] min-w-[180px] overflow-hidden rounded-lg border border-border bg-bg-secondary py-1 shadow-xl"
+      className="fixed z-70 min-w-45 overflow-hidden rounded-lg border border-(--color-glass-border) bg-(--color-glass) backdrop-blur-xl py-1 shadow-lg"
       style={{ left: x, top: y }}
     >
       {items.map((item, index) => (
@@ -78,20 +78,21 @@ export function ContextMenu({ x, y, items, onClose }: ContextMenuProps) {
             }
           }}
           disabled={item.disabled}
-          className={`flex w-full items-center gap-3 px-3 py-1.5 text-left text-sm transition-colors ${
+          className={`flex w-full items-center gap-3 mx-1 rounded-md px-2 py-1.5 text-left text-sm transition-colors ${
             item.disabled
               ? 'cursor-not-allowed text-text-muted'
               : item.danger
                 ? 'text-red-500 hover:bg-red-500/10'
-                : 'text-text-primary hover:bg-bg-tertiary'
+                : 'text-text-primary hover:bg-accent hover:text-white'
           }`}
+          style={{ width: 'calc(100% - 8px)' }}
         >
           {item.icon && (
-            <span className="flex-shrink-0">{item.icon}</span>
+            <span className="shrink-0">{item.icon}</span>
           )}
           <span className="flex-1">{item.label}</span>
           {item.shortcut && (
-            <kbd className="flex-shrink-0 text-[10px] text-text-tertiary">{item.shortcut}</kbd>
+            <kbd className="shrink-0 text-[10px] text-text-tertiary">{item.shortcut}</kbd>
           )}
         </button>
       ))}

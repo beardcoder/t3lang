@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"os"
+	gort "runtime"
 	"strings"
 	"time"
 
@@ -23,6 +24,11 @@ var cliPath string
 func setupMenu(app *App) *menu.Menu {
 	appMenu := menu.NewMenu()
 
+	// Application menu (macOS)
+	if gort.GOOS == "darwin" {
+		appMenu.Append(menu.AppMenu())
+	}
+
 	// File menu
 	fileMenu := appMenu.AddSubmenu("File")
 	fileMenu.AddText("Open File...", keys.CmdOrCtrl("o"), func(_ *menu.CallbackData) {
@@ -31,22 +37,16 @@ func setupMenu(app *App) *menu.Menu {
 	fileMenu.AddText("Open Folder...", keys.Combo("o", keys.CmdOrCtrlKey, keys.ShiftKey), func(_ *menu.CallbackData) {
 		runtime.EventsEmit(app.ctx, "menu-open-folder")
 	})
+	if gort.GOOS != "darwin" {
+		fileMenu.AddSeparator()
+		fileMenu.AddText("Quit", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
+			runtime.Quit(app.ctx)
+		})
+	}
 
-	// Edit menu
+	// Edit menu with standard shortcuts
 	editMenu := appMenu.AddSubmenu("Edit")
-	editMenu.AddText("Cut", keys.CmdOrCtrl("x"), func(_ *menu.CallbackData) {
-		runtime.ClipboardSetText(app.ctx, "")
-	})
-	editMenu.AddText("Copy", keys.CmdOrCtrl("c"), func(_ *menu.CallbackData) {
-		runtime.ClipboardSetText(app.ctx, "")
-	})
-	editMenu.AddText("Paste", keys.CmdOrCtrl("v"), func(_ *menu.CallbackData) {
-		// Paste functionality handled by browser
-	})
-	editMenu.AddSeparator()
-	editMenu.AddText("Select All", keys.CmdOrCtrl("a"), func(_ *menu.CallbackData) {
-		// Select all functionality handled by browser
-	})
+	editMenu.Append(menu.EditMenu())
 
 	// Tools menu with settings and CLI tools
 	toolsMenu := appMenu.AddSubmenu("Tools")
@@ -103,7 +103,7 @@ func main() {
 			}
 		},
 		Menu: setupMenu(app),
-		Bind: []interface{}{
+		Bind: []any{
 			app,
 		},
 	})

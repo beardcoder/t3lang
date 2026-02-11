@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle, AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
 import { useUIStore } from '../../stores';
@@ -11,10 +10,10 @@ const icons = {
 };
 
 const colors = {
-  success: 'bg-success-light border-success text-success',
-  error: 'bg-danger-light border-danger text-danger',
-  warning: 'bg-warning-light border-warning text-warning',
-  info: 'bg-accent-light border-accent text-accent',
+  success: 'border-success/20 text-success',
+  error: 'border-danger/20 text-danger',
+  warning: 'border-warning/20 text-warning',
+  info: 'border-accent/20 text-accent',
 };
 
 export function ToastContainer() {
@@ -33,20 +32,20 @@ export function ToastContainer() {
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              className={`flex items-start gap-3 rounded-lg border p-4 shadow-lg ${colors[notification.type]}`}
+              className={`flex max-w-xs items-center gap-2.5 rounded-xl border bg-(--color-glass) px-3.5 py-2 shadow-lg backdrop-blur-xl ${colors[notification.type]}`}
             >
-              <Icon className="h-5 w-5 flex-shrink-0" />
-              <div className="flex-1">
-                <p className="font-medium">{notification.title}</p>
+              <Icon className="h-4 w-4 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{notification.title}</p>
                 {notification.message && (
-                  <p className="mt-0.5 text-sm opacity-80">{notification.message}</p>
+                  <p className="text-xs opacity-80 truncate">{notification.message}</p>
                 )}
               </div>
               <button
                 onClick={() => removeNotification(notification.id)}
-                className="rounded p-0.5 hover:bg-black/10"
+                className="rounded-full p-0.5 hover:bg-black/10"
               >
-                <X className="h-4 w-4" />
+                <X className="h-3.5 w-3.5" />
               </button>
             </motion.div>
           );

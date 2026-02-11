@@ -87,7 +87,7 @@ export function SettingsDialog() {
               <select
                 value={settings.indentSize}
                 onChange={(e) => updateSettings({ indentSize: Number(e.target.value) })}
-                className="w-full rounded-md border border-border bg-bg-primary px-3 py-2 text-sm focus:border-accent focus:outline-none"
+                className="w-full rounded-md border border-border bg-bg-primary px-3 py-2 text-sm focus:border-accent focus:outline-hidden"
               >
                 <option value={2}>2 spaces</option>
                 <option value={4}>4 spaces</option>

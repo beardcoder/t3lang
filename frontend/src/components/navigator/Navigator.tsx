@@ -16,7 +16,7 @@ export function Navigator({ collapsed, width }: NavigatorProps) {
 
   if (collapsed) {
     return (
-      <div className="flex w-10 flex-col items-center border-r border-border bg-bg-secondary py-2">
+      <div className="flex w-10 flex-col items-center border-r border-(--color-glass-border) bg-(--color-glass) backdrop-blur-xl py-2">
         <button
           onClick={toggleSidebar}
           className="rounded p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
@@ -30,7 +30,7 @@ export function Navigator({ collapsed, width }: NavigatorProps) {
 
   return (
     <aside
-      className="flex flex-col border-r border-border bg-bg-secondary overflow-hidden transition-[width] duration-150 ease-out"
+      className="flex flex-col border-r border-(--color-glass-border) bg-(--color-glass) backdrop-blur-xl overflow-hidden transition-[width] duration-150 ease-out"
       style={{ width, minWidth: width }}
     >
       <WorkspaceHeader />

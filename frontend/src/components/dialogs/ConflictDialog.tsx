@@ -84,7 +84,7 @@ export function ConflictDialog() {
     >
       <div className="space-y-4">
         <div className="flex items-start gap-3 rounded-lg bg-warning-light p-4">
-          <AlertTriangle className="h-5 w-5 flex-shrink-0 text-warning" />
+          <AlertTriangle className="h-5 w-5 shrink-0 text-warning" />
           <div>
             <p className="font-medium text-warning">External changes detected</p>
             <p className="mt-1 text-sm text-text-secondary">

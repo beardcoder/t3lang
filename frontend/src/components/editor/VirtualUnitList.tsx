@@ -103,7 +103,7 @@ export function VirtualUnitList({ units, filePath, isSourceOnly, onDeleteUnit }:
         style={{ height: `${virtualizer.getTotalSize()}px` }}
       >
         {/* Table header */}
-        <div className="sticky top-0 z-10 flex border-b border-border bg-bg-secondary text-xs font-medium uppercase tracking-wider text-text-tertiary">
+        <div className="sticky top-0 z-10 flex bg-bg-secondary text-[11px] font-medium text-text-tertiary shadow-[0_1px_0_var(--color-border-subtle)]">
           <div className="w-1/4 min-w-[150px] p-3">Key</div>
           <div className="flex-1 p-3">Source</div>
           {!isSourceOnly && <div className="flex-1 p-3">Translation</div>}

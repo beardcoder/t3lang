@@ -54,7 +54,7 @@ export function ContextBar() {
   }
 
   return (
-    <div className="flex h-12 items-center justify-between border-b border-border bg-bg-secondary px-4">
+    <div className="flex h-11 items-center justify-between border-b border-border-subtle/50 bg-bg-secondary px-4">
       <nav className="flex items-center gap-1 text-sm">
         {breadcrumbs.length === 0 ? (
           <span className="text-text-tertiary">No project open</span>
@@ -68,7 +68,9 @@ export function ContextBar() {
                 className={`rounded px-1 py-0.5 ${
                   crumb.onClick
                     ? 'hover:bg-bg-tertiary text-text-primary cursor-pointer'
-                    : 'text-text-secondary'
+                    : index === breadcrumbs.length - 1
+                      ? 'font-medium text-text-primary'
+                      : 'text-text-tertiary'
                 }`}
                 onClick={crumb.onClick}
               >
@@ -88,7 +90,7 @@ export function ContextBar() {
               placeholder="Search..."
               value={localSearch}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="h-8 w-56 rounded-md border border-border bg-bg-primary pl-8 pr-8 text-sm placeholder:text-text-tertiary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+              className="h-7 w-52 rounded-full border border-border-subtle bg-bg-primary/60 pl-8 pr-8 text-sm placeholder:text-text-muted focus:border-accent focus:bg-bg-primary focus:outline-hidden focus:ring-1 focus:ring-accent"
             />
             {localSearch && (
               <button

@@ -121,8 +121,8 @@ export const UnitRow = memo(function UnitRow({ unit, filePath, isSourceOnly, isF
 
   return (
     <div
-      className={`flex h-full border-b border-border-subtle ${
-        isFocused ? 'bg-accent-light' : 'hover:bg-bg-tertiary'
+      className={`flex h-full border-b border-border-subtle/40 transition-colors ${
+        isFocused ? 'bg-accent-light' : 'hover:bg-black/2 dark:hover:bg-white/3'
       }`}
       onClick={onFocus}
       onContextMenu={handleContextMenu}
@@ -131,7 +131,7 @@ export const UnitRow = memo(function UnitRow({ unit, filePath, isSourceOnly, isF
       <div className="w-1/4 min-w-[150px] p-3">
         <div className="flex items-start gap-2">
           {isDirty && (
-            <Circle className="mt-1 h-2 w-2 flex-shrink-0 fill-amber-500 text-amber-500" />
+            <Circle className="mt-1 h-2 w-2 shrink-0 fill-amber-500 text-amber-500" />
           )}
           <code className="break-all text-xs text-text-secondary">{unit.id}</code>
         </div>
@@ -152,7 +152,7 @@ export const UnitRow = memo(function UnitRow({ unit, filePath, isSourceOnly, isF
               onChange={(e) => handleTargetChange(e.target.value)}
               onKeyDown={handleKeyDown}
               onBlur={handleBlur}
-              className="h-full w-full resize-none rounded border border-accent bg-bg-primary p-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+              className="h-full w-full resize-none rounded-lg border border-accent bg-bg-primary p-2 text-sm shadow-sm focus:outline-hidden focus:ring-1 focus:ring-accent"
               rows={2}
             />
           ) : (

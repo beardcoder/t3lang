@@ -13,13 +13,13 @@ export function GroupList() {
   return (
     <div className="py-2">
       <div className="mb-2 flex items-center justify-between px-3">
-        <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
+        <span className="text-[11px] font-medium uppercase tracking-wider text-text-tertiary">
           Translation Groups
         </span>
         <span className="text-xs text-text-tertiary">{groups.length}</span>
       </div>
 
-      <nav className="space-y-0.5">
+      <nav className="space-y-px">
         {groups.map((group) => (
           <GroupItem
             key={group.id}
@@ -60,10 +60,10 @@ function GroupItem({ group, isActive, onSelect }: GroupItemProps) {
     <div>
       {/* Group header */}
       <div
-        className={`group flex items-center gap-1 px-2 py-1.5 cursor-pointer ${
+        className={`group mx-2 flex items-center gap-1 rounded-lg px-2 py-1.5 cursor-pointer transition-colors ${
           isActive
-            ? 'bg-accent/10 text-accent'
-            : 'hover:bg-bg-tertiary text-text-primary'
+            ? 'bg-accent/12 text-accent'
+            : 'hover:bg-black/4 dark:hover:bg-white/6 text-text-primary'
         }`}
       >
         <button
@@ -84,10 +84,10 @@ function GroupItem({ group, isActive, onSelect }: GroupItemProps) {
           onClick={onSelect}
           className="flex flex-1 items-center gap-2 overflow-hidden text-left"
         >
-          <FileText className="h-4 w-4 flex-shrink-0" />
+          <FileText className="h-4 w-4 shrink-0" />
           <span className="truncate text-sm">{group.baseName}</span>
           {translationCount > 0 && (
-            <span className="ml-auto flex-shrink-0 rounded bg-bg-tertiary px-1.5 py-0.5 text-xs text-text-tertiary">
+            <span className="ml-auto shrink-0 rounded bg-bg-tertiary px-1.5 py-0.5 text-xs text-text-tertiary">
               {translationCount}
             </span>
           )}
@@ -148,10 +148,10 @@ function LanguageItem({ language, isActive, onSelect }: LanguageItemProps) {
   return (
     <button
       onClick={onSelect}
-      className={`flex w-full items-center gap-2 rounded px-2 py-1 text-left text-sm ${
+      className={`flex w-full items-center gap-2 rounded-md px-2 py-1 text-left text-sm transition-colors ${
         isActive
           ? 'bg-accent/10 text-accent'
-          : 'hover:bg-bg-tertiary text-text-secondary'
+          : 'hover:bg-black/4 dark:hover:bg-white/6 text-text-secondary'
       }`}
     >
       <Globe className="h-3.5 w-3.5" />

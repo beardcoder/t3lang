@@ -15,7 +15,7 @@ export function StatusBar() {
   }
 
   return (
-    <footer className="flex h-6 items-center justify-between border-t border-border bg-bg-secondary px-3 text-xs text-text-tertiary">
+    <footer className="flex h-6 items-center justify-between bg-(--color-glass) backdrop-blur-xl px-3 text-xs text-text-tertiary shadow-[0_-1px_2px_rgba(0,0,0,0.06)]">
       <div className="flex items-center gap-3">
         {isScanning ? (
           <div className="flex items-center gap-1.5">

@@ -50,7 +50,7 @@ export function ConfirmDialog() {
     >
       <div className="flex items-start gap-3">
         {props?.danger && (
-          <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" />
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
         )}
         <p className="text-sm">{props?.message || 'Are you sure?'}</p>
       </div>

@@ -21,6 +21,7 @@ export function EditorView() {
   const activeGroup = activeGroupId ? groups.get(activeGroupId) : null;
 
   // Delete a unit from all files in the group
+  // Always define hooks - they handle null cases internally
   const handleDeleteUnit = useCallback((unitId: string) => {
     if (!activeGroup) return;
 
@@ -62,22 +63,24 @@ export function EditorView() {
     });
   }, [activeGroup, fileCache, cacheFileData, openDialog]);
 
-  // If no file is loaded, show empty state
-  if (!activeFile || !activeGroup) {
-    return <EmptyEditor />;
-  }
-
   // Memoize filtered units to avoid recomputing on every render
+  // Handle null activeFile case with empty array
   const filteredUnits = useMemo(
-    () => selectFilteredUnits(activeFile.units, searchQuery, showOnlyMissing),
-    [activeFile.units, searchQuery, showOnlyMissing]
+    () => activeFile ? selectFilteredUnits(activeFile.units, searchQuery, showOnlyMissing) : [],
+    [activeFile, searchQuery, showOnlyMissing]
   );
 
   // Memoize missing count to avoid inline .filter() on every render
+  // Handle null activeFile case with 0
   const missingCount = useMemo(
-    () => activeFile.units.filter(u => !u.target || u.target.trim() === '').length,
-    [activeFile.units]
+    () => activeFile ? activeFile.units.filter(u => !u.target || u.target.trim() === '').length : 0,
+    [activeFile]
   );
+
+  // If no file is loaded, show empty state (after all hooks are defined)
+  if (!activeFile || !activeGroup) {
+    return <EmptyEditor />;
+  }
 
   return (
     <div className="flex h-full flex-col">

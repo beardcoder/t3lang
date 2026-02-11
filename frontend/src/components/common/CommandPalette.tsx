@@ -266,7 +266,7 @@ export function CommandPalette() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-black/30"
+            className="fixed inset-0 z-60 bg-black/25 backdrop-blur-xs"
             onClick={close}
           />
 
@@ -276,10 +276,10 @@ export function CommandPalette() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.1 }}
-            className="fixed left-1/2 top-[15%] z-[60] w-full max-w-lg -translate-x-1/2 overflow-hidden rounded-xl border border-border bg-bg-secondary shadow-2xl"
+            className="fixed left-1/2 top-[15%] z-60 w-full max-w-lg -translate-x-1/2 overflow-hidden rounded-xl border border-(--color-glass-border) bg-(--color-glass) backdrop-blur-xl shadow-2xl"
           >
             {/* Search input */}
-            <div className="flex items-center gap-2 border-b border-border px-4 py-3">
+            <div className="flex items-center gap-2 border-b border-(--color-glass-border) px-4 py-3">
               <Search className="h-4 w-4 text-text-tertiary" />
               <input
                 ref={inputRef}
@@ -288,7 +288,7 @@ export function CommandPalette() {
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Search files, actions..."
-                className="flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none"
+                className="flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-tertiary focus:outline-hidden"
               />
               <kbd className="rounded border border-border bg-bg-tertiary px-1.5 py-0.5 text-[10px] text-text-tertiary">
                 ESC
@@ -307,13 +307,13 @@ export function CommandPalette() {
                     key={item.id}
                     onClick={() => execute(item)}
                     onMouseEnter={() => setSelectedIndex(index)}
-                    className={`flex w-full items-center gap-3 px-4 py-2 text-left text-sm transition-colors ${
+                    className={`flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors ${
                       index === selectedIndex
-                        ? 'bg-accent/10 text-accent'
-                        : 'text-text-primary hover:bg-bg-tertiary'
+                        ? 'bg-accent text-white'
+                        : 'text-text-primary hover:bg-black/4 dark:hover:bg-white/6'
                     }`}
                   >
-                    <span className={index === selectedIndex ? 'text-accent' : 'text-text-tertiary'}>
+                    <span className={index === selectedIndex ? 'text-white/80' : 'text-text-tertiary'}>
                       {item.icon}
                     </span>
                     <div className="flex-1 overflow-hidden">
@@ -325,7 +325,7 @@ export function CommandPalette() {
                       )}
                     </div>
                     {item.shortcut && (
-                      <kbd className="flex-shrink-0 rounded border border-border bg-bg-tertiary px-1.5 py-0.5 text-[10px] text-text-tertiary">
+                      <kbd className="shrink-0 rounded border border-border bg-bg-tertiary px-1.5 py-0.5 text-[10px] text-text-tertiary">
                         {item.shortcut}
                       </kbd>
                     )}

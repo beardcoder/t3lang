@@ -48,7 +48,7 @@ export function DialogBase({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
             onClick={onClose}
           />
 
@@ -59,7 +59,8 @@ export function DialogBase({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className={`w-full pointer-events-auto rounded-xl border border-border bg-bg-secondary p-6 shadow-xl ${sizeClasses[size]}`}
+            transition={{ type: 'spring', duration: 0.3, bounce: 0.15 }}
+            className={`w-full pointer-events-auto rounded-xl border border-(--color-glass-border) bg-(--color-glass) backdrop-blur-xl p-6 shadow-xl ${sizeClasses[size]}`}
           >
             {/* Header */}
             <div className="mb-4 flex items-center justify-between">

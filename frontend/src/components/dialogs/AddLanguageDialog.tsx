@@ -192,7 +192,7 @@ export function AddLanguageDialog() {
               onChange={(e) => setCustomLanguage(e.target.value)}
               placeholder="e.g., sv, da, fi"
               maxLength={2}
-              className="mt-2 w-full rounded-md border border-border bg-bg-primary px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+              className="mt-2 w-full rounded-md border border-border bg-bg-primary px-3 py-2 text-sm focus:border-accent focus:outline-hidden focus:ring-1 focus:ring-accent"
               autoFocus
             />
           )}

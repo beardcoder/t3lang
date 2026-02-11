@@ -10,9 +10,9 @@ export function WorkspaceHeader() {
     : 'T3Lang';
 
   return (
-    <div className="flex h-12 items-center justify-between border-b border-border px-3">
+    <div className="flex h-12 items-center justify-between border-b border-(--color-glass-border) px-3">
       <div className="flex items-center gap-2 overflow-hidden">
-        <FolderOpen className="h-4 w-4 flex-shrink-0 text-text-secondary" />
+        <FolderOpen className="h-4 w-4 shrink-0 text-text-secondary" />
         <span className="truncate text-sm font-medium text-text-primary" title={projectRoot || undefined}>
           {projectName}
         </span>

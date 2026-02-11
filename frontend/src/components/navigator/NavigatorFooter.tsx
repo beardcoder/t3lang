@@ -16,7 +16,7 @@ export function NavigatorFooter() {
   };
 
   return (
-    <div className="border-t border-border p-2">
+    <div className="border-t border-(--color-glass-border) p-2">
       <button
         onClick={handleOpenFolder}
         className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"

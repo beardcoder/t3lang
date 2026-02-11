@@ -20,17 +20,17 @@ export function EditorHeader({ group, activeLanguage, fileData }: EditorHeaderPr
     .sort((a, b) => a.localeCompare(b));
 
   return (
-    <div className="flex h-12 items-center justify-between border-b border-border bg-bg-secondary px-4">
+    <div className="flex h-10 items-center justify-between border-b border-border-subtle/50 bg-bg-secondary px-4">
       {/* Left: Language tabs */}
       <div className="flex items-center gap-1">
         {languages.map((lang) => (
           <button
             key={lang}
             onClick={() => setActiveLanguage(lang)}
-            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium ${
+            className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium transition-colors ${
               activeLanguage === lang
-                ? 'bg-accent text-white'
-                : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
+                ? 'bg-accent/12 text-accent shadow-sm'
+                : 'text-text-secondary hover:bg-black/4 dark:hover:bg-white/6 hover:text-text-primary'
             }`}
           >
             <Globe className="h-3.5 w-3.5" />
