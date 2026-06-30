@@ -1,0 +1,36 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<defs>
+		<linearGradient id="bg" x1="160" y1="120" x2="864" y2="904" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#3b8bff"/>
+			<stop offset="0.55" stop-color="#0a6cff"/>
+			<stop offset="1" stop-color="#6d4bf0"/>
+		</linearGradient>
+		<linearGradient id="sheen" x1="200" y1="150" x2="512" y2="560" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#ffffff" stop-opacity="0.28"/>
+			<stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+		</linearGradient>
+		<filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+			<feDropShadow dx="0" dy="22" stdDeviation="26" flood-color="#0a2a6b" flood-opacity="0.32"/>
+		</filter>
+	</defs>
+
+	<g filter="url(#shadow)">
+		<rect x="112" y="112" width="800" height="800" rx="186" fill="url(#bg)"/>
+	</g>
+	<rect x="112" y="112" width="800" height="800" rx="186" fill="url(#sheen)"/>
+	<rect x="112.75" y="112.75" width="798.5" height="798.5" rx="185.25" stroke="#ffffff" stroke-opacity="0.18" stroke-width="1.5"/>
+
+	<g transform="translate(512 506)" stroke="#ffffff" stroke-width="20" stroke-linecap="round" fill="none">
+		<circle r="232"/>
+		<ellipse rx="98" ry="232"/>
+		<line x1="-232" y1="0" x2="232" y2="0"/>
+		<path d="M -213 -118 H 213"/>
+		<path d="M -213 118 H 213"/>
+	</g>
+
+	<g transform="translate(648 372)">
+		<path d="M0 -86 C 52 -86 92 -47 92 2 C 92 60 16 120 0 132 C -16 120 -92 60 -92 2 C -92 -47 -52 -86 0 -86 Z"
+			fill="#ff9f0a" stroke="#ffffff" stroke-width="20" stroke-linejoin="round"/>
+		<circle cy="2" r="30" fill="#ffffff"/>
+	</g>
+</svg>

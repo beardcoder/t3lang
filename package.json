@@ -1,0 +1,43 @@
+{
+  "name": "t3lang",
+  "version": "3.0.0",
+  "description": "Desktop manager for TYPO3 XLIFF translations (XLIFF 1.2 & 2.0)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "tauri": "tauri",
+    "app:dev": "tauri dev",
+    "app:build": "tauri build",
+    "app:build:windows": "tauri build --target x86_64-pc-windows-msvc",
+    "app:build:linux": "tauri build",
+    "app:build:mac-universal": "tauri build --target universal-apple-darwin"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@skeletonlabs/skeleton": "^4.15.2",
+    "@skeletonlabs/skeleton-svelte": "^4.15.2",
+    "@tauri-apps/api": "^2.11.1",
+    "@tauri-apps/plugin-dialog": "^2.7.1",
+    "@tauri-apps/plugin-fs": "^2.5.1",
+    "@tauri-apps/plugin-opener": "^2.5.4",
+    "fast-xml-parser": "^5.9.3",
+    "svelte-dnd-action": "^0.9.70"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "@sveltejs/adapter-static": "^3.0.10",
+    "@sveltejs/kit": "^2.68.0",
+    "@sveltejs/vite-plugin-svelte": "^7.1.2",
+    "@tailwindcss/vite": "^4.3.2",
+    "@tauri-apps/cli": "^2.11.4",
+    "svelte": "^5.56.4",
+    "svelte-check": "^4.7.1",
+    "tailwindcss": "^4.3.2",
+    "typescript": "^6.0.3",
+    "vite": "^8.1.0"
+  }
+}
