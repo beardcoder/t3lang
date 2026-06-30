@@ -3,7 +3,8 @@
 	import type { Catalog } from '$lib/project';
 	import Icon from './Icon.svelte';
 
-	let { onNewCatalog }: { onNewCatalog: () => void } = $props();
+	let { onNewCatalog, onSettings }: { onNewCatalog: () => void; onSettings: () => void } =
+		$props();
 
 	let filter = $state('');
 	let collapsed = $state<Record<string, boolean>>({});
@@ -103,11 +104,14 @@
 	</nav>
 
 	<div class="footer no-drag">
-		{#if app.projectName}
-			<span class="proj" title={app.projectRoot ?? ''}><Icon name="folder" size={12} /> {app.projectName}</span>
-		{:else}
-			<span class="proj muted">No project</span>
-		{/if}
+		<div class="footer-row">
+			{#if app.projectName}
+				<span class="proj" title={app.projectRoot ?? ''}><Icon name="folder" size={12} /> {app.projectName}</span>
+			{:else}
+				<span class="proj muted">No project</span>
+			{/if}
+			<button class="gear" onclick={onSettings} title="Settings"><Icon name="gear" size={15} /></button>
+		</div>
 		{#if app.dirtyCount > 0}
 			<button class="mac-btn save-all" onclick={() => app.saveAll()} title="Save all changed catalogs (⌘S)">
 				<Icon name="save" size={13} /> Save all ({app.dirtyCount})
@@ -360,7 +364,29 @@
 		flex-direction: column;
 		gap: 8px;
 	}
+	.footer-row {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+	.gear {
+		display: grid;
+		place-items: center;
+		flex-shrink: 0;
+		width: 26px;
+		height: 26px;
+		border-radius: 6px;
+		border: none;
+		background: transparent;
+		color: var(--text-muted);
+		cursor: default;
+	}
+	.gear:hover {
+		background: var(--surface-hover);
+		color: var(--text-strong);
+	}
 	.proj {
+		flex: 1;
 		display: flex;
 		align-items: center;
 		gap: 5px;

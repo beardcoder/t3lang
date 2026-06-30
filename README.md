@@ -10,7 +10,7 @@ floating translucent panels, soft borders and rounded corners.
 ## Download & install
 
 Grab the latest installer from the
-[**Releases**](https://github.com/BreathCodeFlow/t3lang/releases/latest) page:
+[**Releases**](https://github.com/beardcoder/t3lang/releases/latest) page:
 
 | Platform | File |
 | --- | --- |
@@ -41,6 +41,12 @@ release pipeline produces fully signed & notarized macOS builds automatically.
   opens that folder as a project on startup (a file path opens its directory).
 - **Convert between XLIFF 1.2 and 2.0** — click the version badge in the
   toolbar; translation states are remapped to the target version.
+- **Settings** — choose the indentation used when saving (`.xlf`) files: tabs,
+  or 2 / 4 / 8 spaces, with a live preview.
+- **Recent projects** — quickly reopen recently opened folders and files from
+  the welcome screen.
+- **Install a `t3lang` CLI** from Settings (or via the command line) so you can
+  run `t3lang /path/to/folder-or-file`.
 - **Open a single file** — also pulls in sibling translations of the same base.
 - **Create new catalogs** from scratch (choose folder, base name, source
   language, XLIFF version).
@@ -125,9 +131,18 @@ git push origin main --tags
 
 ### Signing secrets
 
-The repo already has the **Tauri updater** signing key configured
-(`TAURI_SIGNING_PRIVATE_KEY`, `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`), so update
-artifacts are cryptographically signed.
+**Signed auto-updates (optional).** A Tauri updater keypair already ships in the
+config (`plugins.updater.pubkey`). To produce signed update artifacts +
+`latest.json`, set `"createUpdaterArtifacts": true` in
+`src-tauri/tauri.conf.json` and add these repo secrets:
+
+```bash
+gh secret set TAURI_SIGNING_PRIVATE_KEY < your_updater.key
+gh secret set TAURI_SIGNING_PRIVATE_KEY_PASSWORD   # paste the password
+```
+
+(Generate a fresh keypair with `bun run tauri signer generate -w your_updater.key`
+and put the printed public key into `plugins.updater.pubkey`.)
 
 For **full macOS Developer ID signing + notarization**, add these repo secrets
 (the workflow uses them automatically when present):

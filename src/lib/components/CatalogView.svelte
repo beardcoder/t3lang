@@ -5,6 +5,7 @@
 	import { cubicOut } from 'svelte/easing';
 	import { dndzone, type DndEvent } from 'svelte-dnd-action';
 	import { app } from '$lib/state.svelte';
+	import { settings } from '$lib/settings.svelte';
 	import { statesFor } from '$lib/xliff/types';
 	import { languageLabel } from '$lib/xliff/typo3';
 	import type { CatalogUnit, TargetEntry } from '$lib/project';
@@ -106,6 +107,24 @@
 				</button>
 			</div>
 			<p class="hint">or from a terminal: <code>t3lang ./my-extension</code></p>
+
+			{#if app.recents.length}
+				<div class="recents">
+					<div class="recents-head">
+						<span><Icon name="clock" size={12} /> Recent</span>
+						<button class="recents-clear" onclick={() => settings.clearRecents()}>Clear</button>
+					</div>
+					{#each app.recents.slice(0, 6) as r (r.path)}
+						<button class="recent" onclick={() => app.openRecent(r)} title={r.path}>
+							<Icon name={r.kind === 'file' ? 'file' : 'folder'} size={14} />
+							<span class="recent-info">
+								<span class="recent-name">{r.name}</span>
+								<span class="recent-path">{r.path}</span>
+							</span>
+						</button>
+					{/each}
+				</div>
+			{/if}
 		</div>
 	</div>
 {:else}
@@ -410,6 +429,79 @@
 		margin-top: 20px;
 		font-size: 11px;
 		opacity: 0.75;
+	}
+	.recents {
+		margin-top: 26px;
+		text-align: left;
+		border-top: 0.5px solid var(--border-soft);
+		padding-top: 14px;
+	}
+	.recents-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		font-size: 10px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--text-muted);
+		margin-bottom: 6px;
+	}
+	.recents-head span {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+	}
+	.recents-clear {
+		border: none;
+		background: none;
+		color: var(--mac-accent);
+		font-size: 10.5px;
+		font-weight: 600;
+		cursor: default;
+		text-transform: none;
+		letter-spacing: 0;
+	}
+	.recent {
+		width: 100%;
+		display: flex;
+		align-items: center;
+		gap: 9px;
+		padding: 7px 8px;
+		border: none;
+		background: transparent;
+		border-radius: 8px;
+		cursor: default;
+		text-align: left;
+		color: var(--text-strong);
+	}
+	.recent :global(svg) {
+		color: var(--text-muted);
+		flex-shrink: 0;
+	}
+	.recent:hover {
+		background: var(--surface-hover);
+	}
+	.recent-info {
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		line-height: 1.25;
+	}
+	.recent-name {
+		font-size: 12.5px;
+		font-weight: 600;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+	.recent-path {
+		font-size: 10px;
+		color: var(--text-muted);
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		direction: rtl;
 	}
 	code {
 		font-family: 'SF Mono', ui-monospace, Menlo, monospace;

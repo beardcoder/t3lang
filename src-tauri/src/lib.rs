@@ -13,16 +13,12 @@ fn initial_project(state: tauri::State<LaunchArgs>) -> Option<String> {
     state.0.lock().ok().and_then(|g| g.clone())
 }
 
-/// Resolve a CLI argument into an absolute project directory.
-fn resolve_launch_dir() -> Option<String> {
+/// Resolve a CLI argument into an absolute path (file or directory).
+/// The frontend opens a directory as a project and a file as a single catalog.
+fn resolve_launch_path() -> Option<String> {
     let arg = std::env::args().skip(1).find(|a| !a.starts_with('-'))?;
     let abs = fs::canonicalize(&arg).ok()?;
-    let dir = if abs.is_dir() {
-        abs
-    } else {
-        abs.parent()?.to_path_buf()
-    };
-    Some(dir.to_string_lossy().to_string())
+    Some(abs.to_string_lossy().to_string())
 }
 
 #[derive(Serialize)]
@@ -109,13 +105,58 @@ fn file_exists(path: String) -> bool {
     Path::new(&path).exists()
 }
 
+/// Install a `t3lang` command on PATH by symlinking the current executable.
+/// Returns the path the CLI was installed to.
+#[tauri::command]
+fn install_cli() -> Result<String, String> {
+    let exe = std::env::current_exe().map_err(|e| e.to_string())?;
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::symlink;
+        let home = std::env::var("HOME").unwrap_or_default();
+        let candidates = [
+            "/usr/local/bin".to_string(),
+            format!("{home}/.local/bin"),
+            format!("{home}/bin"),
+        ];
+        let mut last_err = String::from("no writable directory found on PATH");
+        for dir in candidates {
+            let dir_path = Path::new(&dir);
+            if dir_path != Path::new("/usr/local/bin") {
+                let _ = fs::create_dir_all(dir_path);
+            }
+            if !dir_path.is_dir() {
+                continue;
+            }
+            let target = dir_path.join("t3lang");
+            let _ = fs::remove_file(&target);
+            match symlink(&exe, &target) {
+                Ok(_) => return Ok(target.to_string_lossy().to_string()),
+                Err(e) => last_err = format!("{dir}: {e}"),
+            }
+        }
+        Err(last_err)
+    }
+
+    #[cfg(windows)]
+    {
+        Err(format!(
+            "On Windows, add this folder to your PATH: {}",
+            exe.parent()
+                .map(|p| p.to_string_lossy().to_string())
+                .unwrap_or_default()
+        ))
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .manage(LaunchArgs(Mutex::new(resolve_launch_dir())))
+        .manage(LaunchArgs(Mutex::new(resolve_launch_path())))
         .setup(|_app| {
             #[cfg(target_os = "macos")]
             {
@@ -139,7 +180,8 @@ pub fn run() {
             read_text_file,
             write_text_file,
             file_exists,
-            initial_project
+            initial_project,
+            install_cli
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -18,9 +18,14 @@ export function fileExists(path: string): Promise<boolean> {
 	return invoke<boolean>('file_exists', { path });
 }
 
-/** Project folder the app was launched with on the command line, if any. */
+/** Project folder/file the app was launched with on the command line, if any. */
 export function initialProject(): Promise<string | null> {
 	return invoke<string | null>('initial_project');
+}
+
+/** Install a `t3lang` command on PATH; resolves to the installed path. */
+export function installCli(): Promise<string> {
+	return invoke<string>('install_cli');
 }
 
 /** Native folder picker. Returns absolute path or null if cancelled. */

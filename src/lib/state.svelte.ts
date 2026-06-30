@@ -1,5 +1,6 @@
 import { parseXliff } from './xliff/parse';
 import { serializeXliff } from './xliff/serialize';
+import { settings, type RecentEntry } from './settings.svelte';
 import {
 	addLanguageToCatalog,
 	addUnit,
@@ -107,14 +108,26 @@ class AppState {
 		this.activeId = this.catalogs[0].id;
 	}
 
-	/** Auto-open a project folder passed on the command line. */
+	/** Auto-open the folder or file passed on the command line. */
 	async initFromCli() {
 		try {
-			const dir = await initialProject();
-			if (dir) await this.loadProject(dir);
+			const target = await initialProject();
+			if (!target) return;
+			if (/\.(xlf|xliff)$/i.test(target)) await this.openSingleFile(target);
+			else await this.loadProject(target);
 		} catch {
 			/* not running under Tauri / no arg */
 		}
+	}
+
+	/** Re-open a recent project or file. */
+	async openRecent(entry: RecentEntry) {
+		if (entry.kind === 'file') await this.openSingleFile(entry.path);
+		else await this.loadProject(entry.path);
+	}
+
+	get recents(): RecentEntry[] {
+		return settings.recents;
 	}
 
 	async openProject() {
@@ -145,6 +158,7 @@ class AppState {
 			this.projectRoot = dir;
 			this.projectName = dir.split('/').filter(Boolean).pop() ?? dir;
 			this.activeId = catalogs[0]?.id ?? null;
+			settings.addRecent(dir, 'project');
 			this.toast('success', `Loaded ${catalogs.length} catalog(s) from ${this.projectName}`);
 		} catch (e) {
 			this.toast('error', `Could not open project: ${e}`);
@@ -153,8 +167,8 @@ class AppState {
 		}
 	}
 
-	async openSingleFile() {
-		const path = await pickXliffFile();
+	async openSingleFile(pathArg?: string) {
+		const path = pathArg ?? (await pickXliffFile());
 		if (!path) return;
 		this.loading = true;
 		try {
@@ -185,10 +199,12 @@ class AppState {
 			this.catalogs = catalogs;
 			this.projectRoot = dir;
 			this.projectName = dir.split('/').filter(Boolean).pop() ?? dir;
-			this.activeId =
-				catalogs.find((c) => Object.values(c).length && c.dir === dir)?.id ??
-				catalogs[0]?.id ??
-				null;
+			// Activate the catalog that actually contains the opened file.
+			const owning = catalogs.find(
+				(c) => c.source.path === path || c.languages.some((l) => l.path === path)
+			);
+			this.activeId = owning?.id ?? catalogs[0]?.id ?? null;
+			settings.addRecent(path, 'file');
 		} catch (e) {
 			this.toast('error', `Could not open file: ${e}`);
 		} finally {
@@ -299,7 +315,7 @@ class AppState {
 		try {
 			for (const d of docs) {
 				// Skip writing an empty, non-existent source file only if there is nothing.
-				await writeTextFile(d.path, serializeXliff(d.doc));
+				await writeTextFile(d.path, serializeXliff(d.doc, { indent: settings.indentUnit }));
 			}
 			cat.source.exists = true;
 			for (const lf of cat.languages) lf.exists = true;
@@ -325,7 +341,10 @@ class AppState {
 		const cat = this.active;
 		if (!cat) return null;
 		return catalogToDocuments(cat)
-			.map((d) => `<!-- ${d.path.split('/').pop()} -->\n${serializeXliff(d.doc)}`)
+			.map(
+				(d) =>
+					`<!-- ${d.path.split('/').pop()} -->\n${serializeXliff(d.doc, { indent: settings.indentUnit })}`
+			)
 			.join('\n\n');
 	}
 

@@ -5,6 +5,11 @@ import type { TransUnit, XliffDocument, XliffNote } from './types';
 // (see parse.ts), so it is embedded verbatim; attribute values and note text are
 // escaped here.
 
+export interface SerializeOptions {
+	/** String used for one indentation level. Defaults to a tab. */
+	indent?: string;
+}
+
 function escAttr(v: string): string {
 	return v
 		.replace(/&/g, '&amp;')
@@ -28,7 +33,7 @@ function body(value: string, hasMarkup: boolean | undefined): string {
 
 const TYPO3_NS = 'https://typo3.org/schemas/xliff';
 
-function serializeV12(doc: XliffDocument): string {
+function serializeV12(doc: XliffDocument, ind: (level: number) => string): string {
 	const isTranslation = !!doc.targetLanguage;
 	const lines: string[] = [];
 	lines.push('<?xml version="1.0" encoding="UTF-8"?>');
@@ -43,21 +48,21 @@ function serializeV12(doc: XliffDocument): string {
 	fileAttrs += attr('product-name', doc.productName);
 	for (const [k, v] of Object.entries(doc.extraFileAttrs ?? {})) fileAttrs += attr(k, v);
 
-	lines.push(`\t<file${fileAttrs}>`);
+	lines.push(`${ind(1)}<file${fileAttrs}>`);
 
 	if (doc.headerNotes.length) {
-		lines.push('\t\t<header>');
-		for (const n of doc.headerNotes) lines.push(`\t\t\t${noteXml12(n)}`);
-		lines.push('\t\t</header>');
+		lines.push(`${ind(2)}<header>`);
+		for (const n of doc.headerNotes) lines.push(`${ind(3)}${noteXml12(n)}`);
+		lines.push(`${ind(2)}</header>`);
 	} else {
-		lines.push('\t\t<header/>');
+		lines.push(`${ind(2)}<header/>`);
 	}
 
-	lines.push('\t\t<body>');
-	for (const u of doc.units) lines.push(...unitXml12(u, isTranslation));
-	lines.push('\t\t</body>');
+	lines.push(`${ind(2)}<body>`);
+	for (const u of doc.units) lines.push(...unitXml12(u, isTranslation, ind));
+	lines.push(`${ind(2)}</body>`);
 
-	lines.push('\t</file>');
+	lines.push(`${ind(1)}</file>`);
 	lines.push('</xliff>');
 	return lines.join('\n') + '\n';
 }
@@ -69,7 +74,7 @@ function noteXml12(n: XliffNote): string {
 	return `<note${a}>${escText(n.text)}</note>`;
 }
 
-function unitXml12(u: TransUnit, isTranslation: boolean): string[] {
+function unitXml12(u: TransUnit, isTranslation: boolean, ind: (level: number) => string): string[] {
 	const out: string[] = [];
 	let a = '';
 	a += attr('id', u.id);
@@ -78,18 +83,18 @@ function unitXml12(u: TransUnit, isTranslation: boolean): string[] {
 	if (u.xmlSpace) a += ` xml:space="${u.xmlSpace}"`;
 	for (const [k, v] of Object.entries(u.extraAttrs ?? {})) a += attr(k, v);
 
-	out.push(`\t\t\t<trans-unit${a}>`);
-	out.push(`\t\t\t\t<source>${body(u.source, u.sourceHasMarkup)}</source>`);
+	out.push(`${ind(3)}<trans-unit${a}>`);
+	out.push(`${ind(4)}<source>${body(u.source, u.sourceHasMarkup)}</source>`);
 	if (isTranslation && u.target !== undefined) {
 		const stateAttr = u.state ? ` state="${escAttr(u.state)}"` : '';
-		out.push(`\t\t\t\t<target${stateAttr}>${body(u.target, u.targetHasMarkup)}</target>`);
+		out.push(`${ind(4)}<target${stateAttr}>${body(u.target, u.targetHasMarkup)}</target>`);
 	}
-	for (const n of u.notes) out.push(`\t\t\t\t${noteXml12(n)}`);
-	out.push('\t\t\t</trans-unit>');
+	for (const n of u.notes) out.push(`${ind(4)}${noteXml12(n)}`);
+	out.push(`${ind(3)}</trans-unit>`);
 	return out;
 }
 
-function serializeV20(doc: XliffDocument): string {
+function serializeV20(doc: XliffDocument, ind: (level: number) => string): string {
 	const isTranslation = !!doc.targetLanguage;
 	const lines: string[] = [];
 	lines.push('<?xml version="1.0" encoding="UTF-8"?>');
@@ -102,17 +107,17 @@ function serializeV20(doc: XliffDocument): string {
 	fileAttrs += attr('id', doc.fileId ?? 'f1');
 	fileAttrs += attr('original', doc.original);
 	for (const [k, v] of Object.entries(doc.extraFileAttrs ?? {})) fileAttrs += attr(k, v);
-	lines.push(`\t<file${fileAttrs}>`);
+	lines.push(`${ind(1)}<file${fileAttrs}>`);
 
 	if (doc.headerNotes.length) {
-		lines.push('\t\t<notes>');
-		for (const n of doc.headerNotes) lines.push(`\t\t\t${noteXml20(n)}`);
-		lines.push('\t\t</notes>');
+		lines.push(`${ind(2)}<notes>`);
+		for (const n of doc.headerNotes) lines.push(`${ind(3)}${noteXml20(n)}`);
+		lines.push(`${ind(2)}</notes>`);
 	}
 
-	for (const u of doc.units) lines.push(...unitXml20(u, isTranslation));
+	for (const u of doc.units) lines.push(...unitXml20(u, isTranslation, ind));
 
-	lines.push('\t</file>');
+	lines.push(`${ind(1)}</file>`);
 	lines.push('</xliff>');
 	return lines.join('\n') + '\n';
 }
@@ -125,31 +130,33 @@ function noteXml20(n: XliffNote): string {
 	return `<note${a}>${escText(n.text)}</note>`;
 }
 
-function unitXml20(u: TransUnit, isTranslation: boolean): string[] {
+function unitXml20(u: TransUnit, isTranslation: boolean, ind: (level: number) => string): string[] {
 	const out: string[] = [];
 	let a = '';
 	a += attr('id', u.id);
 	a += attr('name', u.resname);
 	for (const [k, v] of Object.entries(u.extraAttrs ?? {})) a += attr(k, v);
-	out.push(`\t\t<unit${a}>`);
+	out.push(`${ind(2)}<unit${a}>`);
 
 	if (u.notes.length) {
-		out.push('\t\t\t<notes>');
-		for (const n of u.notes) out.push(`\t\t\t\t${noteXml20(n)}`);
-		out.push('\t\t\t</notes>');
+		out.push(`${ind(3)}<notes>`);
+		for (const n of u.notes) out.push(`${ind(4)}${noteXml20(n)}`);
+		out.push(`${ind(3)}</notes>`);
 	}
 
 	const stateAttr = isTranslation && u.state ? ` state="${escAttr(u.state)}"` : '';
-	out.push(`\t\t\t<segment${stateAttr}>`);
-	out.push(`\t\t\t\t<source>${body(u.source, u.sourceHasMarkup)}</source>`);
+	out.push(`${ind(3)}<segment${stateAttr}>`);
+	out.push(`${ind(4)}<source>${body(u.source, u.sourceHasMarkup)}</source>`);
 	if (isTranslation && u.target !== undefined) {
-		out.push(`\t\t\t\t<target>${body(u.target, u.targetHasMarkup)}</target>`);
+		out.push(`${ind(4)}<target>${body(u.target, u.targetHasMarkup)}</target>`);
 	}
-	out.push('\t\t\t</segment>');
-	out.push('\t\t</unit>');
+	out.push(`${ind(3)}</segment>`);
+	out.push(`${ind(2)}</unit>`);
 	return out;
 }
 
-export function serializeXliff(doc: XliffDocument): string {
-	return doc.version === '2.0' ? serializeV20(doc) : serializeV12(doc);
+export function serializeXliff(doc: XliffDocument, options: SerializeOptions = {}): string {
+	const unit = options.indent ?? '\t';
+	const ind = (level: number) => unit.repeat(level);
+	return doc.version === '2.0' ? serializeV20(doc, ind) : serializeV12(doc, ind);
 }

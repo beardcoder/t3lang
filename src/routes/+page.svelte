@@ -8,7 +8,10 @@
 	import CatalogView from '$lib/components/CatalogView.svelte';
 	import Toasts from '$lib/components/Toasts.svelte';
 	import Modal from '$lib/components/Modal.svelte';
+	import SettingsModal from '$lib/components/SettingsModal.svelte';
 	import Icon from '$lib/components/Icon.svelte';
+
+	let settingsOpen = $state(false);
 
 	// --- New catalog modal -------------------------------------------------
 	let newOpen = $state(false);
@@ -100,13 +103,15 @@
 <svelte:window {onkeydown} />
 
 <div class="app-shell" data-tauri-drag-region>
-	<Sidebar onNewCatalog={openNew} />
+	<Sidebar onNewCatalog={openNew} onSettings={() => (settingsOpen = true)} />
 	<main class="content">
 		<CatalogView onAddUnit={openUnit} onAddLanguage={openLang} onExport={openExport} />
 	</main>
 </div>
 
 <Toasts />
+
+<SettingsModal bind:open={settingsOpen} />
 
 <!-- New catalog -->
 <Modal bind:open={newOpen} title="New translation catalog">
