@@ -1,0 +1,41 @@
+import { invoke } from '@tauri-apps/api/core';
+import { open } from '@tauri-apps/plugin-dialog';
+import type { ScannedFile } from './project';
+
+export function scanProject(root: string): Promise<ScannedFile[]> {
+	return invoke<ScannedFile[]>('scan_project', { root });
+}
+
+export function readTextFile(path: string): Promise<string> {
+	return invoke<string>('read_text_file', { path });
+}
+
+export function writeTextFile(path: string, contents: string): Promise<void> {
+	return invoke('write_text_file', { path, contents });
+}
+
+export function fileExists(path: string): Promise<boolean> {
+	return invoke<boolean>('file_exists', { path });
+}
+
+/** Project folder the app was launched with on the command line, if any. */
+export function initialProject(): Promise<string | null> {
+	return invoke<string | null>('initial_project');
+}
+
+/** Native folder picker. Returns absolute path or null if cancelled. */
+export async function pickDirectory(title = 'Open project folder'): Promise<string | null> {
+	const result = await open({ directory: true, multiple: false, title });
+	return typeof result === 'string' ? result : null;
+}
+
+/** Native file picker for a single XLIFF file. */
+export async function pickXliffFile(): Promise<string | null> {
+	const result = await open({
+		directory: false,
+		multiple: false,
+		title: 'Open XLIFF file',
+		filters: [{ name: 'XLIFF', extensions: ['xlf', 'xliff'] }]
+	});
+	return typeof result === 'string' ? result : null;
+}

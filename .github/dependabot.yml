@@ -1,0 +1,33 @@
+version: 2
+updates:
+  # Frontend dependencies (package.json / bun.lock use the npm ecosystem).
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      frontend:
+        patterns:
+          - '*'
+
+  # Rust crates for the Tauri backend.
+  - package-ecosystem: cargo
+    directory: /src-tauri
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      rust:
+        patterns:
+          - '*'
+
+  # GitHub Actions used in the workflows.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns:
+          - '*'

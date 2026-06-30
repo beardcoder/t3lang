@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns:t3="https://typo3.org/schemas/xliff">
+	<file source-language="en" target-language="de" datatype="plaintext" original="EXT:my_ext/Resources/Private/Language/locallang.xlf" product-name="my_ext">
+		<header/>
+		<body>
+			<trans-unit id="login.header" resname="login.header" approved="yes" xml:space="preserve">
+				<source>Please log in &amp; continue</source>
+				<target state="translated">Bitte einloggen &amp; fortfahren</target>
+			</trans-unit>
+			<trans-unit id="login.button">
+				<source>Log in</source>
+				<target>Einloggen</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>
