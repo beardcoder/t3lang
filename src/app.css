@@ -10,44 +10,57 @@
    --------------------------------------------------------------------------- */
 
 :root {
-	--mac-radius: 7px;
-	--mac-radius-lg: 9px;
-	--island-radius: 11px;
-	--gap: 9px;
-	--mac-accent: #0a6cff;
-	--mac-accent-weak: rgba(10, 108, 255, 0.1);
+	--mac-radius: 8px;
+	--mac-radius-lg: 12px;
+	--island-radius: 16px;
+	--gap: 10px;
 	--sidebar-w: 244px;
 	--row-h: 30px;
+	--font-mono: 'SF Mono', ui-monospace, Menlo, monospace;
 
-	/* light surface palette — translucent so native window vibrancy shows through */
-	--app-tint: linear-gradient(160deg, rgba(235, 236, 242, 0.5) 0%, rgba(228, 229, 236, 0.5) 100%);
-	--surface-sidebar: rgba(248, 249, 251, 0.55);
-	--surface-content: rgba(255, 255, 255, 0.7);
-	--surface-raised: rgba(244, 245, 248, 0.7);
-	--surface-hover: rgba(10, 12, 30, 0.05);
-	--island-border: rgba(255, 255, 255, 0.5);
-	--island-shadow: 0 6px 20px rgba(20, 24, 40, 0.12), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
-	--border-soft: rgba(10, 12, 30, 0.07);
-	--border-strong: rgba(10, 12, 30, 0.14);
-	--text-strong: #1d1d1f;
-	--text-muted: #86868b;
+	/* TYPO3 orange, tuned for UI use */
+	--mac-accent: #e06000; /* text, strokes, rings */
+	--mac-accent-solid: #c85300; /* filled surfaces — keeps white text legible */
+	--mac-accent-weak: rgba(224, 96, 0, 0.11);
+	--on-accent: #ffffff;
+	--amber: #e89b2e; /* pending / unsaved */
+	--ok: #2f9e56;
+	--danger: #d9503a;
+
+	/* light surface palette — warm-tinted, translucent so native vibrancy shows through */
+	--app-tint: linear-gradient(160deg, rgba(242, 238, 232, 0.5) 0%, rgba(236, 231, 224, 0.5) 100%);
+	--surface-sidebar: rgba(251, 249, 246, 0.55);
+	--surface-content: rgba(255, 254, 252, 0.72);
+	--surface-raised: rgba(247, 244, 240, 0.7);
+	--surface-hover: rgba(46, 32, 18, 0.05);
+	--island-border: rgba(255, 255, 255, 0.55);
+	--island-shadow: 0 10px 30px rgba(46, 32, 18, 0.13), 0 0 0 0.5px rgba(46, 32, 18, 0.07);
+	--border-soft: rgba(46, 32, 18, 0.08);
+	--border-strong: rgba(46, 32, 18, 0.15);
+	--text-strong: #211c16;
+	--text-muted: #8c8378;
 }
 
 @media (prefers-color-scheme: dark) {
 	:root {
-		--mac-accent: #3b82f6;
-		--mac-accent-weak: rgba(59, 130, 246, 0.18);
-		--app-tint: linear-gradient(160deg, rgba(28, 29, 33, 0.4) 0%, rgba(22, 22, 25, 0.4) 100%);
-		--surface-sidebar: rgba(44, 45, 50, 0.5);
-		--surface-content: rgba(36, 37, 41, 0.62);
-		--surface-raised: rgba(48, 49, 54, 0.62);
-		--surface-hover: rgba(255, 255, 255, 0.06);
+		--mac-accent: #ff9330;
+		--mac-accent-solid: #ff9330;
+		--mac-accent-weak: rgba(255, 147, 48, 0.16);
+		--on-accent: #2a1b09;
+		--amber: #f0a23b;
+		--ok: #3cba68;
+		--danger: #e8604a;
+		--app-tint: linear-gradient(160deg, rgba(33, 30, 27, 0.42) 0%, rgba(25, 23, 21, 0.42) 100%);
+		--surface-sidebar: rgba(50, 46, 42, 0.5);
+		--surface-content: rgba(41, 38, 34, 0.62);
+		--surface-raised: rgba(54, 50, 45, 0.62);
+		--surface-hover: rgba(255, 248, 240, 0.06);
 		--island-border: rgba(255, 255, 255, 0.1);
-		--island-shadow: 0 8px 26px rgba(0, 0, 0, 0.45), 0 0 0 0.5px rgba(0, 0, 0, 0.55);
-		--border-soft: rgba(255, 255, 255, 0.08);
-		--border-strong: rgba(255, 255, 255, 0.15);
-		--text-strong: #f2f2f5;
-		--text-muted: #8d8d93;
+		--island-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(0, 0, 0, 0.55);
+		--border-soft: rgba(255, 248, 240, 0.08);
+		--border-strong: rgba(255, 248, 240, 0.15);
+		--text-strong: #f4f1ed;
+		--text-muted: #948c82;
 	}
 }
 
@@ -126,16 +139,6 @@ select:focus-visible {
 	border-color: var(--mac-accent);
 }
 
-/* draggable titlebar region */
-.titlebar-drag {
-	-webkit-app-region: drag;
-	app-region: drag;
-}
-.no-drag {
-	-webkit-app-region: no-drag;
-	app-region: no-drag;
-}
-
 /* subtle card */
 .mac-card {
 	background: var(--surface-content);
@@ -147,8 +150,8 @@ select:focus-visible {
 .mac-input {
 	background: var(--surface-content);
 	border: 1px solid var(--border-strong);
-	border-radius: 6px;
-	padding: 4px 8px;
+	border-radius: 8px;
+	padding: 5px 9px;
 	color: var(--text-strong);
 	transition: box-shadow 0.12s ease, border-color 0.12s ease;
 	width: 100%;
@@ -166,8 +169,8 @@ textarea.mac-input {
 	display: inline-flex;
 	align-items: center;
 	gap: 5px;
-	border-radius: 6px;
-	padding: 4px 10px;
+	border-radius: 999px;
+	padding: 5px 12px;
 	font-size: 12px;
 	font-weight: 500;
 	border: 0.5px solid var(--border-strong);
@@ -178,7 +181,7 @@ textarea.mac-input {
 	white-space: nowrap;
 	cursor: default;
 }
-.mac-btn:hover {
+.mac-btn:not(.mac-btn-primary):hover {
 	background: var(--surface-hover);
 }
 .mac-btn:active {
@@ -190,14 +193,14 @@ textarea.mac-input {
 }
 
 .mac-btn-primary {
-	background: var(--mac-accent);
+	background: linear-gradient(180deg, color-mix(in srgb, var(--mac-accent-solid) 88%, white) 0%, var(--mac-accent-solid) 100%);
 	border-color: transparent;
-	color: white;
-	box-shadow: 0 1px 2px rgba(10, 108, 255, 0.3);
+	color: var(--on-accent);
+	font-weight: 600;
+	box-shadow: 0 1px 3px color-mix(in srgb, var(--mac-accent-solid) 35%, transparent), inset 0 0.5px 0 rgba(255, 255, 255, 0.25);
 }
 .mac-btn-primary:hover {
-	background: var(--mac-accent);
-	filter: brightness(1.06);
+	filter: brightness(1.05);
 }
 
 .mac-btn-ghost {
@@ -215,8 +218,8 @@ textarea.mac-input {
 	gap: 4px;
 	font-size: 11px;
 	font-weight: 600;
-	padding: 1px 7px;
-	border-radius: 5px;
+	padding: 1px 8px;
+	border-radius: 999px;
 	line-height: 1.6;
 }
 

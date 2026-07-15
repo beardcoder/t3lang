@@ -63,8 +63,9 @@
 	.backdrop {
 		position: fixed;
 		inset: 0;
-		background: rgba(0, 0, 0, 0.28);
-		backdrop-filter: blur(2px);
+		background: rgba(20, 15, 10, 0.3);
+		backdrop-filter: blur(6px);
+		-webkit-backdrop-filter: blur(6px);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -75,7 +76,8 @@
 		max-height: 84vh;
 		display: flex;
 		flex-direction: column;
-		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+		border-radius: 15px;
+		box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
 		overflow: hidden;
 	}
 	header {

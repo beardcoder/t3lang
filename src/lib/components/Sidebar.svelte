@@ -34,9 +34,15 @@
 	<div class="topspace" data-tauri-drag-region></div>
 
 	<div class="brand" data-tauri-drag-region>
-		<div class="logo"><Icon name="globe" size={16} /></div>
+		<div class="logo" aria-hidden="true">
+			<!-- source/target file-card pair — same motif as the app icon -->
+			<svg viewBox="0 0 30 30" width="30" height="30">
+				<rect x="8" y="6.5" width="12" height="16" rx="3.5" transform="rotate(-8 14 14.5)" fill="rgba(255, 255, 255, 0.38)" />
+				<rect x="11" y="8.5" width="12" height="16" rx="3.5" transform="rotate(7 17 16.5)" fill="rgba(255, 255, 255, 0.95)" />
+			</svg>
+		</div>
 		<div class="brand-text">
-			<strong>t3lang</strong>
+			<strong>t<em>3</em>lang</strong>
 			<span>XLIFF Manager</span>
 		</div>
 	</div>
@@ -92,7 +98,12 @@
 									<span class="sub">{cat.version} · {cat.languages.length + 1} languages</span>
 								</span>
 								{#if cat.languages.length}
-									<span class="pct" title="{completeness(cat)}% translated">{completeness(cat)}%</span>
+									{@const p = completeness(cat)}
+									<svg class="ring" class:full={p === 100} viewBox="0 0 16 16" width="15" height="15" role="img" aria-label="{p}% translated">
+										<title>{p}% translated</title>
+										<circle class="ring-track" cx="8" cy="8" r="6" />
+										<circle class="ring-fill" cx="8" cy="8" r="6" pathLength="100" stroke-dasharray="{p} 100" transform="rotate(-90 8 8)" />
+									</svg>
 								{/if}
 								{#if cat.dirty}<span class="dot"></span>{/if}
 							</button>
@@ -150,9 +161,8 @@
 		border-radius: 9px;
 		display: grid;
 		place-items: center;
-		color: white;
-		background: linear-gradient(160deg, var(--mac-accent), color-mix(in srgb, var(--mac-accent) 55%, #8a5cf6));
-		box-shadow: 0 3px 8px var(--mac-accent-weak);
+		background: linear-gradient(160deg, #ff8f2e, #dd5a00);
+		box-shadow: 0 3px 8px rgba(224, 96, 0, 0.35);
 		flex-shrink: 0;
 	}
 	.brand-text {
@@ -161,9 +171,14 @@
 		line-height: 1.2;
 	}
 	.brand-text strong {
-		font-size: 14px;
+		font-family: var(--font-mono);
+		font-size: 13px;
 		font-weight: 700;
-		letter-spacing: -0.01em;
+		letter-spacing: -0.02em;
+	}
+	.brand-text strong em {
+		font-style: normal;
+		color: var(--mac-accent);
 	}
 	.brand-text span {
 		font-size: 10.5px;
@@ -286,7 +301,7 @@
 		align-items: center;
 		gap: 9px;
 		padding: 7px 9px;
-		border-radius: 7px;
+		border-radius: 8px;
 		border: none;
 		background: transparent;
 		color: var(--text-strong);
@@ -302,11 +317,12 @@
 		background: var(--surface-hover);
 	}
 	.item.active {
-		background: var(--mac-accent);
-		color: white;
+		background: var(--mac-accent-solid);
+		color: var(--on-accent);
 	}
 	.item.active :global(svg) {
-		color: rgba(255, 255, 255, 0.85);
+		color: inherit;
+		opacity: 0.9;
 	}
 	.info {
 		flex: 1;
@@ -333,27 +349,44 @@
 		text-overflow: ellipsis;
 	}
 	.item.active .sub {
-		color: rgba(255, 255, 255, 0.78);
+		color: inherit;
+		opacity: 0.78;
 	}
-	.pct {
-		font-size: 10px;
-		font-weight: 600;
-		font-variant-numeric: tabular-nums;
-		color: var(--text-muted);
+	.ring {
 		flex-shrink: 0;
+		color: var(--mac-accent);
 	}
-	.item.active .pct {
-		color: rgba(255, 255, 255, 0.9);
+	.ring.full {
+		color: var(--ok);
+	}
+	.ring-track {
+		fill: none;
+		stroke: var(--border-strong);
+		stroke-width: 2.4;
+	}
+	.ring-fill {
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2.4;
+		stroke-linecap: round;
+		transition: stroke-dasharray 0.25s ease;
+	}
+	.item.active .ring,
+	.item.active .ring.full {
+		color: inherit;
+	}
+	.item.active .ring-track {
+		stroke: color-mix(in srgb, currentColor 28%, transparent);
 	}
 	.dot {
 		width: 6px;
 		height: 6px;
 		border-radius: 50%;
 		flex-shrink: 0;
-		background: #f0a23b;
+		background: var(--amber);
 	}
 	.item.active .dot {
-		background: white;
+		background: currentColor;
 	}
 
 	.footer {

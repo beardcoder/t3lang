@@ -95,7 +95,19 @@
 	<div class="placeholder">
 		<div class="drag-strip" data-tauri-drag-region></div>
 		<div class="hero">
-			<div class="hero-icon"><Icon name="globe" size={30} /></div>
+			<div class="hero-icon" aria-hidden="true">
+				<!-- source → target file-card pair, the app's identity motif -->
+				<svg viewBox="0 0 96 96" width="76" height="76">
+					<g transform="rotate(-9 34 38)">
+						<rect x="15" y="13" width="37" height="50" rx="9" class="card-back" />
+						<text x="29" y="45" class="card-glyph back">A</text>
+					</g>
+					<g transform="rotate(7 62 56)">
+						<rect x="44" y="31" width="37" height="50" rx="9" class="card-front" />
+						<text x="62" y="64" class="card-glyph front">ä</text>
+					</g>
+				</svg>
+			</div>
 			<h1>TYPO3 XLIFF Manager</h1>
 			<p>Open a project folder or a single <code>.xlf</code> file to manage translations.</p>
 			<div class="hero-actions">
@@ -398,22 +410,38 @@
 		padding: 32px;
 	}
 	.hero-icon {
-		width: 60px;
-		height: 60px;
-		border-radius: 15px;
 		display: grid;
 		place-items: center;
-		margin: 0 auto 16px;
-		background: linear-gradient(160deg, var(--mac-accent), color-mix(in srgb, var(--mac-accent) 60%, #7a5cf6));
-		color: white;
-		box-shadow: 0 8px 22px var(--mac-accent-weak);
+		margin: 0 auto 10px;
+	}
+	.card-back {
+		fill: var(--surface-raised);
+		stroke: var(--border-strong);
+		stroke-width: 1;
+	}
+	.card-front {
+		fill: var(--mac-accent-solid);
+		filter: drop-shadow(0 4px 10px rgba(224, 96, 0, 0.35));
+	}
+	.card-glyph {
+		font-family: var(--font-mono);
+		font-size: 24px;
+		font-weight: 700;
+		text-anchor: middle;
+	}
+	.card-glyph.back {
+		fill: var(--text-muted);
+		opacity: 0.7;
+	}
+	.card-glyph.front {
+		fill: var(--on-accent);
 	}
 	.hero h1 {
-		font-size: 19px;
+		font-size: 20px;
 		font-weight: 700;
 		color: var(--text-strong);
 		margin: 0 0 6px;
-		letter-spacing: -0.01em;
+		letter-spacing: -0.02em;
 	}
 	.hero p {
 		font-size: 12.5px;
@@ -504,7 +532,7 @@
 		direction: rtl;
 	}
 	code {
-		font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+		font-family: var(--font-mono);
 		font-size: 0.92em;
 		background: var(--surface-hover);
 		padding: 1px 5px;
@@ -528,9 +556,10 @@
 		min-width: 0;
 	}
 	.title h1 {
-		font-size: 14px;
+		font-family: var(--font-mono);
+		font-size: 13px;
 		font-weight: 700;
-		letter-spacing: -0.01em;
+		letter-spacing: -0.02em;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -543,13 +572,14 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 3px;
-		font-size: 10.5px;
+		font-family: var(--font-mono);
+		font-size: 10px;
 		font-weight: 600;
 		color: var(--text-muted);
 		background: var(--surface-hover);
 		border: none;
-		border-radius: 5px;
-		padding: 2px 7px;
+		border-radius: 999px;
+		padding: 2.5px 9px;
 		cursor: default;
 	}
 	.ver:hover {
@@ -571,7 +601,7 @@
 		width: 7px;
 		height: 7px;
 		border-radius: 50%;
-		background: #f0a23b;
+		background: var(--amber);
 	}
 	.tools {
 		display: flex;
@@ -592,9 +622,9 @@
 	}
 	.search input {
 		width: 130px;
-		padding: 4px 24px 4px 26px;
+		padding: 4.5px 24px 4.5px 26px;
 		border: 0.5px solid var(--border-strong);
-		border-radius: 6px;
+		border-radius: 999px;
 		background: var(--surface-content);
 		color: var(--text-strong);
 		font-size: 12px;
@@ -637,8 +667,8 @@
 		gap: 2px;
 		background: var(--surface-raised);
 		border: 0.5px solid var(--border-soft);
-		padding: 2px;
-		border-radius: 8px;
+		padding: 2.5px;
+		border-radius: 999px;
 		overflow-x: auto;
 		max-width: 100%;
 	}
@@ -648,9 +678,10 @@
 		gap: 5px;
 		border: none;
 		background: transparent;
-		border-radius: 6px;
-		padding: 4px 9px;
-		font-size: 11.5px;
+		border-radius: 999px;
+		padding: 4px 11px;
+		font-family: var(--font-mono);
+		font-size: 11px;
 		font-weight: 600;
 		color: var(--text-strong);
 		white-space: nowrap;
@@ -666,7 +697,7 @@
 	.seg-item.active {
 		background: var(--surface-content);
 		color: var(--mac-accent);
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+		box-shadow: 0 1px 2.5px rgba(0, 0, 0, 0.14);
 	}
 	.prog {
 		width: 26px;
@@ -685,7 +716,7 @@
 		width: 5px;
 		height: 5px;
 		border-radius: 50%;
-		background: #f0a23b;
+		background: var(--amber);
 	}
 	.seg-add {
 		display: grid;
@@ -719,10 +750,11 @@
 	}
 	.ghost-x:hover {
 		background: var(--surface-hover);
-		color: #e0533d;
+		color: var(--danger);
 	}
 	.count {
-		font-size: 11px;
+		font-family: var(--font-mono);
+		font-size: 10.5px;
 		color: var(--text-muted);
 		white-space: nowrap;
 		font-variant-numeric: tabular-nums;
@@ -784,7 +816,7 @@
 		bottom: 4px;
 		width: 2px;
 		border-radius: 2px;
-		background: #f0a23b;
+		background: var(--amber);
 	}
 	.grip {
 		display: flex;
@@ -849,7 +881,7 @@
 		transition: background 0.1s ease, border-color 0.1s ease;
 	}
 	.fld.mono {
-		font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+		font-family: var(--font-mono);
 		font-size: 11.5px;
 		font-weight: 500;
 	}
@@ -880,7 +912,7 @@
 		place-items: center;
 		width: 22px;
 		height: 22px;
-		border-radius: 5px;
+		border-radius: 50%;
 		border: 0.5px solid var(--border-strong);
 		background: var(--surface-content);
 		color: transparent;
@@ -888,8 +920,8 @@
 		flex-shrink: 0;
 	}
 	.appr.on {
-		background: #2faa5b;
-		border-color: #2faa5b;
+		background: var(--ok);
+		border-color: var(--ok);
 		color: white;
 	}
 	.state-sel {
@@ -897,7 +929,7 @@
 		min-width: 0;
 		font-size: 11px;
 		border: 0.5px solid var(--border-soft);
-		border-radius: 5px;
+		border-radius: 6px;
 		padding: 3px 4px;
 		background: transparent;
 		color: var(--text-muted);
@@ -932,7 +964,7 @@
 		color: var(--text-strong);
 	}
 	.danger:hover {
-		color: #e0533d;
+		color: var(--danger);
 	}
 
 	/* ---- detail ---- */

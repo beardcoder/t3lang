@@ -108,7 +108,7 @@
 		line-height: 1.5;
 	}
 	code {
-		font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+		font-family: var(--font-mono);
 		font-size: 0.92em;
 		background: var(--surface-hover);
 		padding: 1px 5px;
@@ -119,14 +119,14 @@
 		gap: 2px;
 		background: var(--surface-raised);
 		border: 0.5px solid var(--border-soft);
-		border-radius: 8px;
-		padding: 2px;
+		border-radius: 999px;
+		padding: 2.5px;
 		width: fit-content;
 	}
 	.seg button {
 		border: none;
 		background: transparent;
-		border-radius: 6px;
+		border-radius: 999px;
 		padding: 5px 16px;
 		font-size: 12px;
 		font-weight: 600;
@@ -145,7 +145,7 @@
 	.size {
 		width: 34px;
 		height: 28px;
-		border-radius: 7px;
+		border-radius: 9px;
 		border: 0.5px solid var(--border-strong);
 		background: var(--surface-content);
 		font-size: 12px;
@@ -154,9 +154,9 @@
 		cursor: default;
 	}
 	.size.active {
-		background: var(--mac-accent);
+		background: var(--mac-accent-solid);
 		border-color: transparent;
-		color: white;
+		color: var(--on-accent);
 	}
 	.preview {
 		margin: 2px 0 0;
@@ -164,7 +164,7 @@
 		background: var(--surface-raised);
 		border: 0.5px solid var(--border-soft);
 		border-radius: 8px;
-		font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+		font-family: var(--font-mono);
 		font-size: 11px;
 		line-height: 1.55;
 		white-space: pre;
@@ -180,13 +180,13 @@
 	}
 	.ok {
 		font-size: 11px;
-		color: #2faa5b;
+		color: var(--ok);
 		margin: 0;
 		line-height: 1.5;
 	}
 	.err {
 		font-size: 11px;
-		color: #e0533d;
+		color: var(--danger);
 		margin: 0;
 		line-height: 1.5;
 	}

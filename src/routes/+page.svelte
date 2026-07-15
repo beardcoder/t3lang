@@ -227,7 +227,7 @@
 		gap: 6px;
 	}
 	.mono {
-		font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+		font-family: var(--font-mono);
 		font-size: 12px;
 	}
 	.export {
