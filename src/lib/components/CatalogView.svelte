@@ -92,7 +92,7 @@
 </script>
 
 {#if !cat}
-	<div class="placeholder">
+	<div class="start-screen">
 		<div class="drag-strip" data-tauri-drag-region></div>
 		<div class="hero">
 			<div class="hero-icon" aria-hidden="true">
@@ -384,7 +384,7 @@
 	}
 
 	/* ---- placeholder ---- */
-	.placeholder {
+	.start-screen {
 		flex: 1;
 		display: grid;
 		place-items: center;

@@ -99,10 +99,10 @@
 								</span>
 								{#if cat.languages.length}
 									{@const p = completeness(cat)}
-									<svg class="ring" class:full={p === 100} viewBox="0 0 16 16" width="15" height="15" role="img" aria-label="{p}% translated">
+									<svg class="pct-ring" class:done={p === 100} viewBox="0 0 16 16" width="15" height="15" role="img" aria-label="{p}% translated">
 										<title>{p}% translated</title>
-										<circle class="ring-track" cx="8" cy="8" r="6" />
-										<circle class="ring-fill" cx="8" cy="8" r="6" pathLength="100" stroke-dasharray="{p} 100" transform="rotate(-90 8 8)" />
+										<circle class="pct-track" cx="8" cy="8" r="6" />
+										<circle class="pct-fill" cx="8" cy="8" r="6" pathLength="100" stroke-dasharray="{p} 100" transform="rotate(-90 8 8)" />
 									</svg>
 								{/if}
 								{#if cat.dirty}<span class="dot"></span>{/if}
@@ -352,30 +352,30 @@
 		color: inherit;
 		opacity: 0.78;
 	}
-	.ring {
+	.pct-ring {
 		flex-shrink: 0;
 		color: var(--mac-accent);
 	}
-	.ring.full {
+	.pct-ring.done {
 		color: var(--ok);
 	}
-	.ring-track {
+	.pct-track {
 		fill: none;
 		stroke: var(--border-strong);
 		stroke-width: 2.4;
 	}
-	.ring-fill {
+	.pct-fill {
 		fill: none;
 		stroke: currentColor;
 		stroke-width: 2.4;
 		stroke-linecap: round;
 		transition: stroke-dasharray 0.25s ease;
 	}
-	.item.active .ring,
-	.item.active .ring.full {
+	.item.active .pct-ring,
+	.item.active .pct-ring.done {
 		color: inherit;
 	}
-	.item.active .ring-track {
+	.item.active .pct-track {
 		stroke: color-mix(in srgb, currentColor 28%, transparent);
 	}
 	.dot {
