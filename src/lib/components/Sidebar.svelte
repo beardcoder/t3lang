@@ -1,10 +1,14 @@
 <script lang="ts">
 	import { app } from '$lib/state.svelte';
 	import type { Catalog } from '$lib/project';
+	import { showCatalogMenu, showListMenu } from '$lib/contextMenu';
 	import Icon from './Icon.svelte';
 
-	let { onNewCatalog, onSettings }: { onNewCatalog: () => void; onSettings: () => void } =
-		$props();
+	let {
+		onNewCatalog,
+		onSettings,
+		onAddLanguage
+	}: { onNewCatalog: () => void; onSettings: () => void; onAddLanguage: () => void } = $props();
 
 	let filter = $state('');
 	let collapsed = $state<Record<string, boolean>>({});
@@ -68,7 +72,13 @@
 		</div>
 	{/if}
 
-	<nav class="list no-drag">
+	<nav
+		class="list no-drag"
+		oncontextmenu={(e) => {
+			e.preventDefault();
+			showListMenu({ onNewCatalog });
+		}}
+	>
 		{#if app.catalogs.length === 0}
 			<div class="empty">
 				<Icon name="folder" size={22} />
@@ -91,6 +101,11 @@
 								class="item"
 								class:active={cat.id === app.activeId}
 								onclick={() => (app.activeId = cat.id)}
+								oncontextmenu={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									showCatalogMenu(cat, { onAddLanguage });
+								}}
 							>
 								<Icon name="file" size={14} />
 								<span class="info">

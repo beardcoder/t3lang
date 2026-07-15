@@ -20,6 +20,7 @@ import {
 	pickXliffFile,
 	readTextFile,
 	scanProject,
+	trashPaths,
 	writeTextFile
 } from './tauri';
 
@@ -254,13 +255,45 @@ class AppState {
 		this.toast('success', `Converted ${cat.base} to XLIFF ${target}`);
 	}
 
-	removeLanguage(lang: string) {
-		const cat = this.active;
+	/** Delete a language from a catalog and move its file to the trash. */
+	async deleteLanguage(catId: string, lang: string) {
+		const cat = this.catalogs.find((c) => c.id === catId);
 		if (!cat) return;
+		const lf = cat.languages.find((l) => l.lang === lang);
+		if (!lf) return;
+		try {
+			if (lf.exists) await trashPaths([lf.path]);
+		} catch (e) {
+			this.toast('error', `Could not move file to trash: ${e}`);
+			return;
+		}
 		cat.languages = cat.languages.filter((l) => l.lang !== lang);
 		for (const u of cat.units) delete u.targets[lang];
-		cat.dirty = true;
-		this.toast('info', `Removed language ${lang} from catalog`);
+		this.toast(
+			'success',
+			lf.exists ? `Moved ${lf.path.split('/').pop()} to the trash` : `Removed language ${lang}`
+		);
+	}
+
+	/** Delete a whole catalog: source file plus all language files go to the trash. */
+	async deleteCatalog(catId: string) {
+		const cat = this.catalogs.find((c) => c.id === catId);
+		if (!cat) return;
+		const paths = [cat.source, ...cat.languages].filter((f) => f.exists).map((f) => f.path);
+		try {
+			if (paths.length) await trashPaths(paths);
+		} catch (e) {
+			this.toast('error', `Could not move files to trash: ${e}`);
+			return;
+		}
+		this.catalogs = this.catalogs.filter((c) => c.id !== catId);
+		if (this.activeId === catId) this.activeId = this.catalogs[0]?.id ?? null;
+		this.toast(
+			'success',
+			paths.length
+				? `Moved ${cat.base}.${cat.ext} and ${paths.length - 1} translation file(s) to the trash`
+				: `Removed ${cat.base}.${cat.ext}`
+		);
 	}
 
 	addUnit(id: string, source: string): CatalogUnit | null {

@@ -10,6 +10,7 @@
 	import { languageLabel } from '$lib/xliff/typo3';
 	import type { CatalogUnit, TargetEntry } from '$lib/project';
 	import { autosize } from '$lib/actions';
+	import { showCatalogMenu, showLanguageMenu } from '$lib/contextMenu';
 	import Icon from './Icon.svelte';
 
 	let {
@@ -143,7 +144,15 @@
 	<div class="view">
 		<!-- Toolbar -->
 		<header class="toolbar" data-tauri-drag-region>
-			<div class="title" data-tauri-drag-region>
+			<div
+				class="title"
+				role="group"
+				data-tauri-drag-region
+				oncontextmenu={(e) => {
+					e.preventDefault();
+					showCatalogMenu(cat, { onAddLanguage });
+				}}
+			>
 				<h1 data-tauri-drag-region>{cat.base}<span class="ext">.{cat.ext}</span></h1>
 				<button class="ver no-drag" onclick={convert} title="Convert XLIFF version">
 					XLIFF {cat.version}<span class="swap">→ {cat.version === '1.2' ? '2.0' : '1.2'}</span>
@@ -173,6 +182,10 @@
 						class="seg-item"
 						class:active={activeLang === lf.lang}
 						onclick={() => (activeLang = lf.lang)}
+						oncontextmenu={(e) => {
+							e.preventDefault();
+							showLanguageMenu(cat, lf.lang);
+						}}
 						title={languageLabel(lf.lang)}
 					>
 						{lf.lang}
@@ -186,12 +199,8 @@
 				{#if activeLang}
 					<button
 						class="ghost-x"
-						title="Remove “{activeLang}” from catalog"
-						onclick={() => {
-							const l = activeLang!;
-							if (confirm(`Remove language “${l}” from this catalog? The file stays on disk until you delete it.`))
-								app.removeLanguage(l);
-						}}><Icon name="trash" size={12} /></button>
+						title="Manage “{activeLang}” file"
+						onclick={() => showLanguageMenu(cat, activeLang!)}><Icon name="trash" size={12} /></button>
 				{/if}
 				<span class="count">{cat.units.length} entries · {progress(activeLang ?? '')}%</span>
 			</div>

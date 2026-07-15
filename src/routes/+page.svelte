@@ -103,7 +103,7 @@
 <svelte:window {onkeydown} />
 
 <div class="app-shell" data-tauri-drag-region>
-	<Sidebar onNewCatalog={openNew} onSettings={() => (settingsOpen = true)} />
+	<Sidebar onNewCatalog={openNew} onSettings={() => (settingsOpen = true)} onAddLanguage={openLang} />
 	<main class="content">
 		<CatalogView onAddUnit={openUnit} onAddLanguage={openLang} onExport={openExport} />
 	</main>

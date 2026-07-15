@@ -18,6 +18,23 @@ export function fileExists(path: string): Promise<boolean> {
 	return invoke<boolean>('file_exists', { path });
 }
 
+/** Move files to the system trash. Missing paths are skipped. */
+export function trashPaths(paths: string[]): Promise<void> {
+	return invoke('trash_paths', { paths });
+}
+
+/** Reveal a file in Finder / Explorer. */
+export async function revealInDir(path: string): Promise<void> {
+	const { revealItemInDir } = await import('@tauri-apps/plugin-opener');
+	await revealItemInDir(path);
+}
+
+/** Native yes/no confirmation dialog. */
+export async function confirmDialog(message: string, title: string): Promise<boolean> {
+	const { ask } = await import('@tauri-apps/plugin-dialog');
+	return ask(message, { title, kind: 'warning' });
+}
+
 /** Project folder/file the app was launched with on the command line, if any. */
 export function initialProject(): Promise<string | null> {
 	return invoke<string | null>('initial_project');

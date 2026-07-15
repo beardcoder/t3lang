@@ -105,6 +105,17 @@ fn file_exists(path: String) -> bool {
     Path::new(&path).exists()
 }
 
+/// Move files to the system trash (never a permanent delete).
+/// Paths that don't exist are skipped.
+#[tauri::command]
+fn trash_paths(paths: Vec<String>) -> Result<(), String> {
+    let existing: Vec<&String> = paths.iter().filter(|p| Path::new(p).exists()).collect();
+    if existing.is_empty() {
+        return Ok(());
+    }
+    trash::delete_all(&existing).map_err(|e| e.to_string())
+}
+
 /// Install a `t3lang` command on PATH by symlinking the current executable.
 /// Returns the path the CLI was installed to.
 #[tauri::command]
@@ -180,6 +191,7 @@ pub fn run() {
             read_text_file,
             write_text_file,
             file_exists,
+            trash_paths,
             initial_project,
             install_cli
         ])

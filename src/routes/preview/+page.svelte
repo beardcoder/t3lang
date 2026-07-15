@@ -36,7 +36,7 @@
 </script>
 
 <div class="app-shell" data-tauri-drag-region>
-	<Sidebar onNewCatalog={() => {}} onSettings={() => {}} />
+	<Sidebar onNewCatalog={() => {}} onSettings={() => {}} onAddLanguage={() => {}} />
 	<main class="content">
 		<CatalogView onAddUnit={() => {}} onAddLanguage={() => {}} onExport={() => {}} />
 	</main>
