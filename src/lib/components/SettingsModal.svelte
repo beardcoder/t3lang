@@ -81,7 +81,7 @@
 		</button>
 	</section>
 
-	<p class="version">t3lang v3.1.0</p>
+	<p class="version">t3lang v3.2.0</p>
 
 	{#snippet footer()}
 		<button class="mac-btn mac-btn-primary" onclick={() => (open = false)}>Done</button>
