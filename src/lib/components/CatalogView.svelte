@@ -166,6 +166,7 @@
 					{#if app.search}<button class="clear" onclick={() => (app.search = '')} aria-label="Clear"><Icon name="x" size={11} /></button>{/if}
 				</label>
 				<button class="mac-btn" onclick={onAddUnit}><Icon name="plus" size={13} /> Entry</button>
+				<button class="mac-btn icon" onclick={() => app.sortUnits()} title="Sort entries by key (A–Z)" aria-label="Sort entries by key"><Icon name="sort" size={14} /></button>
 				<button class="mac-btn icon" onclick={onExport} title="XML preview / export"><Icon name="download" size={14} /></button>
 				<button class="mac-btn mac-btn-primary" onclick={() => app.saveActive()} disabled={!cat.dirty}>
 					<Icon name="save" size={13} /> Save

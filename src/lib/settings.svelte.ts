@@ -24,11 +24,14 @@ function hasStorage(): boolean {
 interface PersistedSettings {
 	indentStyle: IndentStyle;
 	indentSize: number;
+	sortOnSave: boolean;
 }
 
 class Settings {
 	indentStyle = $state<IndentStyle>('tab');
 	indentSize = $state(2);
+	/** Sort entries alphabetically by key whenever a catalog is saved. */
+	sortOnSave = $state(false);
 	recents = $state<RecentEntry[]>([]);
 
 	constructor() {
@@ -39,6 +42,7 @@ class Settings {
 				const s = JSON.parse(raw) as Partial<PersistedSettings>;
 				if (s.indentStyle === 'tab' || s.indentStyle === 'space') this.indentStyle = s.indentStyle;
 				if (typeof s.indentSize === 'number') this.indentSize = s.indentSize;
+				if (typeof s.sortOnSave === 'boolean') this.sortOnSave = s.sortOnSave;
 			}
 		} catch {
 			/* ignore */
@@ -66,9 +70,18 @@ class Settings {
 		this.persistSettings();
 	}
 
+	setSortOnSave(on: boolean) {
+		this.sortOnSave = on;
+		this.persistSettings();
+	}
+
 	private persistSettings() {
 		if (!hasStorage()) return;
-		const data: PersistedSettings = { indentStyle: this.indentStyle, indentSize: this.indentSize };
+		const data: PersistedSettings = {
+			indentStyle: this.indentStyle,
+			indentSize: this.indentSize,
+			sortOnSave: this.sortOnSave
+		};
 		localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));
 	}
 

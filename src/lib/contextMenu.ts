@@ -32,6 +32,7 @@ export async function showCatalogMenu(cat: Catalog, hooks: { onAddLanguage: () =
 				hooks.onAddLanguage();
 			}
 		},
+		{ text: 'Sort entries by key', action: () => app.sortUnits(cat.id) },
 		{
 			text: 'Reveal in Finder',
 			enabled: cat.source.exists,

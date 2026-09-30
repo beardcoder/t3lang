@@ -58,6 +58,19 @@
 	</section>
 
 	<section>
+		<h3>Entry order</h3>
+		<p class="hint">Keep entries sorted alphabetically by key. Sorting on save overrides manual drag &amp; drop order.</p>
+		<div class="seg">
+			<button class:active={!settings.sortOnSave} onclick={() => settings.setSortOnSave(false)}>
+				Keep order
+			</button>
+			<button class:active={settings.sortOnSave} onclick={() => settings.setSortOnSave(true)}>
+				Sort by key on save
+			</button>
+		</div>
+	</section>
+
+	<section>
 		<h3>Command line</h3>
 		<p class="hint">Install a <code>t3lang</code> command so you can run <code>t3lang /path/to/folder</code> from the terminal.</p>
 		<div class="cli">

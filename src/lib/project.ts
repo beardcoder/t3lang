@@ -105,6 +105,18 @@ export function groupFiles(files: ScannedFile[]): CatalogDescriptor[] {
 	);
 }
 
+/** Order units by key (trans-unit id) using plain code-point comparison, so the
+ *  result is deterministic regardless of the system locale. */
+export function compareUnitIds(a: CatalogUnit, b: CatalogUnit): number {
+	return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+}
+
+/** True when the units are already ordered by key. */
+export function isSortedById(units: CatalogUnit[]): boolean {
+	for (let i = 1; i < units.length; i++) if (compareUnitIds(units[i - 1], units[i]) > 0) return false;
+	return true;
+}
+
 let keyCounter = 0;
 export function nextKey(): string {
 	keyCounter += 1;
