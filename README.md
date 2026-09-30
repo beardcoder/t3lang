@@ -54,6 +54,9 @@ release pipeline produces fully signed & notarized macOS builds automatically.
 - **Add / duplicate / delete entries** (trans-units).
 - **Reorder entries** by drag & drop — the order is applied across every
   language file on save.
+- **Sort entries by key** — one click (toolbar or catalog context menu) orders
+  all entries alphabetically by their `id`; optionally sort automatically on
+  every save (Settings → Entry order).
 - **Inline editing** of source, every target language, translation `state`,
   v1.2 `approved` flag, `resname`, `xml:space`, and notes.
 - **Full XLIFF 1.2 & 2.0 support**, including TYPO3 specifics:

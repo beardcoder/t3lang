@@ -8,6 +8,8 @@ import {
 	catalogToDocuments,
 	createEmptyCatalog,
 	groupFiles,
+	compareUnitIds,
+	isSortedById,
 	type Catalog,
 	type CatalogUnit,
 	type ScannedFile
@@ -343,7 +345,21 @@ class AppState {
 		cat.dirty = true;
 	}
 
+	/** Sort all entries of a catalog alphabetically by key. */
+	sortUnits(catId?: string) {
+		const cat = catId ? this.catalogs.find((c) => c.id === catId) : this.active;
+		if (!cat) return;
+		if (isSortedById(cat.units)) {
+			this.toast('info', `${cat.base} is already sorted by key`);
+			return;
+		}
+		cat.units = [...cat.units].sort(compareUnitIds);
+		cat.dirty = true;
+		this.toast('success', `Sorted ${cat.units.length} entries by key`);
+	}
+
 	async saveCatalog(cat: Catalog) {
+		if (settings.sortOnSave && !isSortedById(cat.units)) cat.units = [...cat.units].sort(compareUnitIds);
 		const docs = catalogToDocuments(cat);
 		try {
 			for (const d of docs) {
