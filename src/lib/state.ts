@@ -1,6 +1,7 @@
+import { proxy, snapshot } from 'valtio';
 import { parseXliff } from './xliff/parse';
 import { serializeXliff } from './xliff/serialize';
-import { settings, type RecentEntry } from './settings.svelte';
+import { settings, type RecentEntry } from './settings';
 import {
 	addLanguageToCatalog,
 	addUnit,
@@ -12,11 +13,11 @@ import {
 	isSortedById,
 	type Catalog,
 	type CatalogUnit,
-	type ScannedFile
+	type ScannedFile,
+	type TargetEntry
 } from './project';
 import type { XliffDocument, XliffVersion } from './xliff/types';
 import {
-	fileExists,
 	initialProject,
 	pickDirectory,
 	pickXliffFile,
@@ -53,14 +54,13 @@ const V20_TO_V12: Record<string, string> = {
 };
 
 class AppState {
-	projectRoot = $state<string | null>(null);
-	projectName = $state<string>('');
-	catalogs = $state<Catalog[]>([]);
-	activeId = $state<string | null>(null);
-	loading = $state(false);
-	search = $state('');
-	/** Which language column the editor focuses on (null = source only view). */
-	toasts = $state<Toast[]>([]);
+	projectRoot: string | null = null;
+	projectName = '';
+	catalogs: Catalog[] = [];
+	activeId: string | null = null;
+	loading = false;
+	search = '';
+	toasts: Toast[] = [];
 
 	private toastSeq = 0;
 
@@ -127,10 +127,6 @@ class AppState {
 	async openRecent(entry: RecentEntry) {
 		if (entry.kind === 'file') await this.openSingleFile(entry.path);
 		else await this.loadProject(entry.path);
-	}
-
-	get recents(): RecentEntry[] {
-		return settings.recents;
 	}
 
 	async openProject() {
@@ -314,10 +310,32 @@ class AppState {
 	}
 
 	removeUnit(key: string) {
+		this.removeUnits([key]);
+	}
+
+	removeUnits(keys: Iterable<string>) {
 		const cat = this.active;
 		if (!cat) return;
-		cat.units = cat.units.filter((u) => u.key !== key);
+		const drop = new Set(keys);
+		cat.units = cat.units.filter((u) => !drop.has(u.key));
 		cat.dirty = true;
+	}
+
+	/** Apply the same change to the `lang` target of several entries at once. */
+	updateTargets(keys: Iterable<string>, lang: string, change: (t: TargetEntry, u: CatalogUnit) => void) {
+		const cat = this.active;
+		if (!cat) return;
+		const pick = new Set(keys);
+		let n = 0;
+		for (const u of cat.units) {
+			if (!pick.has(u.key)) continue;
+			if (!u.targets[lang]) u.targets[lang] = { value: '', notes: [] };
+			change(u.targets[lang], u);
+			n++;
+		}
+		if (n === 0) return;
+		cat.dirty = true;
+		this.toast('success', `Updated ${n} ${n === 1 ? 'entry' : 'entries'}`);
 	}
 
 	duplicateUnit(key: string) {
@@ -329,8 +347,9 @@ class AppState {
 		let newId = `${src.id}_copy`;
 		let n = 1;
 		while (cat.units.some((u) => u.id === newId)) newId = `${src.id}_copy${++n}`;
+		// Proxies can't be structured-cloned; clone a plain snapshot instead.
 		const clone: CatalogUnit = {
-			...structuredClone({ ...src, key: '' }),
+			...structuredClone(snapshot(src) as CatalogUnit),
 			key: crypto.randomUUID(),
 			id: newId
 		};
@@ -396,12 +415,10 @@ class AppState {
 			)
 			.join('\n\n');
 	}
-
-	// re-export for components needing fs checks
-	fileExists = fileExists;
 }
 
-export const app = new AppState();
+/** Global app store. Mutate `app` directly; read it in components via `useSnapshot(app)`. */
+export const app = proxy(new AppState());
 
 const DEMO_SOURCE = `<?xml version="1.0" encoding="UTF-8"?>
 <xliff version="1.2" xmlns:t3="https://typo3.org/schemas/xliff">

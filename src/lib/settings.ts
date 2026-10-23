@@ -1,3 +1,5 @@
+import { proxy } from 'valtio';
+
 // Persisted user settings and recent-projects list (stored in localStorage,
 // which survives across launches inside the Tauri webview).
 
@@ -28,11 +30,11 @@ interface PersistedSettings {
 }
 
 class Settings {
-	indentStyle = $state<IndentStyle>('tab');
-	indentSize = $state(2);
+	indentStyle: IndentStyle = 'tab';
+	indentSize = 2;
 	/** Sort entries alphabetically by key whenever a catalog is saved. */
-	sortOnSave = $state(false);
-	recents = $state<RecentEntry[]>([]);
+	sortOnSave = false;
+	recents: RecentEntry[] = [];
 
 	constructor() {
 		if (!hasStorage()) return;
@@ -108,4 +110,4 @@ class Settings {
 	}
 }
 
-export const settings = new Settings();
+export const settings = proxy(new Settings());

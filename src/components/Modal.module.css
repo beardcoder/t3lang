@@ -1,0 +1,64 @@
+.backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.18);
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	padding-top: 40px;
+	z-index: 100;
+	animation: fadeIn 0.13s ease both;
+}
+.sheet {
+	width: min(480px, 92vw);
+	max-height: calc(100vh - 80px);
+	display: flex;
+	flex-direction: column;
+	background: var(--overlay-bg);
+	backdrop-filter: blur(40px) saturate(180%);
+	-webkit-backdrop-filter: blur(40px) saturate(180%);
+	border: 1px solid var(--border-strong);
+	border-radius: var(--island-radius);
+	box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+	overflow: hidden;
+	animation: dropIn 0.22s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 10px 4px 18px;
+}
+.header h2 {
+	font-size: 13px;
+	font-weight: 600;
+	margin: 0;
+}
+.body {
+	padding: 10px 18px 16px;
+	overflow: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+.footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	padding: 12px 18px 16px;
+}
+.footer :global(.mac-btn) {
+	min-width: 76px;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+}
+@keyframes dropIn {
+	from {
+		opacity: 0;
+		transform: translateY(-24px);
+	}
+}

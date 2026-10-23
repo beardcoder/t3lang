@@ -1,11 +1,15 @@
 # t3lang
 
 A desktop app for managing **TYPO3 XLIFF translations**. Built with **Tauri 2**,
-**Svelte 5**, **Skeleton v4** and **Tailwind CSS v4** — bundles natively for
+**React 19** (Vite, Valtio) and **Tailwind CSS v4** — bundles natively for
 macOS, Windows and Linux.
 
-The UI is lightly inspired by macOS: native window vibrancy, system font,
-floating translucent panels, soft borders and rounded corners.
+The UI follows a flat "islands" layout (in the spirit of the new VS Code design)
+on a native window: macOS vibrancy behind flat rounded panels for the catalog
+explorer and editor (reaching up into the hidden titlebar), language tabs, and a
+status bar. Select several entries (checkbox, ⇧-click for a range, ⌘A for all) to
+set a translation, state or approval on all of them at once.
+Keyboard: ⌘S save all, ⌘F search, ⌘B toggle sidebar, ⌘A select all, ⌘, settings.
 
 ## Download & install
 
@@ -170,5 +174,7 @@ above).
   `typo3.ts` (naming + language list), `types.ts`.
 - `src/lib/project.ts` — groups files into catalogs and splits them back for
   saving.
-- `src/lib/state.svelte.ts` — global app state (Svelte 5 runes).
-- `src/lib/components/` — UI (TitleBar, Sidebar, CatalogView, Modal, …).
+- `src/lib/state.ts` — global app state (Valtio proxy; mutate `app`, read via
+  `useSnapshot(app)`).
+- `src/components/` — React UI (Sidebar, CatalogView, EntryRow, BulkBar, Modal, …)
+  with co-located CSS modules.

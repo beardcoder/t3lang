@@ -21,7 +21,7 @@ export interface TargetEntry {
 
 /** A merged translatable entry across all languages of a catalog. */
 export interface CatalogUnit {
-	/** Internal row key, stable across edits (needed for dnd + svelte keys). */
+	/** Internal row key, stable across edits (needed for dnd + React keys). */
 	key: string;
 	id: string;
 	resname?: string;

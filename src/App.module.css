@@ -1,0 +1,58 @@
+.window {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+	overflow: hidden;
+}
+.workbench {
+	flex: 1;
+	display: flex;
+	gap: var(--gap);
+	min-height: 0;
+	padding: var(--gap) var(--gap) 0;
+}
+.content {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	min-width: 0;
+	min-height: 0;
+}
+
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--text);
+	flex: 1;
+}
+.field small {
+	font-weight: 400;
+	font-size: 11px;
+	color: var(--text-muted);
+}
+.field code {
+	font-family: var(--font-mono);
+}
+.frow {
+	display: flex;
+	gap: 12px;
+}
+.pickrow {
+	display: flex;
+	gap: 6px;
+}
+.mono {
+	font-family: var(--font-mono);
+	font-size: 12px;
+}
+.export {
+	width: 100%;
+	font-size: 11px;
+	line-height: 1.5;
+	white-space: pre;
+	overflow: auto;
+}

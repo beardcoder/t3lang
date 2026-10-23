@@ -1,5 +1,5 @@
 import type { Catalog } from './project';
-import { app } from './state.svelte';
+import { app } from './state';
 import { confirmDialog, revealInDir } from './tauri';
 
 /** Native menus need the Tauri runtime; in a plain browser we fall back to nothing. */

@@ -1,0 +1,49 @@
+.stack {
+	position: fixed;
+	top: calc(var(--gap) + var(--chrome-h) + 10px);
+	right: 18px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	z-index: 200;
+	pointer-events: none;
+}
+.toast {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 9px 15px 9px 13px;
+	border-radius: var(--radius);
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--text-strong);
+	background: var(--overlay-bg);
+	backdrop-filter: blur(30px) saturate(180%);
+	-webkit-backdrop-filter: blur(30px) saturate(180%);
+	border: 1px solid var(--border-strong);
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+	max-width: 380px;
+	animation: toastIn 0.22s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+.dot {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+.success .dot {
+	background: var(--ok);
+}
+.error .dot {
+	background: var(--danger);
+}
+.info .dot {
+	background: var(--text-muted);
+}
+
+@keyframes toastIn {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+}

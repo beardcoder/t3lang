@@ -1,67 +1,83 @@
 @import 'tailwindcss';
-@import '@skeletonlabs/skeleton';
-@import '@skeletonlabs/skeleton/themes/mona';
-
-@source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
 
 /* ---------------------------------------------------------------------------
-   t3lang — a lightly macOS-inspired surface.
-   System font stack, soft translucency, gentle borders and rounded corners.
+   t3lang — flat "islands" on a native window.
+   The window itself is native macOS vibrancy; content lives on flat, rounded
+   islands separated by small gaps (no shadows, no gradients), in the spirit
+   of the VS Code islands layout. Islands reach up into the (hidden) titlebar;
+   only the status bar sits directly on the window background.
    --------------------------------------------------------------------------- */
 
 :root {
-	--mac-radius: 8px;
-	--mac-radius-lg: 12px;
-	--island-radius: 16px;
-	--gap: 10px;
-	--sidebar-w: 244px;
-	--row-h: 30px;
+	--radius-sm: 5px;
+	--radius: 7px;
+	--island-radius: 10px;
+	--gap: 6px;
+	--chrome-h: 38px; /* top row of each island, level with the traffic lights */
+	--statusbar-h: 26px;
+	--sidebar-w: 248px;
 	--font-mono: 'SF Mono', ui-monospace, Menlo, monospace;
 
 	/* TYPO3 orange, tuned for UI use */
-	--mac-accent: #e06000; /* text, strokes, rings */
-	--mac-accent-solid: #c85300; /* filled surfaces — keeps white text legible */
-	--mac-accent-weak: rgba(224, 96, 0, 0.11);
+	--accent: #e06000; /* text, strokes, rings */
+	--accent-solid: #d25a00; /* filled surfaces — keeps white text legible */
+	--accent-weak: rgba(224, 96, 0, 0.12);
 	--on-accent: #ffffff;
 	--amber: #e89b2e; /* pending / unsaved */
 	--ok: #2f9e56;
 	--danger: #d9503a;
 
-	/* light surface palette — warm-tinted, translucent so native vibrancy shows through */
-	--app-tint: linear-gradient(160deg, rgba(242, 238, 232, 0.5) 0%, rgba(236, 231, 224, 0.5) 100%);
-	--surface-sidebar: rgba(251, 249, 246, 0.55);
-	--surface-content: rgba(255, 254, 252, 0.72);
-	--surface-raised: rgba(247, 244, 240, 0.7);
-	--surface-hover: rgba(46, 32, 18, 0.05);
-	--island-border: rgba(255, 255, 255, 0.55);
-	--island-shadow: 0 10px 30px rgba(46, 32, 18, 0.13), 0 0 0 0.5px rgba(46, 32, 18, 0.07);
-	--border-soft: rgba(46, 32, 18, 0.08);
-	--border-strong: rgba(46, 32, 18, 0.15);
-	--text-strong: #211c16;
-	--text-muted: #8c8378;
+	/* window + islands */
+	--window-tint: rgba(232, 232, 230, 0.55);
+	--island-sidebar: rgba(255, 255, 255, 0.5);
+	--island-editor: #ffffff;
+	--island-border: rgba(0, 0, 0, 0.07);
+	--surface-sunken: rgba(0, 0, 0, 0.035);
+	--surface-hover: rgba(0, 0, 0, 0.045);
+	--surface-active: rgba(0, 0, 0, 0.075);
+	--surface-control: #ffffff;
+	--selection: rgba(224, 96, 0, 0.13);
+	--selection-inactive: rgba(0, 0, 0, 0.07);
+	--border-soft: rgba(0, 0, 0, 0.065);
+	--border-strong: rgba(0, 0, 0, 0.13);
+	--text-strong: #1d1d1f;
+	--text: #3a3a3c;
+	--text-muted: #86868b;
+	--overlay-bg: rgba(250, 250, 250, 0.86);
 }
 
 @media (prefers-color-scheme: dark) {
 	:root {
-		--mac-accent: #ff9330;
-		--mac-accent-solid: #ff9330;
-		--mac-accent-weak: rgba(255, 147, 48, 0.16);
-		--on-accent: #2a1b09;
+		--accent: #ff9330;
+		--accent-solid: #e8740f;
+		--accent-weak: rgba(255, 147, 48, 0.15);
+		--on-accent: #ffffff;
 		--amber: #f0a23b;
 		--ok: #3cba68;
-		--danger: #e8604a;
-		--app-tint: linear-gradient(160deg, rgba(33, 30, 27, 0.42) 0%, rgba(25, 23, 21, 0.42) 100%);
-		--surface-sidebar: rgba(50, 46, 42, 0.5);
-		--surface-content: rgba(41, 38, 34, 0.62);
-		--surface-raised: rgba(54, 50, 45, 0.62);
-		--surface-hover: rgba(255, 248, 240, 0.06);
-		--island-border: rgba(255, 255, 255, 0.1);
-		--island-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(0, 0, 0, 0.55);
-		--border-soft: rgba(255, 248, 240, 0.08);
-		--border-strong: rgba(255, 248, 240, 0.15);
-		--text-strong: #f4f1ed;
-		--text-muted: #948c82;
+		--danger: #ef6a54;
+
+		--window-tint: rgba(22, 22, 22, 0.5);
+		--island-sidebar: rgba(255, 255, 255, 0.035);
+		--island-editor: #1e1e1e;
+		--island-border: rgba(255, 255, 255, 0.07);
+		--surface-sunken: rgba(255, 255, 255, 0.035);
+		--surface-hover: rgba(255, 255, 255, 0.055);
+		--surface-active: rgba(255, 255, 255, 0.09);
+		--surface-control: rgba(255, 255, 255, 0.07);
+		--selection: rgba(255, 147, 48, 0.17);
+		--selection-inactive: rgba(255, 255, 255, 0.08);
+		--border-soft: rgba(255, 255, 255, 0.07);
+		--border-strong: rgba(255, 255, 255, 0.14);
+		--text-strong: #f2f2f2;
+		--text: #d4d4d4;
+		--text-muted: #8b8b8f;
+		--overlay-bg: rgba(40, 40, 40, 0.88);
 	}
+}
+
+/* macOS dims selections and accents when the window loses focus. */
+:root.inactive {
+	--selection: var(--selection-inactive);
 }
 
 html,
@@ -69,37 +85,47 @@ body {
 	height: 100%;
 	margin: 0;
 	overflow: hidden;
-	/* Transparent so the native macOS vibrancy (NSVisualEffectView) shows through.
-	   A faint tint overlay keeps a hint of color while staying translucent. */
+	/* Transparent so the native macOS vibrancy (NSVisualEffectView) shows through. */
 	background: transparent;
 	color: var(--text-strong);
 	color-scheme: light dark;
-	font-family:
-		-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
 	font-size: 13px;
 	-webkit-font-smoothing: antialiased;
 	text-rendering: optimizeLegibility;
 	user-select: none;
+	-webkit-user-select: none;
 	cursor: default;
+	overscroll-behavior: none;
 }
 
-/* Faint tint over the vibrancy so the UI keeps a subtle colour. */
+/* Faint tint over the vibrancy so chrome reads as one calm surface. */
 body::before {
 	content: '';
 	position: fixed;
 	inset: 0;
-	background: var(--app-tint);
+	background: var(--window-tint);
 	pointer-events: none;
 	z-index: -1;
 }
 
 input,
-textarea {
+textarea,
+pre {
 	user-select: text;
+	-webkit-user-select: text;
+}
+
+/* Native apps don't show pointer cursors on controls. */
+button,
+select,
+a {
+	cursor: default;
+	font-family: inherit;
 }
 
 ::selection {
-	background: var(--mac-accent-weak);
+	background: var(--accent-weak);
 }
 
 * {
@@ -108,58 +134,64 @@ textarea {
 }
 
 ::-webkit-scrollbar {
-	width: 11px;
-	height: 11px;
+	width: 10px;
+	height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-	background: color-mix(in srgb, var(--text-muted) 38%, transparent);
+	background: color-mix(in srgb, var(--text-muted) 34%, transparent);
 	border: 3px solid transparent;
 	background-clip: content-box;
 	border-radius: 99px;
 }
 ::-webkit-scrollbar-thumb:hover {
-	background: color-mix(in srgb, var(--text-muted) 60%, transparent);
+	background: color-mix(in srgb, var(--text-muted) 58%, transparent);
 	background-clip: content-box;
 }
-::-webkit-scrollbar-corner {
+::-webkit-scrollbar-corner,
+::-webkit-scrollbar-track {
 	background: transparent;
 }
 
-button {
-	font-family: inherit;
+/* Focus ring only for keyboard navigation, like AppKit. */
+:focus {
+	outline: none;
 }
-
-/* macOS-style focus ring */
-.focus-ring:focus-visible,
+:focus-visible {
+	outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+	outline-offset: 1px;
+}
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
 	outline: none;
-	box-shadow: 0 0 0 3px var(--mac-accent-weak);
-	border-color: var(--mac-accent);
+	border-color: var(--accent);
+	box-shadow: 0 0 0 3px var(--accent-weak);
 }
 
-/* subtle card */
-.mac-card {
-	background: var(--surface-content);
-	border: 1px solid var(--border-soft);
-	border-radius: var(--mac-radius-lg);
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+/* ---- islands ---------------------------------------------------------- */
+.island {
+	border: 1px solid var(--island-border);
+	border-radius: var(--island-radius);
+	overflow: hidden;
+	min-height: 0;
 }
 
+/* ---- controls --------------------------------------------------------- */
 .mac-input {
-	background: var(--surface-content);
+	background: var(--surface-control);
 	border: 1px solid var(--border-strong);
-	border-radius: 8px;
-	padding: 5px 9px;
+	border-radius: var(--radius-sm);
+	padding: 5px 8px;
 	color: var(--text-strong);
-	transition: box-shadow 0.12s ease, border-color 0.12s ease;
+	font: inherit;
+	transition:
+		box-shadow 0.12s ease,
+		border-color 0.12s ease;
 	width: 100%;
 }
 .mac-input::placeholder {
 	color: var(--text-muted);
 }
-
 textarea.mac-input {
 	resize: vertical;
 	line-height: 1.45;
@@ -168,48 +200,86 @@ textarea.mac-input {
 .mac-btn {
 	display: inline-flex;
 	align-items: center;
+	justify-content: center;
 	gap: 5px;
-	border-radius: 999px;
-	padding: 5px 12px;
+	height: 26px;
+	border-radius: var(--radius);
+	padding: 0 11px;
 	font-size: 12px;
 	font-weight: 500;
-	border: 0.5px solid var(--border-strong);
-	background: var(--surface-content);
+	border: 1px solid var(--border-strong);
+	background: var(--surface-control);
 	color: var(--text-strong);
-	box-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.04);
-	transition: background 0.1s ease, filter 0.1s ease;
+	transition: background 0.1s ease;
 	white-space: nowrap;
-	cursor: default;
 }
-.mac-btn:not(.mac-btn-primary):hover {
+.mac-btn:hover {
 	background: var(--surface-hover);
 }
 .mac-btn:active {
-	filter: brightness(0.94);
+	background: var(--surface-active);
 }
 .mac-btn:disabled {
-	opacity: 0.4;
-	box-shadow: none;
+	opacity: 0.45;
+	pointer-events: none;
+}
+.mac-btn-primary:disabled {
+	background: var(--surface-active);
+	color: var(--text-muted);
+	opacity: 1;
 }
 
 .mac-btn-primary {
-	background: linear-gradient(180deg, color-mix(in srgb, var(--mac-accent-solid) 88%, white) 0%, var(--mac-accent-solid) 100%);
+	background: var(--accent-solid);
 	border-color: transparent;
 	color: var(--on-accent);
-	font-weight: 600;
-	box-shadow: 0 1px 3px color-mix(in srgb, var(--mac-accent-solid) 35%, transparent), inset 0 0.5px 0 rgba(255, 255, 255, 0.25);
 }
 .mac-btn-primary:hover {
-	filter: brightness(1.05);
+	background: color-mix(in srgb, var(--accent-solid) 90%, white);
+}
+.mac-btn-primary:active {
+	background: color-mix(in srgb, var(--accent-solid) 88%, black);
 }
 
 .mac-btn-ghost {
 	background: transparent;
 	border-color: transparent;
-	box-shadow: none;
 }
-.mac-btn-ghost:hover {
+
+/* Square, borderless toolbar icon button. */
+.tool-btn {
+	display: inline-grid;
+	place-items: center;
+	width: 26px;
+	height: 26px;
+	flex-shrink: 0;
+	border: none;
+	border-radius: var(--radius-sm);
+	background: transparent;
+	color: var(--text-muted);
+	transition:
+		background 0.1s ease,
+		color 0.1s ease;
+}
+.tool-btn:hover {
 	background: var(--surface-hover);
+	color: var(--text-strong);
+}
+.tool-btn:active,
+.tool-btn.on {
+	background: var(--surface-active);
+	color: var(--text-strong);
+}
+.tool-btn:disabled {
+	opacity: 0.35;
+	pointer-events: none;
+}
+
+kbd {
+	font-family: inherit;
+	font-size: 10.5px;
+	color: var(--text-muted);
+	letter-spacing: 0.04em;
 }
 
 .chip {

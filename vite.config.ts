@@ -1,13 +1,21 @@
 import { defineConfig } from "vite";
-import { sveltekit } from "@sveltejs/kit/vite";
+import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
-// @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/
-export default defineConfig(async () => ({
-  plugins: [tailwindcss(), sveltekit()],
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  publicDir: "static",
+  css: {
+    modules: { localsConvention: "camelCaseOnly" },
+  },
+  // Tauri reads the bundled frontend from ../build (see tauri.conf.json)
+  build: {
+    outDir: "build",
+    emptyOutDir: true,
+  },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //
@@ -30,4 +38,4 @@ export default defineConfig(async () => ({
       ignored: ["**/src-tauri/**"],
     },
   },
-}));
+});
