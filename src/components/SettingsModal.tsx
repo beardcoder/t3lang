@@ -112,7 +112,7 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
 				</div>
 			</section>
 
-			<p className={s.version}>t3lang v3.2.0</p>
+			<p className={s.version}>t3lang v3.3.0</p>
 		</Modal>
 	);
 }
